@@ -1,0 +1,24 @@
+[
+  {
+    "slug": "building-scalable-backends",
+    "title": "Building Scalable Backends",
+    "date": "2024-01-15",
+    "excerpt": "Lessons learned from scaling backend systems to handle millions of requests.",
+    "readTime": "5 min read"
+  },
+  {
+    "slug": "database-optimization-techniques",
+    "title": "Database Optimization Techniques",
+    "date": "2024-01-10",
+    "excerpt": "Practical approaches to optimizing database queries and improving performance.",
+    "readTime": "8 min read"
+  },
+  {
+    "slug": "api-design-principles",
+    "title": "API Design Principles",
+    "date": "2024-01-05",
+    "excerpt": "Best practices for designing clean, maintainable REST APIs.",
+    "readTime": "6 min read"
+  }
+]
+

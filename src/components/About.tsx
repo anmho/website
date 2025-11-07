@@ -10,7 +10,7 @@ import { SiGmail } from 'react-icons/si';
 import { useRef } from 'react';
 import { useInView } from 'framer-motion';
 
-function Contact() {
+function About() {
   const githubUrl = 'https://github.com/anmho';
   const linkedinUrl = 'https://linkedin.com/in/andrewmnho';
   const gmail = 'andyminhtuanho@gmail.com';
@@ -20,7 +20,7 @@ function Contact() {
 
   return (
     <SectionContainer
-      id="contact"
+      id="about"
       className="mb-64"
       style={{
         transform: isInView ? 'none' : 'translateY(100px)',
@@ -35,8 +35,8 @@ function Contact() {
         ref={ref}
       >
         <div className="flex w-1/2 text-left flex-col">
-          <h1 className="text-5xl md:text-7xl mb-6">Contact</h1>
-          <a className="flex items-center">
+          <h1 className="text-5xl md:text-7xl mb-6">About</h1>
+          <a href={`mailto:${gmail}`} className="flex items-center">
             <p className="text-xl sm:text-2xl">andyminhtuanho@gmail.com</p>
             <div className="aspect-square p-1 flex items-center justify-center">
               <RxArrowTopRight size={26} className="font-extrabold" />
@@ -68,4 +68,4 @@ function Contact() {
   );
 }
 
-export default Contact;
+export default About;

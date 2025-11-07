@@ -3,7 +3,7 @@
 @tailwind base;
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 6rem;
   font-family: 'Epilogue', sans-serif;
   /* background-color: #121212; */
   background-color: black;
@@ -11,6 +11,47 @@ html {
 
 @tailwind components;
 @tailwind utilities;
+
+/* cmdk styles - refined glass aesthetic */
+[cmdk-root] {
+  @apply bg-transparent;
+}
+
+[cmdk-input] {
+  @apply bg-transparent border-none outline-none text-white placeholder-gray-400;
+}
+
+[cmdk-list] {
+  @apply bg-transparent;
+}
+
+[cmdk-item] {
+  @apply text-white transition-all duration-150;
+}
+
+[cmdk-item][data-selected="true"] {
+  background-color: rgba(31, 41, 55, 1) !important;
+  color: white !important;
+}
+
+[cmdk-item]:hover {
+  background-color: rgba(31, 41, 55, 0.5) !important;
+}
+
+[cmdk-empty] {
+  @apply text-gray-400;
+}
+
+/* Remove any blue colors and ensure clean styling */
+[cmdk-item][data-selected="true"],
+[cmdk-item]:hover,
+[cmdk-item]:focus {
+  color: white !important;
+  background-color: rgba(31, 41, 55, 1) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
 
 @layer utilities {
   /* .hover-underline {
