@@ -6,6 +6,7 @@ import { FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 import Search from './Search';
+import { useState, useEffect } from 'react';
 
 const NAV_LINKS = [
   { href: '/articles', label: 'Articles' },
@@ -16,12 +17,24 @@ const NAV_LINKS = [
 
 function Navbar() {
   const { theme, toggleTheme } = useTheme();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div
       className={cn(
-        'w-full fixed top-0 left-0 h-24 flex justify-between align-center backdrop-blur z-50',
-        'dark:bg-black/50 bg-white/80 border-b border-gray-200 dark:border-transparent'
+        'w-full fixed top-0 left-0 h-24 flex justify-between align-center z-50 transition-all duration-300',
+        isScrolled
+          ? 'backdrop-blur-xl dark:bg-black/50 bg-[#f4efe6]/90 border-b border-gray-200/30 dark:border-transparent'
+          : 'bg-transparent border-b border-transparent'
       )}
     >
       <Link
