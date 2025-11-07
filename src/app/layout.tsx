@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Search from '@/components/Search';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 
 export const metadata: Metadata = {
   title: 'Andrew Ho',
@@ -17,10 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body>
-        {children}
-        <Search />
+        <ThemeProvider>
+          {children}
+          <Search />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -5,49 +5,131 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 6rem;
   font-family: 'Epilogue', sans-serif;
-  /* background-color: #121212; */
+  transition: background-color 0.15s ease-in-out;
+}
+
+html.dark {
   background-color: black;
+}
+
+html.light {
+  background-color: #fafafa;
+}
+
+body {
+  transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+}
+
+/* Quick theme transitions for common elements */
+h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: ease-in-out;
+  transition-duration: 0.15s;
 }
 
 @tailwind components;
 @tailwind utilities;
 
-/* cmdk styles - refined glass aesthetic */
+/* cmdk styles - Apple-esque aesthetic */
 [cmdk-root] {
   @apply bg-transparent;
 }
 
 [cmdk-input] {
-  @apply bg-transparent border-none outline-none text-white placeholder-gray-400;
+  @apply bg-transparent border-none outline-none transition-colors;
+}
+
+html.dark [cmdk-input] {
+  @apply text-white placeholder-gray-500;
+}
+
+html.light [cmdk-input] {
+  @apply text-gray-900 placeholder-gray-400;
 }
 
 [cmdk-list] {
   @apply bg-transparent;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* Custom scrollbar for cmdk list */
+[cmdk-list]::-webkit-scrollbar {
+  width: 8px;
+}
+
+[cmdk-list]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.dark [cmdk-list]::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.5);
+  border-radius: 4px;
+}
+
+html.light [cmdk-list]::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 4px;
+}
+
+[cmdk-list]::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(107, 114, 128, 0.7);
 }
 
 [cmdk-item] {
-  @apply text-white transition-all duration-150;
+  @apply transition-all duration-200 ease-out;
 }
 
-[cmdk-item][data-selected="true"] {
-  background-color: rgba(31, 41, 55, 1) !important;
+html.dark [cmdk-item] {
+  @apply text-white;
+}
+
+html.light [cmdk-item] {
+  @apply text-gray-900;
+}
+
+html.dark [cmdk-item][data-selected="true"] {
+  background-color: rgba(31, 41, 55, 0.6) !important;
   color: white !important;
 }
 
-[cmdk-item]:hover {
-  background-color: rgba(31, 41, 55, 0.5) !important;
+html.light [cmdk-item][data-selected="true"] {
+  background-color: rgba(243, 244, 246, 0.8) !important;
+  color: #111827 !important;
 }
 
-[cmdk-empty] {
-  @apply text-gray-400;
+html.dark [cmdk-item]:hover {
+  background-color: rgba(31, 41, 55, 0.4) !important;
+}
+
+html.light [cmdk-item]:hover {
+  background-color: rgba(243, 244, 246, 0.6) !important;
+}
+
+html.dark [cmdk-empty] {
+  @apply text-gray-500;
+}
+
+html.light [cmdk-empty] {
+  @apply text-gray-500;
 }
 
 /* Remove any blue colors and ensure clean styling */
-[cmdk-item][data-selected="true"],
-[cmdk-item]:hover,
-[cmdk-item]:focus {
+html.dark [cmdk-item][data-selected="true"],
+html.dark [cmdk-item]:hover,
+html.dark [cmdk-item]:focus {
   color: white !important;
-  background-color: rgba(31, 41, 55, 1) !important;
+  background-color: rgba(31, 41, 55, 0.6) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+html.light [cmdk-item][data-selected="true"],
+html.light [cmdk-item]:hover,
+html.light [cmdk-item]:focus {
+  color: #111827 !important;
+  background-color: rgba(243, 244, 246, 0.8) !important;
   outline: none !important;
   box-shadow: none !important;
   border: none !important;
