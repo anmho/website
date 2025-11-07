@@ -74,7 +74,7 @@ function Experience() {
   return (
     <SectionContainer
       id="about"
-      className="mb-40 py-20"
+      className="mb-24 sm:mb-40 py-16 sm:py-20"
       style={{
         transform: isInView ? 'none' : 'translateY(100px)',
         opacity: isInView ? 1 : 0,
@@ -83,16 +83,20 @@ function Experience() {
       }}
     >
       <div
-        className="flex justify-between align-center w-full text-left md:flex-row flex-col"
+        className="flex w-full flex-col justify-between gap-10 text-left md:flex-row md:items-start"
         ref={ref}
       >
         <div className="md:w-1/2 text-left md:pr-8">
-          <h1 className="text-5xl lg:text-7xl mb-8">Experience</h1>
+          <h1 className="mb-6 text-4xl sm:text-5xl lg:text-7xl">Experience</h1>
         </div>
 
         <div className="md:w-1/2 flex flex-col p-2 font-light">
-          {experiences.map((exp, i) => (
-            <ExperienceItem experience={exp} key={i} />
+          {experiences.map((exp, index) => (
+            <ExperienceItem
+              experience={exp}
+              index={index}
+              key={`${exp.company}-${exp.year}-${index}`}
+            />
           ))}
         </div>
       </div>
@@ -109,20 +113,36 @@ interface IExperience {
 
 interface ExperienceItemProps {
   experience: IExperience;
+  index: number;
 }
 
-function ExperienceItem({ experience }: ExperienceItemProps) {
+function ExperienceItem({ experience, index }: ExperienceItemProps) {
+  const itemRef = useRef<HTMLDivElement>(null);
+  const itemInView = useInView(itemRef, { once: true, margin: '-80px' });
+
   return (
-    <div className="w-full sm:mb-24 mb-10 text-lg sm:text-2xl">
-      <div className="w-full flex flex-row justify-between">
-        <h1>{experience.company}</h1>
-        <h1 className="dark:text-gray-300 text-gray-600">{experience.year}</h1>
+    <div
+      ref={itemRef}
+      className="mb-10 w-full text-base sm:mb-16 sm:text-xl"
+      style={{
+        opacity: itemInView ? 1 : 0,
+        transform: itemInView ? 'translateY(0)' : 'translateY(24px)',
+        transition: `opacity 0.6s ease-out ${
+          index * 0.06
+        }s, transform 0.6s ease-out ${index * 0.06}s`,
+      }}
+    >
+      <div className="flex w-full flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-lg font-semibold sm:text-xl">
+          {experience.company}
+        </h2>
+        <p className="text-sm font-medium text-gray-500 dark:text-gray-300 sm:text-base">
+          {experience.year}
+        </p>
       </div>
-      <div className="text-sm sm:text-lg w-full flex flex-row justify-between">
-        <h3 className="dark:text-gray-400 text-gray-500">{experience.title}</h3>
-        <h3 className="dark:text-gray-400 text-gray-500">
-          {experience.location}
-        </h3>
+      <div className="mt-2 flex w-full flex-col gap-1 text-sm text-gray-500 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between sm:text-base">
+        <span>{experience.title}</span>
+        <span>{experience.location}</span>
       </div>
     </div>
   );
