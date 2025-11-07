@@ -33,7 +33,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="w-full overflow-hidden scroll-pt-36 snap-y text-white">
+    <main className="w-full overflow-hidden scroll-pt-36 snap-y dark:text-white text-gray-900">
       <Navbar />
 
       <div className="flex justify-center align-center flex-col  pt-20">
