@@ -13,6 +13,18 @@ import { useInView } from 'framer-motion';
 /* Import as json */
 const experiences: IExperience[] = [
   {
+    company: 'Snap Inc.',
+    year: 'Full Time',
+    title: 'Software Engineer',
+    location: 'Los Angeles, CA',
+  },
+  {
+    company: 'Amazon Web Services',
+    year: 'Summer 2025',
+    title: 'Software Engineer Intern',
+    location: 'New York, NY',
+  },
+  {
     company: 'Tesla',
     year: 'Fall 2024',
     title: 'Software Engineer Intern',
