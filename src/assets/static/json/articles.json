@@ -1,0 +1,24 @@
+[
+  {
+    "slug": "database-indexing-deep-dive",
+    "title": "Database Indexing: A Deep Dive",
+    "date": "2024-01-20",
+    "excerpt": "Understanding how database indexes work and when to use them effectively.",
+    "readTime": "12 min read"
+  },
+  {
+    "slug": "building-resilient-systems",
+    "title": "Building Resilient Systems",
+    "date": "2024-01-15",
+    "excerpt": "Strategies for designing systems that gracefully handle failures and recover quickly.",
+    "readTime": "15 min read"
+  },
+  {
+    "slug": "api-rate-limiting-best-practices",
+    "title": "API Rate Limiting: Best Practices",
+    "date": "2024-01-10",
+    "excerpt": "Implementing effective rate limiting strategies to protect your APIs from abuse.",
+    "readTime": "10 min read"
+  }
+]
+

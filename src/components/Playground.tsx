@@ -9,7 +9,7 @@ function Playground() {
   const isInView = useInView(ref, { once: true });
   return (
     <SectionContainer
-      id="contact"
+      id="about"
       className="mb-40"
       style={{
         transform: isInView ? 'none' : 'translateY(100px)',
