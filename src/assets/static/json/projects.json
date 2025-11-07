@@ -1,0 +1,45 @@
+[
+  {
+    "title": "Crypto Paper Trading App",
+    "year": "2022",
+    "areas": [],
+    "desc": "A trading platform allowing users to paper trade. Currently supports cryptocurrencies.",
+    "skills": ["Python", "Django", "Websocket", "Coinbase Market API"],
+    "repoUrl": "",
+    "websiteUrl": "",
+    "blurb": ["Sockets", "Django", "PostgreSQL"],
+    "imageSrc": "https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=5070&q=80"
+  },
+
+  {
+    "title": "Watchlist",
+    "year": "2022",
+    "areas": [],
+    "desc": "A full-stack movie recommendation app. I trained a collaborative filtering machine learning model to generate recommendations using cosine similarity and matrix factorization. A Flask REST API hosted on Ubuntu serves the model recommendations to a React client.",
+    "skills": [
+      "Python",
+      "Flask",
+      "React",
+      "TypeScript",
+      "Postgres",
+      "numpy",
+      "Colab"
+    ],
+    "repoUrl": "https://github.com/anmho/watchlist-api",
+    "websiteUrl": "",
+    "blurb": ["Machine Learning", "Python", "REST API"],
+
+    "imageSrc": "https://images.unsplash.com/photo-1512070679279-8988d32161be?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1638&q=80"
+  },
+  {
+    "title": "Sudoku Solver",
+    "year": "2022",
+    "desc": "An online multi-player pong game.",
+    "areas": ["React", "Websockets"],
+    "skills": ["React", "TypeScript", "Flask", "Socket.IO"],
+    "repoUrl": "",
+    "websiteUrl": "",
+    "blurb": ["numpy", "Artificial Intelligence"],
+    "imageSrc": "https://images.unsplash.com/photo-1586030301401-54386553db94?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1374&q=80"
+  }
+]
