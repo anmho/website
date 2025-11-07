@@ -16,7 +16,7 @@ export default function About() {
   const isInView = useInView(ref, { once: true, margin: '-50px' });
 
   return (
-    <main className="w-full overflow-hidden text-white">
+    <main className="w-full overflow-hidden text-gray-900 dark:text-white">
       <Navbar />
 
       <div className="flex justify-center align-center flex-col pt-32">
@@ -33,13 +33,15 @@ export default function About() {
               About
             </h1>
 
-            <div className="space-y-8 text-gray-300 leading-relaxed">
+            <div className="space-y-8 text-gray-700 dark:text-gray-300 leading-relaxed">
               <div className="text-lg sm:text-xl">
                 <p className="mb-6">
                   Hey, I'm{' '}
-                  <span className="text-white font-medium">Andrew Ho</span>, a
-                  backend engineer with a passion for building high-performance,
-                  data-intensive systems.
+                  <span className="text-gray-900 dark:text-white font-medium">
+                    Andrew Ho
+                  </span>
+                  , a backend engineer with a passion for building
+                  high-performance, data-intensive systems.
                 </p>
                 <p className="mb-6">
                   I'm currently a Software Engineer at Snap Inc. in Los Angeles,
@@ -57,49 +59,63 @@ export default function About() {
                 </p>
               </div>
 
-              <div className="pt-8 border-t border-gray-900">
-                <h2 className="text-2xl sm:text-3xl font-medium mb-6 text-gray-100">
+              <div className="pt-8 border-t border-gray-200 dark:border-gray-900">
+                <h2 className="text-2xl sm:text-3xl font-medium mb-6 text-gray-900 dark:text-gray-100">
                   Experience
                 </h2>
                 <div className="space-y-6 text-base sm:text-lg">
                   <div>
                     <div className="flex flex-row justify-between mb-1">
-                      <span className="text-white font-medium">Snap Inc.</span>
-                      <span className="text-gray-500">Full Time</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        Snap Inc.
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Full Time
+                      </span>
                     </div>
-                    <div className="flex flex-row justify-between text-gray-400">
+                    <div className="flex flex-row justify-between text-gray-600 dark:text-gray-400">
                       <span>Software Engineer</span>
                       <span>Los Angeles, CA</span>
                     </div>
                   </div>
                   <div>
                     <div className="flex flex-row justify-between mb-1">
-                      <span className="text-white font-medium">
+                      <span className="text-gray-900 dark:text-white font-medium">
                         Amazon Web Services
                       </span>
-                      <span className="text-gray-500">Summer 2025</span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Summer 2025
+                      </span>
                     </div>
-                    <div className="flex flex-row justify-between text-gray-400">
+                    <div className="flex flex-row justify-between text-gray-600 dark:text-gray-400">
                       <span>Software Engineer Intern</span>
                       <span>New York, NY</span>
                     </div>
                   </div>
                   <div>
                     <div className="flex flex-row justify-between mb-1">
-                      <span className="text-white font-medium">Tesla</span>
-                      <span className="text-gray-500">Fall 2024</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        Tesla
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Fall 2024
+                      </span>
                     </div>
-                    <div className="flex flex-row justify-between text-gray-400">
+                    <div className="flex flex-row justify-between text-gray-600 dark:text-gray-400">
                       <span>Software Engineer Intern</span>
                       <span>Los Angeles, CA</span>
                     </div>
                   </div>
                   <div>
                     <div className="flex flex-row justify-between mb-1">
-                      <span className="text-white font-medium">NASA</span>
-                      <span className="text-gray-500">Spring 2024</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        NASA
+                      </span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        Spring 2024
+                      </span>
                     </div>
-                    <div className="flex flex-row justify-between text-gray-400">
+                    <div className="flex flex-row justify-between text-gray-600 dark:text-gray-400">
                       <span>Lucy Researcher</span>
                       <span>Pasadena, CA</span>
                     </div>
@@ -107,14 +123,14 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="pt-8 border-t border-gray-900">
-                <h2 className="text-2xl sm:text-3xl font-medium mb-6 text-gray-100">
+              <div className="pt-8 border-t border-gray-200 dark:border-gray-900">
+                <h2 className="text-2xl sm:text-3xl font-medium mb-6 text-gray-900 dark:text-gray-100">
                   Connect
                 </h2>
                 <div className="space-y-4">
                   <a
                     href={`mailto:${gmail}`}
-                    className="flex items-center text-lg sm:text-xl hover:text-gray-300 transition-colors group"
+                    className="flex items-center text-lg sm:text-xl text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-gray-300 transition-colors group"
                   >
                     <span>{gmail}</span>
                     <div className="aspect-square p-1 flex items-center justify-center">
@@ -128,7 +144,7 @@ export default function About() {
                     href={githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-lg sm:text-xl hover:text-gray-300 transition-colors group"
+                    className="flex items-center text-lg sm:text-xl text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-gray-300 transition-colors group"
                   >
                     <span>GitHub</span>
                     <div className="aspect-square p-1 flex items-center justify-center">
@@ -142,7 +158,7 @@ export default function About() {
                     href={linkedinUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-lg sm:text-xl hover:text-gray-300 transition-colors group"
+                    className="flex items-center text-lg sm:text-xl text-gray-700 hover:text-gray-900 dark:text-gray-200 dark:hover:text-gray-300 transition-colors group"
                   >
                     <span>LinkedIn</span>
                     <div className="aspect-square p-1 flex items-center justify-center">
@@ -155,10 +171,10 @@ export default function About() {
                 </div>
               </div>
 
-              <div className="pt-8 border-t border-gray-900">
+              <div className="pt-8 border-t border-gray-200 dark:border-gray-900">
                 <Link
                   href="/articles"
-                  className="text-lg sm:text-xl text-gray-400 hover:text-gray-300 transition-colors inline-flex items-center group"
+                  className="text-lg sm:text-xl text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300 transition-colors inline-flex items-center group"
                 >
                   <span>Read my articles</span>
                   <div className="aspect-square p-1 flex items-center justify-center">

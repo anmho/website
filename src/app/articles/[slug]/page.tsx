@@ -6,6 +6,10 @@ import articlesData from '@/assets/static/json/articles.json';
 import Link from 'next/link';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
+import clsx from 'clsx';
+import type { HTMLAttributes, ReactNode } from 'react';
 
 interface Article {
   slug: string;
@@ -59,6 +63,126 @@ export async function generateStaticParams() {
   }));
 }
 
+type MarkdownCodeProps = HTMLAttributes<HTMLElement> & {
+  inline?: boolean;
+  children?: ReactNode;
+};
+
+const articleMarkdownComponents: Components = {
+  h1: ({ node, className, ...props }) => (
+    <h1
+      className={clsx(
+        'text-4xl font-medium mt-16 mb-6 text-gray-900 dark:text-gray-100',
+        className
+      )}
+      {...props}
+    />
+  ),
+  h2: ({ node, className, ...props }) => (
+    <h2
+      className={clsx(
+        'text-3xl font-medium mt-12 mb-5 text-gray-900 dark:text-gray-100',
+        className
+      )}
+      {...props}
+    />
+  ),
+  h3: ({ node, className, ...props }) => (
+    <h3
+      className={clsx(
+        'text-2xl font-medium mt-10 mb-4 text-gray-900 dark:text-gray-100',
+        className
+      )}
+      {...props}
+    />
+  ),
+  p: ({ node, className, ...props }) => (
+    <p
+      className={clsx(
+        'mb-6 leading-relaxed text-gray-700 dark:text-gray-300',
+        className
+      )}
+      {...props}
+    />
+  ),
+  a: ({ node, className, ...props }) => (
+    <a
+      className={clsx(
+        'text-blue-600 hover:text-blue-800 dark:text-gray-200 dark:hover:text-white underline transition-colors',
+        className
+      )}
+      {...props}
+    />
+  ),
+  code: (props) => {
+    const { inline, className, children, ...rest } = props as MarkdownCodeProps;
+
+    if (inline) {
+      return (
+        <code
+          className={clsx(
+            'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono',
+            className
+          )}
+          {...rest}
+        >
+          {children}
+        </code>
+      );
+    }
+
+    return (
+      <pre className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto mb-6">
+        <code
+          className={clsx(
+            'text-sm font-mono text-gray-800 dark:text-gray-200',
+            className
+          )}
+          {...rest}
+        >
+          {String(children).replace(/\n$/, '')}
+        </code>
+      </pre>
+    );
+  },
+  ul: ({ node, className, ...props }) => (
+    <ul
+      className={clsx(
+        'list-disc pl-6 mb-6 text-gray-700 dark:text-gray-300 space-y-2',
+        className
+      )}
+      {...props}
+    />
+  ),
+  ol: ({ node, className, ...props }) => (
+    <ol
+      className={clsx(
+        'list-decimal pl-6 mb-6 text-gray-700 dark:text-gray-300 space-y-2',
+        className
+      )}
+      {...props}
+    />
+  ),
+  li: ({ node, className, ...props }) => (
+    <li
+      className={clsx(
+        'leading-relaxed text-gray-700 dark:text-gray-300',
+        className
+      )}
+      {...props}
+    />
+  ),
+  blockquote: ({ node, className, ...props }) => (
+    <blockquote
+      className={clsx(
+        'border-l-4 border-gray-300 dark:border-gray-700 pl-6 italic text-gray-600 dark:text-gray-300 mb-6',
+        className
+      )}
+      {...props}
+    />
+  ),
+};
+
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const article = await getArticle(params.slug);
   const content = await getArticleContent(params.slug);
@@ -68,7 +192,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   return (
-    <main className="w-full overflow-hidden text-white">
+    <main className="w-full overflow-hidden text-gray-900 dark:text-gray-100">
       <Navbar />
 
       <div className="flex justify-center align-center flex-col pt-32">
@@ -77,7 +201,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             {/* Back link */}
             <Link
               href="/articles"
-              className="text-gray-500 hover:text-gray-300 text-sm font-mono mb-12 inline-block transition-colors"
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 text-sm font-mono mb-12 inline-block transition-colors"
             >
               ← Articles
             </Link>
@@ -85,11 +209,11 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             {/* Article header */}
             <header className="mb-16">
               <AnimatedTitle>
-                <h1 className="sm:text-6xl text-4xl font-medium -tracking-wider leading-tight mb-8 text-gray-100">
+                <h1 className="sm:text-6xl text-4xl font-medium -tracking-wider leading-tight mb-8 text-gray-900 dark:text-gray-100">
                   {article.title}
                 </h1>
               </AnimatedTitle>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-gray-500 text-sm font-mono">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 text-gray-600 dark:text-gray-400 text-sm font-mono">
                 <time dateTime={article.date}>{formatDate(article.date)}</time>
                 <span className="hidden sm:inline">•</span>
                 <span>{article.readTime}</span>
@@ -97,55 +221,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             </header>
 
             {/* Article content */}
-            <article className="prose prose-invert prose-lg max-w-none">
+            <article className="prose prose-lg dark:prose-invert max-w-none">
               {content ? (
-                <div
-                  className="article-content text-gray-300 leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: content
-                      .split('\n')
-                      .map((line) => {
-                        // Simple markdown-like rendering
-                        if (line.startsWith('# ')) {
-                          return `<h1 class="text-4xl font-medium mt-16 mb-6 text-gray-100">${line.slice(
-                            2
-                          )}</h1>`;
-                        }
-                        if (line.startsWith('## ')) {
-                          return `<h2 class="text-3xl font-medium mt-12 mb-5 text-gray-100">${line.slice(
-                            3
-                          )}</h2>`;
-                        }
-                        if (line.startsWith('### ')) {
-                          return `<h3 class="text-2xl font-medium mt-10 mb-4 text-gray-100">${line.slice(
-                            4
-                          )}</h3>`;
-                        }
-                        if (line.trim() === '') {
-                          return '<p class="mb-6"></p>';
-                        }
-                        // Handle links [text](url)
-                        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-                        let processedLine = line.replace(
-                          linkRegex,
-                          '<a href="$2" class="text-gray-400 hover:text-gray-200 underline transition-colors">$1</a>'
-                        );
-                        // Handle inline code `code`
-                        processedLine = processedLine.replace(
-                          /`([^`]+)`/g,
-                          '<code class="bg-gray-900 px-1.5 py-0.5 rounded text-sm font-mono text-gray-200">$1</code>'
-                        );
-                        return `<p class="mb-6 leading-relaxed">${processedLine}</p>`;
-                      })
-                      .join(''),
-                  }}
-                />
+                <ReactMarkdown components={articleMarkdownComponents}>
+                  {content}
+                </ReactMarkdown>
               ) : (
-                <div className="text-gray-400 leading-relaxed">
+                <div className="text-gray-600 dark:text-gray-300 leading-relaxed">
                   <p className="mb-6 text-lg">{article.excerpt}</p>
-                  <p className="text-sm text-gray-500 italic">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 italic">
                     Content coming soon. Create a markdown file at{' '}
-                    <code className="text-gray-400 bg-gray-900 px-1.5 py-0.5 rounded">
+                    <code className="text-gray-800 bg-gray-100 dark:text-gray-300 dark:bg-gray-900 px-1.5 py-0.5 rounded">
                       src/assets/content/articles/{article.slug}.md
                     </code>
                   </p>

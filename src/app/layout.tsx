@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import Search from '@/components/Search';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 
 export const metadata: Metadata = {
@@ -20,10 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body>
-        <ThemeProvider>
-          {children}
-          <Search />
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

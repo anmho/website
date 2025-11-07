@@ -13,7 +13,24 @@ html.dark {
 }
 
 html.light {
-  background-color: #fafafa;
+  background-color: #f4efe6;
+  color: #1f262f;
+  background-image: radial-gradient(
+      circle at 12% 20%,
+      rgba(255, 255, 255, 0.65),
+      transparent 55%
+    ),
+    radial-gradient(
+      circle at 88% 82%,
+      rgba(244, 233, 214, 0.7),
+      transparent 65%
+    );
+  background-attachment: fixed;
+}
+
+html.light body {
+  background-color: transparent;
+  color: inherit;
 }
 
 body {
@@ -21,7 +38,20 @@ body {
 }
 
 /* Quick theme transitions for common elements */
-h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+span,
+div,
+a,
+button,
+input,
+textarea,
+select {
   transition-property: color, background-color, border-color;
   transition-timing-function: ease-in-out;
   transition-duration: 0.15s;
@@ -88,12 +118,12 @@ html.light [cmdk-item] {
   @apply text-gray-900;
 }
 
-html.dark [cmdk-item][data-selected="true"] {
+html.dark [cmdk-item][data-selected='true'] {
   background-color: rgba(31, 41, 55, 0.6) !important;
   color: white !important;
 }
 
-html.light [cmdk-item][data-selected="true"] {
+html.light [cmdk-item][data-selected='true'] {
   background-color: rgba(243, 244, 246, 0.8) !important;
   color: #111827 !important;
 }
@@ -115,7 +145,7 @@ html.light [cmdk-empty] {
 }
 
 /* Remove any blue colors and ensure clean styling */
-html.dark [cmdk-item][data-selected="true"],
+html.dark [cmdk-item][data-selected='true'],
 html.dark [cmdk-item]:hover,
 html.dark [cmdk-item]:focus {
   color: white !important;
@@ -125,7 +155,7 @@ html.dark [cmdk-item]:focus {
   border: none !important;
 }
 
-html.light [cmdk-item][data-selected="true"],
+html.light [cmdk-item][data-selected='true'],
 html.light [cmdk-item]:hover,
 html.light [cmdk-item]:focus {
   color: #111827 !important;
