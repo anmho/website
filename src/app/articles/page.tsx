@@ -20,7 +20,7 @@ export default function Articles() {
   const articles = articlesData as Article[];
 
   return (
-    <main className="w-full overflow-hidden text-white">
+    <main className="w-full overflow-hidden dark:text-white text-gray-900">
       <Navbar />
 
       <div className="flex justify-center align-center flex-col pt-32">
@@ -31,7 +31,7 @@ export default function Articles() {
                 Articles
               </h1>
             </AnimatedTitle>
-            <p className="text-md sm:text-xl text-gray-400 -tracking-wide font-light sm:ml-4 mb-20">
+            <p className="text-md sm:text-xl dark:text-gray-400 text-gray-600 -tracking-wide font-light sm:ml-4 mb-20">
               In-depth articles on building scalable systems and backend
               engineering.
             </p>
@@ -46,7 +46,9 @@ export default function Articles() {
                   />
                 ))
               ) : (
-                <p className="text-gray-500 text-sm py-8">No articles yet.</p>
+                <p className="dark:text-gray-500 text-gray-600 text-sm py-8">
+                  No articles yet.
+                </p>
               )}
             </div>
           </div>
@@ -72,7 +74,7 @@ function ArticleItem({ article, index }: { article: Article; index: number }) {
   return (
     <div
       ref={ref}
-      className="border-b border-gray-900 py-6 group"
+      className="border-b dark:border-gray-900 border-gray-200 py-6 group"
       style={{
         opacity: isInView ? 1 : 0,
         transition: `opacity 0.6s ease-out ${index * 0.05}s`,
@@ -80,17 +82,17 @@ function ArticleItem({ article, index }: { article: Article; index: number }) {
     >
       <Link href={`/articles/${article.slug}`} className="block">
         <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-8">
-          <div className="text-gray-500 text-sm font-mono min-w-[140px] pt-1">
+          <div className="dark:text-gray-500 text-gray-500 text-sm font-mono min-w-[140px] pt-1">
             {formatDate(article.date)}
           </div>
           <div className="flex-1">
-            <h2 className="text-xl sm:text-2xl font-medium mb-2 group-hover:text-gray-300 transition-colors">
+            <h2 className="text-xl sm:text-2xl font-medium mb-2 dark:group-hover:text-gray-300 group-hover:text-gray-600 transition-colors">
               {article.title}
             </h2>
-            <p className="text-gray-500 text-sm sm:text-base leading-relaxed mb-2">
+            <p className="dark:text-gray-500 text-gray-600 text-sm sm:text-base leading-relaxed mb-2">
               {article.excerpt}
             </p>
-            <div className="text-gray-600 text-xs font-mono">
+            <div className="dark:text-gray-600 text-gray-500 text-xs font-mono">
               {article.readTime}
             </div>
           </div>

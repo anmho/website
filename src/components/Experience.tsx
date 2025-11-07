@@ -75,18 +75,18 @@ function Experience() {
     <SectionContainer
       id="about"
       className="mb-40 py-20"
+      style={{
+        transform: isInView ? 'none' : 'translateY(100px)',
+        opacity: isInView ? 1 : 0,
+        transition:
+          'transform 1s cubic-bezier(.33,.2,0,.9), opacity 0.5s cubic-bezier(.59,.08,.58,1)',
+      }}
     >
       <div
-        className="flex justify-between align-center w-full text-left md:flex-row flex-col items-start"
+        className="flex justify-between align-center w-full text-left md:flex-row flex-col"
         ref={ref}
-        style={{
-          transform: isInView ? 'none' : 'translateY(100px)',
-          opacity: isInView ? 1 : 0,
-          transition:
-            'transform 1s cubic-bezier(.33,.2,0,.9), opacity 0.5s cubic-bezier(.59,.08,.58,1)',
-        }}
       >
-        <div className="md:w-1/2 text-left md:pr-8 md:sticky md:top-32 self-start h-fit">
+        <div className="md:w-1/2 text-left md:pr-8">
           <h1 className="text-5xl lg:text-7xl mb-8">Experience</h1>
         </div>
 
@@ -116,11 +116,13 @@ function ExperienceItem({ experience }: ExperienceItemProps) {
     <div className="w-full sm:mb-24 mb-10 text-lg sm:text-2xl">
       <div className="w-full flex flex-row justify-between">
         <h1>{experience.company}</h1>
-        <h1 className="text-gray-300">{experience.year}</h1>
+        <h1 className="dark:text-gray-300 text-gray-600">{experience.year}</h1>
       </div>
       <div className="text-sm sm:text-lg w-full flex flex-row justify-between">
-        <h3 className="text-gray-400">{experience.title}</h3>
-        <h3 className="text-gray-400">{experience.location}</h3>
+        <h3 className="dark:text-gray-400 text-gray-500">{experience.title}</h3>
+        <h3 className="dark:text-gray-400 text-gray-500">
+          {experience.location}
+        </h3>
       </div>
     </div>
   );

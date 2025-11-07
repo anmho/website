@@ -36,13 +36,24 @@ export default function About() {
             <div className="space-y-8 text-gray-300 leading-relaxed">
               <div className="text-lg sm:text-xl">
                 <p className="mb-6">
-                  Hey, I'm <span className="text-white font-medium">Andrew Ho</span>, a backend engineer with a passion for building high-performance, data-intensive systems.
+                  Hey, I'm{' '}
+                  <span className="text-white font-medium">Andrew Ho</span>, a
+                  backend engineer with a passion for building high-performance,
+                  data-intensive systems.
                 </p>
                 <p className="mb-6">
-                  I'm currently a Software Engineer at Snap Inc. in Los Angeles, where I work on scalable backend infrastructure. Previously, I've interned at companies like Amazon Web Services, Tesla, and NASA, gaining experience across different domains of software engineering.
+                  I'm currently a Software Engineer at Snap Inc. in Los Angeles,
+                  where I work on scalable backend infrastructure. Previously,
+                  I've interned at companies like Amazon Web Services, Tesla,
+                  and NASA, gaining experience across different domains of
+                  software engineering.
                 </p>
                 <p className="mb-6">
-                  I'm particularly interested in database optimization, distributed systems, and building APIs that can handle millions of requests. When I'm not coding, I enjoy writing about what I learn and sharing insights on building resilient systems.
+                  I'm particularly interested in database optimization,
+                  distributed systems, and building APIs that can handle
+                  millions of requests. When I'm not coding, I enjoy writing
+                  about what I learn and sharing insights on building resilient
+                  systems.
                 </p>
               </div>
 
@@ -63,7 +74,9 @@ export default function About() {
                   </div>
                   <div>
                     <div className="flex flex-row justify-between mb-1">
-                      <span className="text-white font-medium">Amazon Web Services</span>
+                      <span className="text-white font-medium">
+                        Amazon Web Services
+                      </span>
                       <span className="text-gray-500">Summer 2025</span>
                     </div>
                     <div className="flex flex-row justify-between text-gray-400">
@@ -105,7 +118,10 @@ export default function About() {
                   >
                     <span>{gmail}</span>
                     <div className="aspect-square p-1 flex items-center justify-center">
-                      <RxArrowTopRight size={24} className="font-extrabold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      <RxArrowTopRight
+                        size={24}
+                        className="font-extrabold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                      />
                     </div>
                   </a>
                   <a
@@ -116,7 +132,10 @@ export default function About() {
                   >
                     <span>GitHub</span>
                     <div className="aspect-square p-1 flex items-center justify-center">
-                      <RxArrowTopRight size={24} className="font-extrabold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      <RxArrowTopRight
+                        size={24}
+                        className="font-extrabold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                      />
                     </div>
                   </a>
                   <a
@@ -127,7 +146,10 @@ export default function About() {
                   >
                     <span>LinkedIn</span>
                     <div className="aspect-square p-1 flex items-center justify-center">
-                      <RxArrowTopRight size={24} className="font-extrabold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      <RxArrowTopRight
+                        size={24}
+                        className="font-extrabold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                      />
                     </div>
                   </a>
                 </div>
@@ -140,7 +162,10 @@ export default function About() {
                 >
                   <span>Read my articles</span>
                   <div className="aspect-square p-1 flex items-center justify-center">
-                    <RxArrowTopRight size={24} className="font-extrabold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    <RxArrowTopRight
+                      size={24}
+                      className="font-extrabold group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                    />
                   </div>
                 </Link>
               </div>
@@ -151,4 +176,3 @@ export default function About() {
     </main>
   );
 }
-

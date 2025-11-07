@@ -31,7 +31,7 @@ function Hero() {
             <p
               className="text-md sm:text-xl 
           md:text-2xl
-          text-gray-400 flex-grow 
+          dark:text-gray-400 text-gray-600 flex-grow 
           sm:leading-8 md:leading-10 -tracking-wide font-light
           sm:ml-4"
             >
