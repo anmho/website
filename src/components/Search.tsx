@@ -199,8 +199,6 @@ export default function Search({
     router.push(item.path);
   };
 
-  const shouldShowShortcut = showShortcut && !iconOnly;
-
   return (
     <>
       <button
@@ -209,26 +207,33 @@ export default function Search({
         aria-expanded={open}
         onClick={() => setOpenShared(true)}
         className={cn(
-          'group inline-flex items-center gap-2 rounded-full border border-gray-200/70 dark:border-gray-700/70 bg-white/80 dark:bg-gray-900/70 backdrop-blur px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-200 shadow-sm transition-colors hover:bg-gray-100/80 dark:hover:bg-gray-800/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 dark:focus-visible:outline-gray-600',
-          fullWidth ? 'w-full justify-between' : 'justify-start',
-          iconOnly ? 'h-10 w-10 items-center justify-center px-0 py-0' : '',
+          'group inline-flex items-center transition-all duration-200',
+          iconOnly
+            ? 'h-10 w-10 rounded-full items-center justify-center border border-gray-200/70 dark:border-gray-700/70 bg-white/80 dark:bg-gray-900/70 backdrop-blur shadow-sm hover:bg-gray-100/80 dark:hover:bg-gray-800/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 dark:focus-visible:outline-gray-600'
+            : 'gap-2 rounded-full border border-gray-200/70 dark:border-gray-700/70 bg-white/80 dark:bg-gray-900/70 backdrop-blur px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-200 shadow-sm hover:bg-gray-100/80 dark:hover:bg-gray-800/70 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-400 dark:focus-visible:outline-gray-600',
+          fullWidth
+            ? 'w-full justify-between'
+            : iconOnly
+            ? ''
+            : 'justify-start',
           className
         )}
       >
         <div
           className={cn(
-            'flex items-center gap-2',
-            fullWidth ? 'flex-1' : '',
-            iconOnly ? 'justify-center' : ''
+            'flex items-center',
+            iconOnly ? 'justify-center' : 'gap-2',
+            fullWidth && !iconOnly ? 'flex-1' : ''
           )}
         >
           <FiSearch
-            className="text-base sm:text-lg text-gray-500 dark:text-gray-400"
+            className={cn(
+              'text-gray-500 dark:text-gray-400',
+              iconOnly ? 'text-lg' : 'text-base sm:text-lg'
+            )}
             aria-hidden="true"
           />
-          {iconOnly ? (
-            <span className="sr-only">{placeholder}</span>
-          ) : (
+          {!iconOnly && (
             <span
               className={cn(
                 'truncate text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-200',
@@ -239,18 +244,7 @@ export default function Search({
             </span>
           )}
         </div>
-        {shouldShowShortcut && (
-          <span
-            className={cn(
-              'hidden md:inline-flex items-center gap-1 rounded-md border border-gray-200/70 dark:border-gray-700/70 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400',
-              fullWidth ? 'ml-3 flex-shrink-0' : ''
-            )}
-            aria-hidden
-          >
-            <span className="font-semibold text-xs">⌘</span>
-            <span className="font-semibold">K</span>
-          </span>
-        )}
+        {iconOnly && <span className="sr-only">{placeholder}</span>}
       </button>
 
       {mounted &&
