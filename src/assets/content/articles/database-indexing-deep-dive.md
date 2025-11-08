@@ -29,3 +29,4 @@ WHERE email = 'andrew@example.com';
 Consider skipping indexes on columns with high write throughput or very low selectivity.
 
 [Read the docs](https://www.postgresql.org/docs/current/indexes-intro.html) for deeper guidance.
+
