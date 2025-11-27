@@ -116,7 +116,7 @@ export default function About() {
                       </span>
                     </div>
                     <div className="flex flex-row justify-between text-gray-600 dark:text-gray-400">
-                      <span>Lucy Researcher</span>
+                      <span>MCA Researcher</span>
                       <span>Pasadena, CA</span>
                     </div>
                   </div>
