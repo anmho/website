@@ -1,0 +1,74 @@
+[
+  {
+    "title": "Designing Data-Intensive Applications",
+    "description": "The most approachable deep dive into modern data systems, covering replication, partitioning, streams, and consistency tradeoffs.",
+    "category": "Distributed Systems",
+    "format": "Book",
+    "url": "https://dataintensive.net/",
+    "author": "Martin Kleppmann",
+    "tags": ["databases", "system design", "streaming"]
+  },
+  {
+    "title": "The System Design Primer",
+    "description": "A curated GitHub guide that walks through end-to-end architectures, capacity planning, and interview-ready diagrams.",
+    "category": "System Design",
+    "format": "Guide",
+    "url": "https://github.com/donnemartin/system-design-primer",
+    "author": "Donne Martin",
+    "tags": ["architecture", "reference", "planning"]
+  },
+  {
+    "title": "High Scalability",
+    "description": "Case studies and breakdowns of how large-scale products ship reliable distributed systems in production.",
+    "category": "Scalability",
+    "format": "Newsletter",
+    "url": "http://highscalability.com/",
+    "author": "Todd Hoff",
+    "tags": ["case studies", "production", "growth"]
+  },
+  {
+    "title": "Stanford CS245: Database Systems",
+    "description": "Graduate-level lectures that explain storage engines, query planning, and the cost models behind relational databases.",
+    "category": "Databases",
+    "format": "Course",
+    "url": "https://web.stanford.edu/class/cs245/",
+    "author": "Stanford University",
+    "tags": ["query planning", "storage", "academia"]
+  },
+  {
+    "title": "Awesome Postgres",
+    "description": "A living list of extensions, tooling, and best practices for running Postgres in production.",
+    "category": "Databases",
+    "format": "Repository",
+    "url": "https://github.com/dhamaniasad/awesome-postgres",
+    "author": "dhamaniasad",
+    "tags": ["postgres", "tooling", "best practices"]
+  },
+  {
+    "title": "Pragmatic Engineer Newsletter",
+    "description": "Candid breakdowns of engineering org design, infrastructure bets, and pragmatic leadership lessons.",
+    "category": "Engineering Culture",
+    "format": "Newsletter",
+    "url": "https://newsletter.pragmaticengineer.com/",
+    "author": "Gergely Orosz",
+    "tags": ["leadership", "culture", "career"]
+  },
+  {
+    "title": "Practical Guide to Event-Driven Architectures",
+    "description": "ThoughtWorks' opinionated field guide for designing event-driven systems with real-world constraints.",
+    "category": "Distributed Systems",
+    "format": "Report",
+    "url": "https://www.thoughtworks.com/insights/articles/practical-guide-event-driven-architecture",
+    "author": "ThoughtWorks",
+    "tags": ["events", "integration", "messaging"]
+  },
+  {
+    "title": "Uber Engineering Blog",
+    "description": "Detailed write-ups of how Uber scales storage, ML, observability, and reliability across a global org.",
+    "category": "Scalability",
+    "format": "Blog",
+    "url": "https://www.uber.com/en-JP/blog/engineering/",
+    "author": "Uber Engineering",
+    "tags": ["observability", "ml", "platform"]
+  }
+]
