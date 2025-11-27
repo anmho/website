@@ -36,17 +36,17 @@ export default function Home() {
     <main className="w-full overflow-hidden scroll-pt-36 snap-y dark:text-white text-gray-900">
       <Navbar />
 
-      <div className="flex justify-center align-center flex-col  pt-20">
-        <div className="flex justify-center align-center h-screen">
+      <div className="flex flex-col items-center pt-20 space-y-24">
+        <div className="flex w-full justify-center items-center min-h-screen">
           <Hero />
         </div>
-        <div className="flex justify-center align-center">
+        <div className="flex w-full justify-center">
           <Experience />
         </div>
-        <div className="flex justify-center align-center">
+        <div className="flex w-full justify-center">
           <Projects projects={[]} />
         </div>
-        <div className="flex justify-center align-center">
+        <div className="flex w-full justify-center">
           <About />
         </div>
       </div>
