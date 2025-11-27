@@ -6,20 +6,32 @@ import { FiSun, FiMoon, FiMenu, FiX } from 'react-icons/fi';
 import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 import Search from './Search';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const NAV_LINKS = [
   { href: '/articles', label: 'Articles' },
   { href: '/notes', label: 'Notes' },
-  { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'About' },
+  { href: '/resources', label: 'Bookmarks' },
+];
+
+const NAV_LINKS_MOBILE = [
+  { href: '/', label: 'Home' },
+  { href: '/articles', label: 'Articles' },
+  { href: '/notes', label: 'Notes' },
+  { href: '/about', label: 'About' },
+  { href: '/resources', label: 'Bookmarks' },
 ];
 
 function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const links = useMemo(() => {
+    return isMobileMenuOpen ? NAV_LINKS_MOBILE : NAV_LINKS;
+  }, [isMobileMenuOpen]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -110,7 +122,7 @@ function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="h-full hidden sm:flex justify-center align-center flex-row items-center gap-3 sm:gap-4 pr-6 sm:pr-10">
-          {NAV_LINKS.map((link) => (
+          {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
