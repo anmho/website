@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description:
     'Backend dev with a passion for high performance data intensive systems',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/favicon.svg',
   },
 };
 
