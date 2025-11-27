@@ -21,19 +21,19 @@ const experiences: IExperience[] = [
   {
     company: 'Amazon Web Services',
     year: 'Summer 2025',
-    title: 'Software Engineer Intern',
+    title: 'Engineering',
     location: 'New York, NY',
   },
   {
     company: 'Tesla',
     year: 'Fall 2024',
-    title: 'Software Engineer Intern',
+    title: 'Engineering',
     location: 'Los Angeles, CA',
   },
   {
     company: 'Snap Inc.',
     year: 'Summer 2024',
-    title: 'Software Engineer Intern',
+    title: 'Engineering',
     location: 'Los Angeles, CA',
   },
   {
@@ -45,7 +45,7 @@ const experiences: IExperience[] = [
   {
     company: 'Snap Inc.',
     year: 'Spring 2023',
-    title: 'Software Engineer Intern',
+    title: 'Engineering',
     location: 'Los Angeles, CA',
   },
   {
