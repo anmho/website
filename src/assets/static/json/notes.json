@@ -19,6 +19,26 @@
     "date": "2024-01-05",
     "excerpt": "Best practices for designing clean, maintainable REST APIs.",
     "readTime": "6 min read"
+  },
+  {
+    "slug": "deadlocks",
+    "title": "Deadlocks",
+    "date": "2024-01-05",
+    "excerpt": "Defining deadlocks with some examples.",
+    "readTime": "6 min read"
+  },
+  {
+    "slug": "race-conditions",
+    "title": "Race conditions",
+    "date": "2025-12-7",
+    "excerpt": "Race conditions",
+    "readTime": "6 min read"
+  },
+  {
+    "slug": "nil-channel-behavior",
+    "title": "Behavior of nil channels",
+    "date": "2025-12-7",
+    "excerpt": "How do nil channels behave?",
+    "readTime": "6 min read"
   }
 ]
-
