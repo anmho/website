@@ -15,17 +15,6 @@ interface ProjectsProps extends React.ComponentPropsWithRef<'div'> {
   projects: Project[];
 }
 
-const a = {
-  title: 'Pong Online',
-  year: '2022',
-  desc: 'An online multi-player pong game.',
-  areas: ['React', 'Websockets'],
-  skills: ['React', 'TypeScript', 'Flask', 'Socket.IO'],
-  repoUrl: '',
-  websiteUrl: '',
-  imageSrc: '',
-};
-
 function Projects({ projects, ...rest }: ProjectsProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
@@ -44,8 +33,8 @@ function Projects({ projects, ...rest }: ProjectsProps) {
       }}
     >
       <div className="grid sm:grid-cols-2 gap-x-6 w-full" ref={ref}>
-        {projects.map((p, i) => (
-          <ProjectCard project={p} key={i} />
+        {projects.map((p) => (
+          <ProjectCard project={p} key={p.title} />
         ))}
       </div>
     </SectionContainer>
@@ -71,7 +60,11 @@ function ProjectCard({ project }: ProjectCardProps) {
   return (
     <div className="flex flex-col w-full">
       <div className="aspect-square rounded-xl bg-gray-500 overflow-hidden relative group">
-        <img src={project.imageSrc} className="object-cover h-full w-full" />
+        <img
+          src={project.imageSrc}
+          alt={project.title}
+          className="object-cover h-full w-full"
+        />
 
         {/* Overlay */}
         <Overlay project={project} />
@@ -80,24 +73,20 @@ function ProjectCard({ project }: ProjectCardProps) {
       <div className="py-5 text-left text-xl">
         <h3 className="font-medium">{project?.title}</h3>
         <div className="flex flex-row align-center h-8 sm:text-lg">
-          {/* <div className="flex flex-row align-center justify-center"> */}
           {project.blurb.map((str: string, i: number) => (
-            <>
+            <div key={str} className="flex items-center">
               {i > 0 && (
                 <div className="flex justify-center align-center flex-col text-gray-400 mx-2 pb-1">
-                  {<BsAsterisk size={13} />}
+                  <BsAsterisk size={13} />
                 </div>
               )}
               <div className="flex flex-col justify-center align-center">
-                <p className="tracking-tight text-gray-400  font-light leading-none">
+                <p className="tracking-tight text-gray-400 font-light leading-none">
                   {str}
                 </p>
               </div>
-            </>
+            </div>
           ))}
-          {/* </div> */}
-
-          {/* Web Design * Branding */}
         </div>
       </div>
     </div>
