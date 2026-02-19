@@ -33,7 +33,7 @@ export default function ProjectsPage() {
             <div className="space-y-16">
               {projects.map((project, index) => (
                 <ProjectDetailCard
-                  key={index}
+                  key={project.title}
                   project={project}
                   index={index}
                 />
@@ -98,9 +98,9 @@ function ProjectDetailCard({
 
             {/* Skills Tags */}
             <div className="flex flex-wrap gap-2 mb-6">
-              {project.skills.map((skill, i) => (
+              {project.skills.map((skill) => (
                 <span
-                  key={i}
+                  key={skill}
                   className="px-3 py-1 rounded-full border text-sm text-center bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-800"
                 >
                   {skill}
@@ -112,7 +112,7 @@ function ProjectDetailCard({
             {project.blurb && project.blurb.length > 0 && (
               <div className="flex flex-row items-center mb-6 text-gray-600 dark:text-gray-400">
                 {project.blurb.map((str: string, i: number) => (
-                  <div key={i} className="flex items-center">
+                  <div key={str} className="flex items-center">
                     {i > 0 && (
                       <BsAsterisk
                         size={12}
