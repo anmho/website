@@ -10,6 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import clsx from 'clsx';
 import type { HTMLAttributes, ReactNode } from 'react';
+import { formatDate } from '@/lib/utils';
 
 interface Note {
   slug: string;
@@ -45,15 +46,6 @@ async function getNoteContent(slug: string): Promise<string | null> {
   } catch {
     return null;
   }
-}
-
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
 }
 
 export async function generateStaticParams() {

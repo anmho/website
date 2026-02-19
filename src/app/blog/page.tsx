@@ -8,6 +8,7 @@ import articlesData from '@/assets/static/json/articles.json';
 import Link from 'next/link';
 import { useRef } from 'react';
 import { useInView } from 'framer-motion';
+import { formatDate } from '@/lib/utils';
 
 interface Post {
   slug: string;
@@ -78,15 +79,6 @@ export default function Blog() {
 function PostItem({ post, index }: { post: Post; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
 
   return (
     <div
