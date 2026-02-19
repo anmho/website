@@ -1,7 +1,5 @@
 'use client';
 
-// interface ContactProps P
-import Resume from './Resume';
 import SectionContainer from './SectionContainer';
 import { FiExternalLink } from 'react-icons/fi';
 import { BsGithub } from 'react-icons/bs';
