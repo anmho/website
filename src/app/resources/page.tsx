@@ -19,7 +19,7 @@ type Bookmark = {
   tags: string[];
 };
 
-export default function BoomarksPage() {
+export default function BookmarksPage() {
   const resources = resourcesData as Bookmark[];
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
