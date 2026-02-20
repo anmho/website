@@ -1,0 +1,1129 @@
+[
+  {
+    "id": "2026-02-20-kill-process-on-port-simple",
+    "question": "What is the simplest way to kill a process on a port (macOS/Linux)?",
+    "answer": "Use `lsof` to find the PID on that port, then kill it in one command.",
+    "codeSnippet": "kill $(lsof -ti tcp:3000)",
+    "codeLanguage": "bash",
+    "tags": [
+      "dev",
+      "ports",
+      "debugging",
+      "cli",
+      "lang:bash"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-ripgrep-for-llm-workflows",
+    "question": "Why is `ripgrep` (`rg`) useful when working with LLMs on codebases?",
+    "answer": "`rg` is fast enough to repeatedly narrow context while iterating with an LLM. It helps you locate symbols, call sites, and file sets quickly so prompts and edits are grounded in real code instead of guesswork. Typical pattern: `rg --files` to discover, `rg -n` to locate, then open only relevant files.",
+    "codeSnippet": "# find candidate files\nrg --files | rg \"(route|controller|service)\"\n\n# find symbol usage with line numbers\nrg -n \"createBookmark|upsertBookmark|/api/admin\"\n\n# scope searches by extension\nrg -n \"TODO|FIXME\" src -g \"*.ts\"",
+    "codeLanguage": "bash",
+    "tags": [
+      "cli",
+      "ripgrep",
+      "search",
+      "llm",
+      "productivity",
+      "lang:bash"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-resend-react-email-stack",
+    "question": "Does Resend use React Email or its own framework for emails?",
+    "answer": "Resend is an email delivery API/platform, not a required custom rendering framework. You can send `html`, `text`, or a React element via the SDK. The common React setup is to build templates with `@react-email/components` (React Email) and pass them to Resend.\\n\\nSources:\\n- https://resend.com/docs/api-reference/emails/send-email\\n- https://github.com/resend/resend-node\\n- https://resend.com/docs/dashboard/emails/email-templates\\n- https://resend.com/blog/react-email-5",
+    "codeSnippet": "import { Resend } from 'resend';\nimport { Html, Body, Container, Heading, Text } from '@react-email/components';\n\nconst resend = new Resend(process.env.RESEND_API_KEY);\n\nfunction WelcomeEmail({ name }: { name: string }) {\n  return (\n    <Html>\n      <Body>\n        <Container>\n          <Heading>Welcome</Heading>\n          <Text>Hey {name}, thanks for joining.</Text>\n        </Container>\n      </Body>\n    </Html>\n  );\n}\n\nawait resend.emails.send({\n  from: 'Acme <onboarding@resend.dev>',\n  to: ['user@example.com'],\n  subject: 'Welcome',\n  react: <WelcomeEmail name=\"Andrew\" />,\n});",
+    "codeLanguage": "tsx",
+    "tags": [
+      "resend",
+      "react",
+      "react-email",
+      "email",
+      "api",
+      "lang:typescript"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-vercel-cron-endpoint-architecture",
+    "question": "How does Vercel Cron work in simple terms?",
+    "answer": "You register scheduled jobs that point to your own REST endpoints. At the scheduled time, Vercel sends an HTTP request to that endpoint, and your function runs on Vercel compute. Endpoint auth is optional, but recommended. If you set `CRON_SECRET` in project env vars, Vercel includes `Authorization: Bearer <CRON_SECRET>` on cron requests; your route should verify that header and reject anything else.",
+    "codeSnippet": "Architecture (simple)\n\n[vercel.json cron config]\n        |\n        v\n[Vercel Scheduler]\n        |\n        | HTTP GET at scheduled time (UTC)\n        | Authorization: Bearer <CRON_SECRET> (if configured)\n        v\n[/api/cron/daily-task endpoint on your app]\n        |\n        | verify bearer token\n        v\n[run job logic: send email / sync / cleanup]\n\nExample guard (Next.js):\n\nexport async function GET(req: NextRequest) {\n  const auth = req.headers.get('authorization');\n  if (auth !== `Bearer ${process.env.CRON_SECRET}`) {\n    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });\n  }\n\n  // do scheduled work\n  return NextResponse.json({ ok: true });\n}",
+    "codeLanguage": "text",
+    "tags": [
+      "vercel",
+      "cron",
+      "scheduling",
+      "api",
+      "auth",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-npm-publish-package-checklist",
+    "question": "How do you publish an npm package reliably?",
+    "answer": "Use a repeatable checklist: pick a unique package name, set `bin`/`files`/`engines`, build first, `npm login`, then `npm publish --access public` for scoped public packages. Add `prepublishOnly` so publish always builds from a clean step.",
+    "codeSnippet": "# inside package folder\nnpm whoami\nnpm version patch\nnpm run build\nnpm pack --dry-run\nnpm publish --access public\n\n# one-time local install test\nnpm i -g .\nwebsitectl --help",
+    "codeLanguage": "bash",
+    "tags": [
+      "npm",
+      "publishing",
+      "cli",
+      "release",
+      "lang:bash"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-agent-tools-vs-skills-vs-kb",
+    "question": "What is the practical difference between agent tools, skills, and a knowledge base?",
+    "answer": "Tools perform actions (side effects), skills define reusable workflow behavior, and a knowledge base stores facts/content for retrieval. For this project: `bookmark add` is a tool call, curation rubrics are skills, and learnings/bookmarks data is knowledge.",
+    "codeSnippet": "Tool:    bookmark_add(url) -> writes to DB\nSkill:   \"bookmark curation checklist\" -> guides decisions\nKB:      learnings/bookmarks -> retrieved context for answers",
+    "codeLanguage": "text",
+    "tags": [
+      "agents",
+      "tools",
+      "skills",
+      "knowledge-base",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-typescript-multi-project-workspaces",
+    "question": "Can TypeScript repos support multiple projects like Go modules?",
+    "answer": "Yes. Use npm/pnpm/yarn workspaces for multiple packages and TypeScript project references for incremental typed builds across package boundaries. A common split is `apps/web`, `packages/contracts`, and `packages/cli`.",
+    "codeSnippet": "{\n  \"workspaces\": [\"apps/*\", \"packages/*\"],\n  \"scripts\": {\n    \"build\": \"turbo run build\"\n  }\n}\n\n# tsconfig project reference\n{\n  \"references\": [{ \"path\": \"../contracts\" }]\n}",
+    "codeLanguage": "json",
+    "tags": [
+      "typescript",
+      "monorepo",
+      "workspaces",
+      "build",
+      "lang:typescript"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-workspace-tooling-options-minimal",
+    "question": "What are the practical workspace options beyond Turborepo, and should we use npm workspaces?",
+    "answer": "For a minimal setup, start with npm workspaces only. Add Turborepo later if build orchestration and caching become painful. Common options: npm workspaces (built-in, simplest), pnpm workspaces (faster installs, strict dependency graph), Yarn workspaces (good but extra tooling conventions), Turborepo/Nx (task orchestration), and Lerna/Changesets (versioning/publishing flows).",
+    "codeSnippet": "# minimal root package.json\n{\n  \"private\": true,\n  \"workspaces\": [\"apps/*\", \"packages/*\", \"tools/*\"]\n}\n\n# install all workspace deps\nnpm install\n\n# run a script in one workspace\nnpm run build --workspace websitectl",
+    "codeLanguage": "json",
+    "tags": [
+      "typescript",
+      "workspaces",
+      "npm",
+      "monorepo",
+      "tooling",
+      "lang:typescript"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-pr-automation-flow-checklist",
+    "question": "What is the standard automation PR flow for content/code updates?",
+    "answer": "Typical flow: automation creates a branch and commit, opens a PR to the default branch, CI runs checks, and if repository rules allow it, automation enables auto-merge or merges directly after checks pass.",
+    "codeSnippet": "1) create branch + commit\n2) open PR -> main\n3) run CI (lint/test/build)\n4) merge path:\n   - auto-merge (if checks pass + rules satisfied), or\n   - direct merge by bot/user with permissions",
+    "codeLanguage": "text",
+    "tags": [
+      "github",
+      "pr",
+      "automation",
+      "ci",
+      "deployment",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-vercel-deploy-without-git-integration",
+    "question": "What happens to deploys if Vercel is not connected to the Git repo?",
+    "answer": "No automatic preview/production deploys are triggered by PR events or merges. Deploys must be triggered manually (for example via `vercel --prod` or Vercel API). In this mode, merging a PR does not redeploy by itself.",
+    "codeSnippet": "# manual production deploy\nnpm run deploy\n\n# deploy script (example)\n# vercel --prod",
+    "codeLanguage": "bash",
+    "tags": [
+      "vercel",
+      "deployment",
+      "github",
+      "ci",
+      "operations",
+      "lang:bash"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-npm-package-exposure-exports-files-bin",
+    "question": "How do npm packages control what is exposed to consumers?",
+    "answer": "Use `exports` to define importable entry points, `bin` for CLI command exposure, and `files` to control what gets published in the tarball. Anything not included by `exports` is effectively private to consumers, even if it exists in the package contents.",
+    "codeSnippet": "{\n  \"name\": \"websitectl\",\n  \"bin\": {\n    \"websitectl\": \"dist/cli.js\"\n  },\n  \"exports\": {\n    \".\": \"./dist/index.js\"\n  },\n  \"types\": \"./dist/index.d.ts\",\n  \"files\": [\"dist\", \"README.md\", \"LICENSE\"]\n}",
+    "codeLanguage": "json",
+    "tags": [
+      "npm",
+      "packaging",
+      "exports",
+      "cli",
+      "publishing",
+      "lang:bash"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-cpp-alternative-operator-keywords",
+    "question": "Why does C++ have `and`, `or`, and `not`?",
+    "answer": "They are alternative operator tokens for readability and historical portability. In C++, they are keywords with identical behavior to symbolic operators: `and` == `&&`, `or` == `||`, `not` == `!`.",
+    "codeSnippet": "bool a = true;\nbool b = false;\n\nif (a and not b) {\n  // same as: if (a && !b)\n}",
+    "codeLanguage": "cpp",
+    "tags": [
+      "cpp",
+      "operators",
+      "language-design",
+      "lang:cpp"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-python-whitespace-runtime-cost",
+    "question": "Do extra tabs or spaces affect Python performance?",
+    "answer": "No. Python parses indentation for block structure, then compiles to bytecode. Extra whitespace does not add runtime cost. The real downside is readability and maintainability for humans.",
+    "codeSnippet": "def a():\n    return 1\n\n\ndef b():\n        return 1\n\n# Runtime difference is effectively none; style/readability is the concern.",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "performance",
+      "bytecode",
+      "readability",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-python-unnecessary-async-overhead",
+    "question": "Is there a performance difference between unnecessary `async def` + `await` vs plain `def`?",
+    "answer": "Yes. A pure async call path can be around an order of magnitude slower per call (commonly microseconds vs hundreds of nanoseconds) due to coroutine object creation and scheduling overhead. Usually negligible compared to real network I/O, but unnecessary async adds cognitive/debugging cost.",
+    "codeSnippet": "def sync_fn(x):\n    return x + 1\n\nasync def async_fn(x):\n    return x + 1\n\n# sync_fn(1) -> direct value\n# await async_fn(1) -> coroutine lifecycle overhead",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "performance",
+      "coroutines",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-python-coroutine-never-awaited-warning",
+    "question": "What does Python's \"coroutine was never awaited\" warning mean?",
+    "answer": "An `async def` function was called, producing a coroutine object, but nothing awaited it, so its body never executed. Python warns when that abandoned coroutine is garbage-collected.",
+    "codeSnippet": "async def make_stream():\n    return client.stream(\"POST\", url)\n\n# wrong: make_stream() returns a coroutine\nasync with make_stream() as r:\n    ...\n\n# right: await first, then use returned object\nstream_cm = await make_stream()\nasync with stream_cm as r:\n    ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "warnings",
+      "coroutines",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-python-async-def-return-shape",
+    "question": "Why does `async def` change calling behavior even when there is no `await` in the body?",
+    "answer": "`async def` always returns a coroutine object when called. You must `await` it to get the underlying return value. A plain `def` returns the value directly.",
+    "codeSnippet": "def sync_fn():\n    return \"hello\"\n\nasync def async_fn():\n    return \"hello\"\n\nsync_fn()         # \"hello\"\nasync_fn()        # <coroutine object ...>\nawait async_fn()  # \"hello\"",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "functions",
+      "coroutines",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-python-when-to-use-async-def",
+    "question": "When should you use `async def` vs plain `def`?",
+    "answer": "Use `async def` only when the function body needs to `await` async operations. If a function only computes/returns values or passes through objects synchronously, keep it as plain `def`.",
+    "codeSnippet": "def build_payload(msg: str) -> dict:\n    return {\"message\": msg}\n\nasync def send_payload(client, payload: dict):\n    return await client.post(\"/send\", json=payload)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "design",
+      "best-practices",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-nodejs-python-concurrency-models",
+    "question": "How do coroutines/tasks/promises compare across Python and Node.js, and what about threads/GIL/multiprocessing?",
+    "answer": "Python `async def` returns a coroutine; `asyncio.create_task(...)` schedules it. Node async functions return a `Promise` immediately and execution is scheduled on the event loop. Both are event-loop concurrency models for I/O. Node JavaScript execution is single-threaded per process, with background threadpool help for some I/O/crypto. Python supports both threads and async, but CPython's GIL means CPU-bound Python bytecode does not run truly in parallel across threads; use multiprocessing for parallel CPU work. Node's multi-core scaling is usually multiple processes (`cluster`, process managers, container replicas, worker-based patterns). Python's equivalent is `multiprocessing`/process pools.",
+    "codeSnippet": "# Python\nasync def work():\n    ...\n\ncoro = work()                         # coroutine object (not scheduled yet)\ntask = asyncio.create_task(work())    # scheduled task\nresult = await task\n\n# Node.js\nasync function work() {\n  ...\n}\n\nconst p = work();                      // Promise (already started by async function semantics)\nconst result = await p;\n\n# CPU scaling\n# Python: multiprocessing / ProcessPoolExecutor\n# Node: cluster / multiple processes / worker patterns",
+    "codeLanguage": "text",
+    "tags": [
+      "python",
+      "nodejs",
+      "asyncio",
+      "promises",
+      "event-loop",
+      "concurrency",
+      "gil",
+      "multiprocessing",
+      "threads",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-quic-vs-tcp-rtt-tradeoffs",
+    "question": "Why can QUIC reduce handshake latency vs TCP, and what are the tradeoffs?",
+    "answer": "TCP+TLS typically needs multiple round trips before application data is flowing on a fresh connection. QUIC (over UDP) combines transport + crypto setup so initial handshakes can require fewer RTTs, and resumed connections can be faster (0-RTT). This helps high-latency links (for example mobile networks). Tradeoffs: UDP blocking/throttling on some networks, more CPU complexity in user-space stacks, 0-RTT replay considerations, and operational debugging can be harder than mature TCP tooling.",
+    "codeSnippet": "Fresh connection (typical):\nTCP + TLS: more round trips before useful data\nQUIC: fewer round trips; can use 0-RTT on resume\n\nPros:\n- lower connection setup latency\n- better behavior under packet loss (stream-level in HTTP/3)\n\nCons:\n- UDP may be filtered/rate-limited in some environments\n- implementation/ops complexity\n- 0-RTT replay risk for non-idempotent requests",
+    "codeLanguage": "text",
+    "tags": [
+      "networking",
+      "quic",
+      "tcp",
+      "udp",
+      "latency",
+      "mobile",
+      "http3",
+      "tradeoffs",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-cpu-out-of-order-execution-practical",
+    "question": "What is out-of-order execution and why does it matter in practice?",
+    "answer": "Modern CPUs can execute independent instructions out of program order to keep execution units busy, then retire results in-order for correctness. This hides some memory/latency stalls and is why source order is not equal to execution order at the microarchitectural level. Data dependencies, branch mispredicts, and cache misses still limit gains.",
+    "codeSnippet": "Program order:\nA: load x\nB: add y\nC: store z\n\nCPU may execute B before A if independent, then retire in-order.\nNet effect: better pipeline utilization, but dependency chains still bottleneck.",
+    "codeLanguage": "text",
+    "tags": [
+      "systems",
+      "cpu",
+      "performance",
+      "pipelines",
+      "microarchitecture",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-amdahls-law-parallel-speedup-limit",
+    "question": "How does Amdahl's Law limit parallel speedups?",
+    "answer": "If a fraction of work is inherently serial, total speedup has a hard upper bound no matter how many cores you add. Even with infinite processors, max speedup is `1 / serial_fraction`. This is why reducing serial bottlenecks often beats adding more workers.",
+    "codeSnippet": "Amdahl's Law:\nS(N) = 1 / (s + (1 - s)/N)\n\nExample: s = 0.1 (10% serial)\nMax theoretical speedup as N -> infinity:\n1 / 0.1 = 10x",
+    "codeLanguage": "text",
+    "tags": [
+      "systems",
+      "parallelism",
+      "performance",
+      "amdahls-law",
+      "scalability",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-ngmi-adaptation-lag-ranking-shift",
+    "question": "What is the core \"ngmi\" takeaway for engineering teams?",
+    "answer": "In fast AI-adoption cycles, rankings can change quickly: engineers who operationalize new tools early may leapfrog higher-ranked peers who stay in disbelief too long. The practical lesson is to optimize for adaptation speed, not just historical performance.\\n\\nSource: https://ghuntley.com/ngmi/",
+    "codeSnippet": "Old ranking stability assumption:\nA > B > C (for years)\n\nAI adoption shock:\nC adopts early + compounds usage\nB delays + underestimates shift\n\nNew output ranking can flip within quarters.",
+    "codeLanguage": "text",
+    "tags": [
+      "ai engineering",
+      "career",
+      "adaptation",
+      "performance",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-ngmi-belief-stages-oh-f-moment",
+    "question": "What does the \"time to oh-f moment\" idea imply?",
+    "answer": "The longer someone remains in early denial/disbelief stages, the longer it takes to recognize they are being outpaced. Teams should shorten this loop with mandatory hands-on practice, not passive observation.\\n\\nSource: https://ghuntley.com/ngmi/",
+    "codeSnippet": "Belief-stage lag (concept):\nlonger disbelief -> slower behavior change -> larger output gap\n\nIntervention:\n- set adoption deadlines\n- require weekly usage artifacts\n- review outcomes, not opinions",
+    "codeLanguage": "text",
+    "tags": [
+      "ai engineering",
+      "adoption",
+      "team dynamics",
+      "execution",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-ngmi-org-economics-attrition-over-layoffs",
+    "question": "How can org economics shift without immediate layoffs in AI transitions?",
+    "answer": "One pattern is silent restructuring: normal attrition plus selective backfills with AI-native engineers can change team composition over time without explicit mass layoffs. The strategic signal is hiring and replacement policy, not just headline layoffs.\\n\\nSource: https://ghuntley.com/ngmi/",
+    "codeSnippet": "Headcount stays near flat short-term\nwhile composition shifts over replacement cycles:\n\nattrition -> backfill with higher leverage profile\n=> rising average output per seat",
+    "codeLanguage": "text",
+    "tags": [
+      "ai engineering",
+      "org design",
+      "hiring",
+      "operations",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-generator-any-inference-mismatch",
+    "question": "Why did `chunk` get inferred as `Any` when iterating over an async generator?",
+    "answer": "The function used `yield` (generator behavior) but was annotated like it returned a single item type. That mismatch can degrade inference to `Any`. For async generators, annotate `-> AsyncIterator[T]`; for sync generators, annotate `-> Iterator[T]`.",
+    "codeSnippet": "from collections.abc import AsyncIterator\n\nasync def stream_chunks(...) -> AsyncIterator[ChatStreamingResponseChunkData]:\n    yield chunk",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "typing",
+      "async",
+      "generators",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-missing-arg-any-inference",
+    "question": "Why did `r` get inferred as `Any` after `await fetch_chat_stream_async()`?",
+    "answer": "In a streaming helper, the call site omitted a required argument (`model`). Once the function call is invalid, type checkers often fall back to `Any`, and that `Any` propagates to `r`.",
+    "codeSnippet": "# bad: missing `model`, so inference degrades\nr = await fetch_chat_stream_async(messages=msgs)\n\n# good: full signature restores inferred type\nr = await fetch_chat_stream_async(model=\"openai/gpt-4o-mini\", messages=msgs)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "typing",
+      "httpx",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-coroutine-attrs-vs-response-attrs",
+    "question": "Why did the type checker show coroutine attributes (`cr_running`, `cr_await`) instead of `httpx.Response` attributes?",
+    "answer": "The stream function used a sync client type (`httpx.Client`) in async code. That makes `await client.post(...)` invalid, so the checker treats the expression like a coroutine-ish mismatch instead of a concrete `httpx.Response`.",
+    "codeSnippet": "# bad: sync client typed in async flow\nasync def fetch(client: httpx.Client, url: str):\n    return await client.post(url)  # invalid await\n\n# good: async client + await\nasync def fetch(client: httpx.AsyncClient, url: str) -> httpx.Response:\n    return await client.post(url)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "typing",
+      "httpx",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-asyncclient-enter-attribute-error",
+    "question": "Why did `with httpx.AsyncClient()` raise `AttributeError: __enter__`?",
+    "answer": "`AsyncClient` only supports async context manager hooks (`__aenter__`/`__aexit__`). In streaming code you must use `async with`, including the nested `client.stream(...)` block.",
+    "codeSnippet": "async with httpx.AsyncClient(timeout=None) as client:\n    async with client.stream(\"POST\", url, json=payload) as r:\n        async for line in r.aiter_lines():\n            ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "httpx",
+      "async",
+      "context-manager",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-for-with-why-exist",
+    "question": "Why do `async with` and `async for` exist?",
+    "answer": "In `httpx` streaming, enter/exit and line reads can block on network I/O. `async with` and `async for` use awaitable hooks (`__aenter__`/`__aexit__`, `__anext__`) so the loop can schedule other tasks while waiting for bytes.",
+    "codeSnippet": "async with client.stream(\"GET\", url) as r:   # async acquire/release\n    async for line in r.aiter_lines():        # async next chunk\n        ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "httpx",
+      "streaming",
+      "concurrency",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-iter-lines-sync-async-mismatch",
+    "question": "What happens if `iter_lines()` and `aiter_lines()` are mixed with the wrong loop style?",
+    "answer": "Use sync iterator + `for` (`iter_lines`) in sync code, and async iterator + `async for` (`aiter_lines`) in async code. Crossing them raises type/runtime errors (for example, `async for` over `iter_lines()` or `for` over `aiter_lines()`).",
+    "codeSnippet": "# bad 1: async for on sync iterator\nasync with client.stream(\"GET\", url) as r:\n    async for line in r.iter_lines():\n        ...  # TypeError: object has no __aiter__\n\n# bad 2: sync for on async iterator\nasync with client.stream(\"GET\", url) as r:\n    for line in r.aiter_lines():\n        ...  # TypeError: async_generator is not iterable\n\n# good\nasync with client.stream(\"GET\", url) as r:\n    async for line in r.aiter_lines():\n        ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "httpx",
+      "streaming",
+      "async",
+      "errors",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-asyncio-to-thread-sync-stream-workaround",
+    "question": "How can sync streaming code be used from async code as a workaround?",
+    "answer": "Wrap the sync function in `asyncio.to_thread(...)` so it runs in a worker thread and does not block the event loop. This is a bridge strategy when you cannot migrate sync stream code immediately.",
+    "codeSnippet": "import asyncio\nimport httpx\n\ndef read_sync_stream(url: str) -> None:\n    with httpx.Client(timeout=None) as client:\n        with client.stream(\"GET\", url) as r:\n            for line in r.iter_lines():\n                if line:\n                    print(line)\n\n# async caller\nawait asyncio.to_thread(read_sync_stream, url)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "httpx",
+      "streaming",
+      "threads",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-stream-cancel-with-event",
+    "question": "How do you cancel an `httpx` async stream with `Event`?",
+    "answer": "Use an `asyncio.Event` as a cooperative stop signal. Check `event.is_set()` inside the read loop, then break so the `async with` block closes the response cleanly.",
+    "codeSnippet": "stop_event = asyncio.Event()\n\nasync def consume(url: str) -> None:\n    async with httpx.AsyncClient(timeout=None) as client:\n        async with client.stream(\"GET\", url) as r:\n            async for line in r.aiter_lines():\n                if stop_event.is_set():\n                    break\n                if line:\n                    handle(line)\n\n# elsewhere (button handler, shutdown task, etc.)\nstop_event.set()",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "httpx",
+      "streaming",
+      "cancellation",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-stream-concurrency-semaphore",
+    "question": "How do you limit concurrent async streams?",
+    "answer": "Guard each stream operation with an `asyncio.Semaphore` so only N streams run at once. This prevents connection spikes and keeps resource usage predictable.",
+    "codeSnippet": "sem = asyncio.Semaphore(5)\n\nasync def stream_one(client: httpx.AsyncClient, url: str) -> None:\n    async with sem:\n        async with client.stream(\"GET\", url) as r:\n            async for line in r.aiter_lines():\n                if line:\n                    handle(line)\n\nasync with httpx.AsyncClient(timeout=None) as client:\n    await asyncio.gather(*(stream_one(client, u) for u in urls))",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "httpx",
+      "streaming",
+      "concurrency",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-generator-context-manager-aiter-lines-error",
+    "question": "Why did `'_AsyncGeneratorContextManager' has no attribute 'aiter_lines'` occur?",
+    "answer": "`client.stream(...)` returns a context manager, not a response object. Enter it first, then iterate on the response.",
+    "codeSnippet": "async with client.stream(\"POST\", url, json=payload) as r:\n    async for line in r.aiter_lines():\n        ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "httpx",
+      "streaming",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-stream-context-resource-safety",
+    "question": "Why does `httpx` require a context manager for streaming?",
+    "answer": "Streaming keeps a connection open; context managers guarantee cleanup and return connections to the pool. The manual path exists (`client.send(req, stream=True)`), but then you must explicitly call `await response.aclose()`.",
+    "tags": [
+      "python",
+      "httpx",
+      "streaming",
+      "resource-management",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-no-stream-true-post",
+    "question": "Does `httpx` have `stream=True` on `client.post()`?",
+    "answer": "No. `client.post()` is the eager-body path. Incremental reads use `client.stream(...)` (or async equivalent), which makes stream lifecycle explicit and safer.",
+    "tags": [
+      "python",
+      "httpx",
+      "streaming",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-get-vs-requests-get-async",
+    "question": "Can you do `httpx.get()` like `requests.get()`?",
+    "answer": "Yes for sync usage. For async usage, use `httpx.AsyncClient` and `await client.get(...)`; not `await httpx.get(...)` in async-first code.",
+    "tags": [
+      "python",
+      "httpx",
+      "requests",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-first-http-library-simple-await-get",
+    "question": "Is there an async-first HTTP library with a simple `await get(url)` API?",
+    "answer": "Python typically uses client objects for async HTTP to manage pools, timeouts, and lifecycle explicitly. JS environments expose `fetch` globally because runtime/event-loop integration is different.",
+    "tags": [
+      "python",
+      "async",
+      "http",
+      "design",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-def-return-annotation-style",
+    "question": "How do you annotate return types for `async def` functions?",
+    "answer": "Annotate the awaited value type (for example `-> str`), not `Awaitable[str]` in normal function signatures. Tooling may still display `Coroutine[Any, Any, T]` at call sites before awaiting.",
+    "codeSnippet": "async def foo() -> str:\n    return \"ok\"",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "typing",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-generator-syntax-and-consumption",
+    "question": "How do you make an async iterator with generator syntax?",
+    "answer": "Use `async def` with `yield` to create an async generator, then consume with `async for`.",
+    "codeSnippet": "async def gen():\n    yield 1\n\nasync for x in gen():\n    ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "async",
+      "generators",
+      "iterators",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-sync-for-on-async-iterator-error",
+    "question": "What happens if you use sync `for` on an async iterator?",
+    "answer": "It raises a `TypeError` because protocols differ: sync iteration expects `__iter__`/`__next__`, while async iteration uses `__aiter__`/`__anext__`.",
+    "tags": [
+      "python",
+      "async",
+      "iterators",
+      "errors",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-aiter-lines-type-vs-requests",
+    "question": "Does `httpx` `aiter_lines()` return `str` or `bytes`?",
+    "answer": "`str`. In contrast, `requests.iter_lines()` is commonly handled as bytes unless decoding is enabled (for example `decode_unicode=True`) or manual decoding is applied.",
+    "tags": [
+      "python",
+      "httpx",
+      "requests",
+      "streaming",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-mostly-requests-plus-async",
+    "question": "Is `httpx` the same as `requests` but async?",
+    "answer": "Mostly in API style: `httpx` adds async support via `AsyncClient`, includes HTTP/2 support, and uses `httpcore`. `requests` is built around sync `urllib3` and remains sync-focused.",
+    "tags": [
+      "python",
+      "httpx",
+      "requests",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-structural-typing-protocol-python",
+    "question": "Is there a structural typing mechanism in Python like TypeScript interfaces?",
+    "answer": "Yes: `typing.Protocol`. Any class matching the required shape satisfies it without inheritance. `collections.abc` also provides standard protocol abstractions.",
+    "codeSnippet": "from typing import Protocol\n\nclass StreamLike(Protocol):\n    async def __anext__(self): ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "typing",
+      "protocols",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-vs-requests-llm-token-streaming-example",
+    "question": "How do I stream LLM tokens with `httpx`, and what is the `requests` equivalent?",
+    "answer": "Use API-level streaming (`\"stream\": true`) so the server emits incremental events, then use HTTP client streaming so your app reads chunks as they arrive instead of buffering the whole body. In `requests`, you enable this with `stream=True`. In `httpx`, you use `client.stream(...)` / `async with client.stream(...)`. This lowers time-to-first-token in real UIs because tokens can be rendered immediately.",
+    "codeSnippet": "# requests (sync)\npayload = {\"model\": \"openai/gpt-4o-mini\", \"messages\": msgs, \"stream\": True}\nwith requests.post(url, json=payload, headers=headers, stream=True) as r:\n    for line in r.iter_lines(decode_unicode=True):\n        if line and line.startswith(\"data:\"):\n            print(line)  # parse SSE chunk and render token\n\n# httpx (async)\nasync with httpx.AsyncClient(timeout=None) as client:\n    async with client.stream(\"POST\", url, json=payload, headers=headers) as r:\n        async for line in r.aiter_lines():\n            if line and line.startswith(\"data:\"):\n                print(line)  # parse SSE chunk and render token",
+    "codeLanguage": "python",
+    "tags": [
+      "httpx",
+      "requests",
+      "streaming",
+      "llm",
+      "sse",
+      "python",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-asyncio-wait-return-when-vs-gather-node-promises",
+    "question": "How does `asyncio.wait` (`return_when`) compare to `gather` and Node Promise combinators?",
+    "answer": "`asyncio.wait(tasks, return_when=...)` gives you low-level control over completion conditions and returns `(done, pending)`. `FIRST_COMPLETED` is useful for hedged requests (use the fastest provider), `FIRST_EXCEPTION` for fail-fast orchestration, and `ALL_COMPLETED` for barrier-style completion. `asyncio.gather(...)` is higher-level result aggregation in positional order. In Node.js, closest matches are `Promise.all` (fail fast, ordered results) and `Promise.allSettled` (wait for all outcomes regardless of failures).",
+    "codeSnippet": "import asyncio\n\nasync def fetch(provider):\n    ...\n\nasync def hedged_request():\n    tasks = {asyncio.create_task(fetch(p)) for p in [\"openai\", \"anthropic\", \"groq\"]}\n    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)\n\n    winner = done.pop()\n    try:\n        return await winner\n    finally:\n        for t in pending:\n            t.cancel()  # cancel slower duplicates\n\n# Other modes:\n# await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)\n# await asyncio.wait(tasks, return_when=asyncio.ALL_COMPLETED)\n\n# gather: ordered aggregation\n# results = await asyncio.gather(*tasks, return_exceptions=True)\n\n# Node.js analogs:\n# await Promise.all(promises)        // fail-fast\n# await Promise.allSettled(promises) // collect all outcomes",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "concurrency",
+      "nodejs",
+      "promises",
+      "lang:javascript"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-coroutine-vs-create-task",
+    "question": "What is the difference between a coroutine and `asyncio.create_task()`?",
+    "answer": "Calling an `async def` function returns a coroutine object, but it does not start running until it is awaited (or otherwise scheduled). `asyncio.create_task(coro)` schedules it on the event loop immediately, so it can run concurrently before you later await the task result.",
+    "codeSnippet": "import asyncio\n\nasync def work(name):\n    await asyncio.sleep(1)\n    return name\n\nasync def main():\n    coro = work(\"A\")          # not running yet\n    result = await coro        # starts and waits\n\n    task = asyncio.create_task(work(\"B\"))  # scheduled now\n    # do other work here while B runs\n    result2 = await task",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "coroutines",
+      "concurrency",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-sync-vs-async-dunder-hooks",
+    "question": "What are the async versions of iterator, generator, and context-manager dunder hooks?",
+    "answer": "Sync iteration uses `__iter__` + `__next__` (`for`) and ends with `StopIteration`. Async iteration uses `__aiter__` + `__anext__` (`async for`) and ends with `StopAsyncIteration`. Sync context managers use `__enter__` + `__exit__` (`with`). Async context managers use `__aenter__` + `__aexit__` (`async with`). Generators follow the same split: `def ... yield` for sync generators, `async def ... yield` for async generators consumed with `async for`.",
+    "codeSnippet": "# Iteration hooks\nclass SyncIteratorExample:\n    def __iter__(self):\n        return self\n    def __next__(self):\n        # End sync iteration\n        raise StopIteration\n\nclass AsyncIteratorExample:\n    def __aiter__(self):\n        return self\n    async def __anext__(self):\n        # End async iteration\n        raise StopAsyncIteration\n\n# Context manager hooks\nclass SyncContextManagerExample:\n    def __enter__(self):\n        # Acquire resource\n        ...\n    def __exit__(self, exc_type, exc, tb):\n        # Release resource\n        ...\n\nclass AsyncContextManagerExample:\n    async def __aenter__(self):\n        # Acquire async resource\n        ...\n    async def __aexit__(self, exc_type, exc, tb):\n        # Release async resource\n        ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "dunder",
+      "async",
+      "iterators",
+      "context-manager",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-contextlib-contextmanager-asynccontextmanager",
+    "question": "What are `contextmanager` and `asynccontextmanager`, and are they stdlib?",
+    "answer": "They are decorators from Python's standard library module `contextlib`. `@contextmanager` builds a sync context manager for `with`, and `@asynccontextmanager` builds an async context manager for `async with`, usually from generator-style functions with `yield`.",
+    "codeSnippet": "from contextlib import contextmanager, asynccontextmanager\n\n@contextmanager\ndef managed_resource():\n    # Setup before entering `with`\n    try:\n        yield \"resource\"\n    finally:\n        # Cleanup on exit\n        pass\n\n@asynccontextmanager\nasync def managed_async_resource():\n    # Async setup before entering `async with`\n    try:\n        yield \"resource\"\n    finally:\n        # Async cleanup on exit\n        pass",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "contextlib",
+      "context-manager",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-uv-how-to-use",
+    "question": "How do I use `uv` to initialize and manage a Python project?",
+    "answer": "`uv` is a fast Python project/package manager. Typical flow: initialize a project, add deps, run code, then lock/sync environments. You can also pass `--env-file` at runtime so you do not need `python-dotenv` loading in app code.\\n\\nReferences:\\n- https://docs.astral.sh/uv/\\n- https://docs.astral.sh/uv/concepts/projects/init/\\n- https://docs.astral.sh/uv/guides/projects/\\n- https://docs.astral.sh/uv/concepts/projects/run/",
+    "codeSnippet": "# new folder\nmkdir myapp && cd myapp\nuv init\n\n# or initialize an existing folder (same directory target)\nuv init .\n\n# add a dependency\nuv add httpx\n\n# run with env vars from a file (skip dotenv load in code)\nuv run --env-file .env main.py\n\n# produce/update lockfile and sync env\nuv lock\nuv sync",
+    "codeLanguage": "bash",
+    "tags": [
+      "python",
+      "uv",
+      "packaging",
+      "dependencies",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-iterable-vs-iterator-generator-shape",
+    "question": "How do generators and iterators interact with `__iter__` and `__next__`?",
+    "answer": "If `__iter__` returns a generator, the class is an iterable and the generator is the iterator. If `__iter__` returns `self`, the class is the iterator and must implement `__next__`.",
+    "codeSnippet": "class A:\n    def __iter__(self):\n        return (i for i in range(3))  # iterable only\n\nclass B:\n    def __iter__(self):\n        return self\n    def __next__(self):\n        ...  # iterator",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "iterators",
+      "generators",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-typechecker-coroutine-vs-response",
+    "question": "Why does a type checker show `Coroutine[...]` or `Any` instead of `httpx.Response`?",
+    "answer": "Common causes are mismatched client type (`httpx.Client` vs `httpx.AsyncClient`), missing function arguments, or `await` used on a sync call. Once signatures and call sites are corrected, inference typically resolves to `httpx.Response`.",
+    "codeSnippet": "async def fetch(client: httpx.AsyncClient) -> httpx.Response:\n    return await client.get(url)\n\n# bad: await on sync client call can degrade inference\n# async def bad(client: httpx.Client):\n#     return await client.get(url)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "typing",
+      "httpx",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-syscall-latency-ranges",
+    "question": "How much latency does a syscall add?",
+    "answer": "Roughly tens to a few hundred nanoseconds for trivial syscalls, and microseconds for heavier operations depending on OS, hardware, and workload.",
+    "codeSnippet": "# Measure rough syscall overhead (example: getpid)\nimport os, time\nn = 1_000_000\nt0 = time.perf_counter_ns()\nfor _ in range(n):\n    os.getpid()\nprint((time.perf_counter_ns() - t0) / n, \"ns/call\")",
+    "codeLanguage": "python",
+    "tags": [
+      "systems",
+      "syscalls",
+      "performance",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-buffered-io-llm-token-streams",
+    "question": "Why does buffered I/O matter for Python LLM token streams?",
+    "answer": "Python stdout is typically line-buffered on terminals (flushes on newline) and more fully buffered when piped/redirected. In token streams, printing partial tokens without `\\n` can delay visible output unless you flush. Buffering exists to reduce syscall count (`write` calls), improving CPU efficiency and throughput. The same tradeoff appears in Go (`bufio.Writer`), C (`setvbuf`), Rust (`BufWriter`), and Node/TypeScript streams: larger buffers reduce overhead but can increase per-token display latency.",
+    "codeSnippet": "# Python: line-buffered on TTY; partial tokens may wait without newline\nprint(token, end=\"\")\nprint(token, end=\"\", flush=True)  # force per-token visibility\n\n# Go: buffered writer, explicit flush\nw := bufio.NewWriter(os.Stdout)\nfmt.Fprint(w, token)\nw.Flush()\n\n# C: choose buffering mode (line/full/none)\nsetvbuf(stdout, NULL, _IOLBF, 0); // line buffered\n\n# Rust: BufWriter + explicit flush\nwrite!(writer, \"{}\", token)?;\nwriter.flush()?;\n\n# Node/TS: writes may be buffered by stream/runtime\nprocess.stdout.write(token);",
+    "codeLanguage": "text",
+    "tags": [
+      "python",
+      "buffering",
+      "syscalls",
+      "llm",
+      "streaming",
+      "go",
+      "c",
+      "rust",
+      "typescript",
+      "lang:typescript"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-requests-stream-vs-httpx-stream",
+    "question": "What is the difference between `requests` `stream=True` and `httpx` streaming?",
+    "answer": "`requests` uses a request flag (`stream=True`) to avoid eager body download. `httpx` uses an explicit streaming context (`client.stream(...)` / `async with client.stream(...)`) and then `iter_*`/`aiter_*` consumption methods.",
+    "tags": [
+      "requests",
+      "httpx",
+      "streaming",
+      "python",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# requests\nr = requests.get(url, stream=True)\nfor line in r.iter_lines():\n    ...\n\n# httpx\nwith httpx.Client() as c:\n    with c.stream(\"GET\", url) as r:\n        for line in r.iter_lines():\n            ...",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-openai-history-access",
+    "question": "Can the OpenAI API query my ChatGPT conversation history?",
+    "answer": "No. There is no general API to fetch personal chat history from chat.openai.com. You need to provide transcripts yourself or store/retrieve your own conversation data in your app.",
+    "tags": [
+      "openai",
+      "api",
+      "data",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# Store your own app conversations; there is no ChatGPT-history API\nstore.append({\"user\": prompt, \"assistant\": answer})\n# later: query your own store by conversation_id",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-stream-flag-two-layers",
+    "question": "What does `stream=True` actually control?",
+    "answer": "There are two layers: API payload streaming (`stream: true`) tells the server to emit incremental events, while Python `requests` `stream=True` controls whether the HTTP response body is buffered eagerly or consumed incrementally.",
+    "tags": [
+      "streaming",
+      "http",
+      "llm",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# API/server layer\npayload = {\"model\": model, \"messages\": msgs, \"stream\": True}\n\n# HTTP client layer (requests)\nr = requests.post(url, json=payload, stream=True)",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-httpx-stream-pattern",
+    "question": "How do I stream lines with `httpx`?",
+    "answer": "Use a streaming context first, then line iterators: `with client.stream(...) as r: r.iter_lines()` for sync and `async with client.stream(...) as r: async for line in r.aiter_lines()` for async.",
+    "tags": [
+      "httpx",
+      "streaming",
+      "python",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# sync\nwith httpx.Client() as c:\n    with c.stream(\"GET\", url) as r:\n        for line in r.iter_lines():\n            ...\n\n# async\nasync with httpx.AsyncClient() as c:\n    async with c.stream(\"GET\", url) as r:\n        async for line in r.aiter_lines():\n            ...",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-sse-vs-streaming",
+    "question": "Does stream always mean SSE?",
+    "answer": "No. SSE is one protocol over HTTP streaming. Streaming can also be chunked bytes, NDJSON, large file transfer, or any incremental response body.",
+    "tags": [
+      "sse",
+      "streaming",
+      "http",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# SSE frame example\n# data: {\"delta\":\"hi\"}\n\n\n\n# NDJSON example\n# {\"delta\":\"hi\"}\n",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-response-iterators-buffering",
+    "question": "Why do `iter_lines`-style APIs work on non-streaming responses too?",
+    "answer": "If the response is already buffered, iterators still work by iterating over in-memory content. You keep a unified API, but lose streaming latency and memory benefits.",
+    "tags": [
+      "http",
+      "streaming",
+      "performance",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# buffered first, then iterate in memory\nr = requests.get(url)\nfor line in r.iter_lines():\n    ...\n\n# true streaming from socket\nr = requests.get(url, stream=True)\nfor line in r.iter_lines():\n    ...",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-httpx-response-sync-async-iterators",
+    "question": "Why does `httpx.Response` expose both sync and async line iterators?",
+    "answer": "The response abstraction supports both sync and async client flows. Use `iter_lines()` with sync clients and `aiter_lines()` with async clients; mixing modes raises errors or causes blocking issues.",
+    "tags": [
+      "httpx",
+      "async",
+      "python",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# sync response\nfor line in resp.iter_lines():\n    ...\n\n# async response\nasync for line in resp.aiter_lines():\n    ...",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-go-http-streaming-model",
+    "question": "How does streaming map to Go HTTP clients?",
+    "answer": "In Go, `resp.Body` is an `io.ReadCloser` you can read incrementally by default. You still need API-level streaming flags when the server must emit incremental events (like SSE).",
+    "tags": [
+      "go",
+      "http",
+      "streaming",
+      "lang:go"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "resp, _ := http.Get(url)\ndefer resp.Body.Close()\nscanner := bufio.NewScanner(resp.Body)\nfor scanner.Scan() {\n    line := scanner.Text()\n    _ = line\n}",
+    "codeLanguage": "go"
+  },
+  {
+    "id": "2026-02-20-openrouter-client-lifecycle",
+    "question": "Should I create an OpenRouter client per request or reuse one?",
+    "answer": "Reuse one client across a larger scope. A per-request context manager adds setup/teardown overhead. The context manager is mainly for guaranteed cleanup at lifecycle boundaries.",
+    "tags": [
+      "openrouter",
+      "python",
+      "performance",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "with OpenRouter(api_key=key) as client:\n    client.chat.send(...)\n    client.chat.send(...)  # reuse one client",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-python-cleanup-patterns",
+    "question": "What is the best cleanup pattern in Python for network clients?",
+    "answer": "Prefer `with`/context managers or explicit `close()` usage in `try/finally`. Avoid relying on `__del__` for important cleanup because garbage collection timing is not deterministic.",
+    "tags": [
+      "python",
+      "resource-management",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "provider = Provider(...)\ntry:\n    provider.query(\"hello\")\nfinally:\n    provider.close()",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-del-semantics",
+    "question": "Does `del obj` destroy a Python object immediately?",
+    "answer": "No. `del` removes a reference name; the object is reclaimed only when references drop to zero (or GC later collects cycles). It is not deterministic cleanup.",
+    "tags": [
+      "python",
+      "garbage-collection",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "x = SomeObject()\ny = x\ndel x  # object still alive via y",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-dunder-hook-model",
+    "question": "How should I think about dunder methods conceptually?",
+    "answer": "Think in terms of syntax hooks: language constructs (`with`, `for`, `len`, indexing, operators, attribute access) dispatch to specific dunder methods under the hood.",
+    "tags": [
+      "python",
+      "dunder",
+      "language-design",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "class Box:\n    def __len__(self): return 3\n\nlen(Box())  # calls __len__",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-go-defer-cleanup",
+    "question": "Why does Go not use Python-style destructors?",
+    "answer": "Go prefers explicit deterministic cleanup with `defer` at function scope instead of GC-timed destructors. This avoids lifecycle ambiguity and keeps cleanup predictable.",
+    "tags": [
+      "go",
+      "python",
+      "resource-management",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "f, _ := os.Open(\"file.txt\")\ndefer f.Close()\n// use f",
+    "codeLanguage": "go"
+  },
+  {
+    "id": "2026-02-20-ttft-latency-factors",
+    "question": "Why is time-to-first-token (TTFT) slower on advanced models?",
+    "answer": "TTFT is dominated by prefill over the full prompt. Larger models, longer prompts, queueing, cold starts, and hardware/provider differences all increase first-token latency.",
+    "tags": [
+      "llm",
+      "latency",
+      "inference",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "t0 = time.perf_counter()\nresp = client.chat.completions.create(...)\nprint(\"TTFT\", time.perf_counter() - t0)",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-kv-cache-boundary",
+    "question": "How does KV cache avoid recomputing all prior tokens?",
+    "answer": "During prefill, each token's keys/values are stored by layer and position. During decode, only the new token's K/V is computed and appended; prior tokens are read from cache.",
+    "tags": [
+      "llm",
+      "kv-cache",
+      "inference",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# prefill: cache prompt K/V once\nkv = prefill(prompt_tokens)\n# decode: append only new token K/V each step\nkv.append(step(new_token))",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-python-async-protocols",
+    "question": "Is there a TypeScript-style interface shape for async clients in Python?",
+    "answer": "Yes. Use `typing.Protocol` for structural typing. Any object matching the required async method signatures can satisfy the protocol without explicit inheritance.",
+    "tags": [
+      "python",
+      "typing",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "class AsyncClientLike(Protocol):\n    async def get(self, url: str) -> Any: ...",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-python-async-return-types",
+    "question": "How should async return types be annotated in Python?",
+    "answer": "Annotate the awaited result type (e.g., `async def f() -> Response`). Type checkers still know the call expression returns a coroutine before awaiting.",
+    "tags": [
+      "python",
+      "typing",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "async def fetch(client: httpx.AsyncClient) -> httpx.Response:\n    return await client.get(url)",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-httpx-async-usage",
+    "question": "Why do `httpx.AsyncClient`, `async with`, and `async for` matter?",
+    "answer": "Async resources expose async protocols (`__aenter__`, `__aexit__`, `__anext__`). Use `async with`/`async for` so the event loop can schedule other work during I/O waits.",
+    "tags": [
+      "httpx",
+      "python",
+      "async",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "async with httpx.AsyncClient() as c:\n    async with c.stream(\"GET\", url) as r:\n        async for line in r.aiter_lines():\n            ...",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-20-httpx-vs-requests",
+    "question": "Is `httpx` basically async `requests`?",
+    "answer": "Conceptually yes: similar ergonomic API, but `httpx` supports both sync and async clients and modern transport features like HTTP/2. `requests` remains sync-focused.",
+    "tags": [
+      "httpx",
+      "requests",
+      "python",
+      "lang:python"
+    ],
+    "date": "2026-02-20",
+    "codeSnippet": "# requests (sync)\nr = requests.get(url)\n\n# httpx async\nasync with httpx.AsyncClient() as c:\n    r = await c.get(url)",
+    "codeLanguage": "python"
+  },
+  {
+    "id": "2026-02-19-openrouter-streaming",
+    "question": "How do I stream responses from the OpenRouter API?",
+    "answer": "Use the `stream: true` parameter in your chat completion request. The response will be a stream of Server-Sent Events (SSE) that you can process incrementally.",
+    "codeSnippet": "const response = await openrouter.chat.completions.create({\n  model: 'anthropic/claude-3.5-sonnet',\n  messages: [{ role: 'user', content: 'Hello!' }],\n  stream: true,\n});\n\nfor await (const chunk of response) {\n  const content = chunk.choices[0]?.delta?.content;\n  if (content) process.stdout.write(content);\n}",
+    "codeLanguage": "typescript",
+    "tags": [
+      "openrouter",
+      "streaming",
+      "typescript",
+      "lang:typescript"
+    ],
+    "date": "2026-02-19"
+  },
+  {
+    "id": "2026-02-19-openrouter-sdk",
+    "question": "Does the OpenRouter SDK support the same interface as OpenAI?",
+    "answer": "Yes! OpenRouter is fully compatible with the OpenAI SDK. You just need to set a custom `baseURL` and use your OpenRouter API key.",
+    "codeSnippet": "import OpenAI from 'openai';\n\nconst openrouter = new OpenAI({\n  baseURL: 'https://openrouter.ai/api/v1',\n  apiKey: process.env.OPENROUTER_API_KEY,\n});",
+    "codeLanguage": "typescript",
+    "tags": [
+      "openrouter",
+      "openai",
+      "sdk",
+      "lang:typescript"
+    ],
+    "date": "2026-02-19"
+  },
+  {
+    "id": "2026-02-18-provider-field",
+    "question": "What is the provider field in OpenRouter responses?",
+    "answer": "The `provider` field in OpenRouter responses tells you which underlying provider actually served your request. This is useful for debugging and understanding routing behavior, especially when using models available from multiple providers.",
+    "tags": [
+      "openrouter",
+      "api",
+      "lang:general"
+    ],
+    "date": "2026-02-18"
+  }
+]

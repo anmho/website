@@ -34,6 +34,30 @@ npm run build
 npm start
 ```
 
+## CLI
+
+Current status:
+- TypeScript/Commander npm CLI is implemented at `tools/websitectl-ts`.
+
+### TypeScript CLI Usage
+
+Build locally:
+
+```bash
+npm run cli:build
+npm run cli:install
+```
+
+Then:
+
+```bash
+websitectl setup
+websitectl api validate
+websitectl api new-learning --question "..." --answer "..." --tags "ts,cli"
+websitectl api new-article --title "..." --excerpt "..."
+websitectl bookmark add "https://example.com/article"
+```
+
 ## Daily Article Email
 
 Sends a random curated article from bookmarks daily via email using Resend and Vercel Cron.

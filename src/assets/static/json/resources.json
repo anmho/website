@@ -1,12 +1,114 @@
 [
   {
+    "title": "tbpn post on X",
+    "description": "Referenced X post connected to Geoffrey Huntley's teleport article context.",
+    "category": "x.com",
+    "format": "Post",
+    "url": "https://x.com/tbpn/status/2019166322060587375",
+    "author": "tbpn",
+    "tags": [
+      "x",
+      "post",
+      "ai",
+      "engineering"
+    ]
+  },
+  {
+    "title": "everything is a ralph loop",
+    "description": "A loop-oriented software development mindset focused on iterative autonomous execution and engineering the loop itself.",
+    "category": "ghuntley.com",
+    "format": "Article",
+    "url": "https://ghuntley.com/loop/",
+    "author": "Geoffrey Huntley",
+    "tags": [
+      "agent loops",
+      "ai engineering",
+      "workflow",
+      "automation"
+    ]
+  },
+  {
+    "title": "The future belongs to people who can just do things",
+    "description": "Perspective on AI adoption stages in engineering teams and why organizations should accelerate practical skill development.",
+    "category": "ghuntley.com",
+    "format": "Article",
+    "url": "https://ghuntley.com/dothings/",
+    "author": "Geoffrey Huntley",
+    "tags": [
+      "ai engineering",
+      "adoption",
+      "team dynamics",
+      "execution"
+    ]
+  },
+  {
+    "title": "What do I mean by some software devs are \"ngmi\"?",
+    "description": "A scenario-driven essay arguing that performance rankings can shift quickly as engineers adopt AI-assisted workflows and others stay in disbelief.",
+    "category": "ghuntley.com",
+    "format": "Article",
+    "url": "https://ghuntley.com/ngmi/",
+    "author": "Geoffrey Huntley",
+    "tags": [
+      "ai engineering",
+      "career",
+      "productivity",
+      "adaptation"
+    ]
+  },
+  {
+    "title": "Claire Vo post on X",
+    "description": "Referenced X post from Claire Vo. Add context notes once tweet text is captured.",
+    "category": "x.com",
+    "format": "Post",
+    "url": "https://x.com/clairevo/status/2023908375084617729",
+    "author": "Claire Vo",
+    "tags": [
+      "x",
+      "post",
+      "ai",
+      "product"
+    ]
+  },
+  {
+    "title": "Graphite: The End of Mammoth Pull Requests? My Experience",
+    "description": "Nicolas Charpentier's experience report on using stacked PR workflows with Graphite to reduce oversized pull requests and improve review velocity.",
+    "category": "charpeni.com",
+    "format": "Article",
+    "url": "https://www.charpeni.com/blog/graphite-the-end-of-mammoth-pull-requests-my-experience",
+    "author": "Nicolas Charpentier",
+    "tags": [
+      "pull requests",
+      "code review",
+      "developer workflow",
+      "graphite"
+    ]
+  },
+  {
+    "title": "everything is a ralph loop",
+    "description": "Geoffrey Huntley's post on \"Ralph loops\" as an iterative software-development operating model and why loop design matters more than one-pass implementation.",
+    "category": "ghuntley.com",
+    "format": "Article",
+    "url": "https://ghuntley.com/ralph/",
+    "author": "Geoffrey Huntley",
+    "tags": [
+      "ai engineering",
+      "agent loops",
+      "software development",
+      "automation"
+    ]
+  },
+  {
     "title": "Designing Data-Intensive Applications",
     "description": "The most approachable deep dive into modern data systems, covering replication, partitioning, streams, and consistency tradeoffs.",
     "category": "Distributed Systems",
     "format": "Book",
     "url": "https://dataintensive.net/",
     "author": "Martin Kleppmann",
-    "tags": ["databases", "system design", "streaming"]
+    "tags": [
+      "databases",
+      "system design",
+      "streaming"
+    ]
   },
   {
     "title": "The System Design Primer",
@@ -15,7 +117,11 @@
     "format": "Guide",
     "url": "https://github.com/donnemartin/system-design-primer",
     "author": "Donne Martin",
-    "tags": ["architecture", "reference", "planning"]
+    "tags": [
+      "architecture",
+      "reference",
+      "planning"
+    ]
   },
   {
     "title": "High Scalability",
@@ -24,7 +130,11 @@
     "format": "Newsletter",
     "url": "http://highscalability.com/",
     "author": "Todd Hoff",
-    "tags": ["case studies", "production", "growth"]
+    "tags": [
+      "case studies",
+      "production",
+      "growth"
+    ]
   },
   {
     "title": "Stanford CS245: Database Systems",
@@ -33,7 +143,11 @@
     "format": "Course",
     "url": "https://web.stanford.edu/class/cs245/",
     "author": "Stanford University",
-    "tags": ["query planning", "storage", "academia"]
+    "tags": [
+      "query planning",
+      "storage",
+      "academia"
+    ]
   },
   {
     "title": "Awesome Postgres",
@@ -42,7 +156,11 @@
     "format": "Repository",
     "url": "https://github.com/dhamaniasad/awesome-postgres",
     "author": "dhamaniasad",
-    "tags": ["postgres", "tooling", "best practices"]
+    "tags": [
+      "postgres",
+      "tooling",
+      "best practices"
+    ]
   },
   {
     "title": "Pragmatic Engineer Newsletter",
@@ -51,7 +169,11 @@
     "format": "Newsletter",
     "url": "https://newsletter.pragmaticengineer.com/",
     "author": "Gergely Orosz",
-    "tags": ["leadership", "culture", "career"]
+    "tags": [
+      "leadership",
+      "culture",
+      "career"
+    ]
   },
   {
     "title": "Practical Guide to Event-Driven Architectures",
@@ -60,7 +182,11 @@
     "format": "Report",
     "url": "https://www.thoughtworks.com/insights/articles/practical-guide-event-driven-architecture",
     "author": "ThoughtWorks",
-    "tags": ["events", "integration", "messaging"]
+    "tags": [
+      "events",
+      "integration",
+      "messaging"
+    ]
   },
   {
     "title": "Uber Engineering Blog",
@@ -69,6 +195,686 @@
     "format": "Blog",
     "url": "https://www.uber.com/en-JP/blog/engineering/",
     "author": "Uber Engineering",
-    "tags": ["observability", "ml", "platform"]
+    "tags": [
+      "observability",
+      "ml",
+      "platform"
+    ]
+  },
+  {
+    "title": "Uber Go Style Guide",
+    "description": "Uber's comprehensive Go style guide covering conventions, patterns, and best practices.",
+    "category": "github.com",
+    "format": "Guide",
+    "url": "https://github.com/uber-go/guide/blob/master/style.md",
+    "author": "Uber",
+    "tags": [
+      "go",
+      "style guide",
+      "best practices"
+    ]
+  },
+  {
+    "title": "How to Write HTTP Services in Go After 13 Years",
+    "description": "Mat Ryer's definitive guide on structuring HTTP services in Go with lessons from over a decade of experience.",
+    "category": "grafana.com",
+    "format": "Article",
+    "url": "https://grafana.com/blog/2024/02/09/how-i-write-http-services-in-go-after-13-years/",
+    "author": "Mat Ryer",
+    "tags": [
+      "go",
+      "http",
+      "architecture"
+    ]
+  },
+  {
+    "title": "Effective Go",
+    "description": "The official guide to writing clear, idiomatic Go code.",
+    "category": "go.dev",
+    "format": "Guide",
+    "url": "https://go.dev/doc/effective_go",
+    "author": "Go Team",
+    "tags": [
+      "go",
+      "official",
+      "idioms"
+    ]
+  },
+  {
+    "title": "Idempotency Keys",
+    "description": "Stripe's deep dive into designing idempotent APIs for reliable payment processing.",
+    "category": "stripe.com",
+    "format": "Article",
+    "url": "https://stripe.com/blog/idempotency",
+    "author": "Stripe",
+    "tags": [
+      "api design",
+      "reliability",
+      "payments"
+    ]
+  },
+  {
+    "title": "Idempotency Keys with Go and Postgres",
+    "description": "Practical implementation of Stripe-style idempotency keys using Go and PostgreSQL.",
+    "category": "medium.com",
+    "format": "Article",
+    "url": "https://medium.com/inheaden/stripe-like-idempotency-keys-with-go-and-postgres-part-1-b69e25e5b1f0",
+    "author": "Inheaden",
+    "tags": [
+      "go",
+      "postgres",
+      "idempotency"
+    ]
+  },
+  {
+    "title": "PostgreSQL Documentation",
+    "description": "Official PostgreSQL 16 documentation covering all aspects of the database.",
+    "category": "postgresql.org",
+    "format": "Documentation",
+    "url": "https://www.postgresql.org/docs/16/index.html",
+    "author": "PostgreSQL",
+    "tags": [
+      "postgres",
+      "reference",
+      "database"
+    ]
+  },
+  {
+    "title": "Redis Distributed Locks",
+    "description": "Official Redis guide on implementing distributed locks with the Redlock algorithm.",
+    "category": "redis.io",
+    "format": "Documentation",
+    "url": "https://redis.io/docs/latest/develop/clients/patterns/distributed-locks/",
+    "author": "Redis",
+    "tags": [
+      "redis",
+      "distributed systems",
+      "locking"
+    ]
+  },
+  {
+    "title": "Amazon Dynamo Paper",
+    "description": "The foundational paper on Amazon's highly available key-value store that influenced NoSQL databases.",
+    "category": "allthingsdistributed.com",
+    "format": "Paper",
+    "url": "https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf",
+    "author": "Amazon",
+    "tags": [
+      "distributed systems",
+      "dynamo",
+      "availability"
+    ]
+  },
+  {
+    "title": "AWS Database Selection Guide",
+    "description": "AWS decision guide for choosing the right database service for your use case.",
+    "category": "docs.aws.amazon.com",
+    "format": "Guide",
+    "url": "https://docs.aws.amazon.com/decision-guides/latest/databases-on-aws-how-to-choose/databases-on-aws-how-to-choose.html",
+    "author": "AWS",
+    "tags": [
+      "aws",
+      "databases",
+      "architecture"
+    ]
+  },
+  {
+    "title": "Google Cloud Run Deployment",
+    "description": "Official guide on deploying containerized applications to Cloud Run.",
+    "category": "cloud.google.com",
+    "format": "Documentation",
+    "url": "https://cloud.google.com/run/docs/deploying",
+    "author": "Google Cloud",
+    "tags": [
+      "gcp",
+      "cloud run",
+      "containers"
+    ]
+  },
+  {
+    "title": "Kubernetes Services and Networking",
+    "description": "Official Kubernetes documentation on services, load balancing, and network policies.",
+    "category": "kubernetes.io",
+    "format": "Documentation",
+    "url": "https://kubernetes.io/docs/concepts/services-networking/",
+    "author": "Kubernetes",
+    "tags": [
+      "kubernetes",
+      "networking",
+      "services"
+    ]
+  },
+  {
+    "title": "Terraform EKS Tutorial",
+    "description": "HashiCorp's tutorial on provisioning EKS clusters with Terraform.",
+    "category": "developer.hashicorp.com",
+    "format": "Tutorial",
+    "url": "https://developer.hashicorp.com/terraform/tutorials/kubernetes/eks",
+    "author": "HashiCorp",
+    "tags": [
+      "terraform",
+      "eks",
+      "kubernetes"
+    ]
+  },
+  {
+    "title": "Attention Is All You Need (Transformers)",
+    "description": "The groundbreaking paper introducing the Transformer architecture that powers modern LLMs.",
+    "category": "arxiv.org",
+    "format": "Paper",
+    "url": "https://arxiv.org/abs/2210.03629",
+    "author": "Google",
+    "tags": [
+      "ml",
+      "transformers",
+      "nlp"
+    ]
+  },
+  {
+    "title": "Consistent Hashing Explained",
+    "description": "Visual explanation of consistent hashing for distributed systems.",
+    "category": "gitbook.io",
+    "format": "Guide",
+    "url": "https://liuzhenglaichn.gitbook.io/system-design/advanced/consistent-hashing",
+    "author": "Liu Zheng",
+    "tags": [
+      "distributed systems",
+      "hashing",
+      "load balancing"
+    ]
+  },
+  {
+    "title": "Saga Pattern for Microservices",
+    "description": "Pattern for managing distributed transactions across microservices.",
+    "category": "microservices.io",
+    "format": "Pattern",
+    "url": "https://microservices.io/patterns/data/saga.html",
+    "author": "Chris Richardson",
+    "tags": [
+      "microservices",
+      "transactions",
+      "patterns"
+    ]
+  },
+  {
+    "title": "Facebook TAO: The Power of the Graph",
+    "description": "How Facebook built TAO, their distributed data store for the social graph.",
+    "category": "engineering.fb.com",
+    "format": "Article",
+    "url": "https://engineering.fb.com/2013/06/25/core-infra/tao-the-power-of-the-graph/",
+    "author": "Facebook Engineering",
+    "tags": [
+      "distributed systems",
+      "graph",
+      "facebook"
+    ]
+  },
+  {
+    "title": "RocksDB Wiki",
+    "description": "Documentation for RocksDB, the high-performance embedded key-value store.",
+    "category": "github.com/facebook",
+    "format": "Wiki",
+    "url": "https://github.com/facebook/rocksdb/wiki",
+    "author": "Facebook",
+    "tags": [
+      "rocksdb",
+      "storage",
+      "lsm tree"
+    ]
+  },
+  {
+    "title": "Bitcoin Whitepaper",
+    "description": "Satoshi Nakamoto's original paper introducing Bitcoin and blockchain technology.",
+    "category": "bitcoin.org",
+    "format": "Paper",
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "author": "Satoshi Nakamoto",
+    "tags": [
+      "bitcoin",
+      "blockchain",
+      "cryptocurrency"
+    ]
+  },
+  {
+    "title": "Ethereum Book",
+    "description": "Comprehensive guide to Ethereum development and smart contracts.",
+    "category": "github.com/ethereumbook",
+    "format": "Book",
+    "url": "https://github.com/ethereumbook/ethereumbook",
+    "author": "Andreas Antonopoulos",
+    "tags": [
+      "ethereum",
+      "smart contracts",
+      "blockchain"
+    ]
+  },
+  {
+    "title": "Solidity by Example",
+    "description": "Learn Solidity through practical, annotated smart contract examples.",
+    "category": "solidity-by-example.org",
+    "format": "Tutorial",
+    "url": "https://solidity-by-example.org/",
+    "author": "Community",
+    "tags": [
+      "solidity",
+      "smart contracts",
+      "ethereum"
+    ]
+  },
+  {
+    "title": "Uniswap Whitepaper",
+    "description": "Technical specification of the Uniswap automated market maker protocol.",
+    "category": "uniswap.org",
+    "format": "Paper",
+    "url": "https://app.uniswap.org/whitepaper.pdf",
+    "author": "Uniswap",
+    "tags": [
+      "defi",
+      "amm",
+      "ethereum"
+    ]
+  },
+  {
+    "title": "MIT Missing Semester",
+    "description": "Lectures on practical computing skills often missing from CS curricula.",
+    "category": "youtube.com",
+    "format": "Video",
+    "url": "https://www.youtube.com/watch?v=-W9F__D3oY4",
+    "author": "MIT",
+    "tags": [
+      "tools",
+      "terminal",
+      "productivity"
+    ]
+  },
+  {
+    "title": "Geohashing and Quadtrees",
+    "description": "Visual explanation of spatial indexing techniques for location-based systems.",
+    "category": "karanpratapsingh.com",
+    "format": "Article",
+    "url": "https://www.karanpratapsingh.com/courses/system-design/geohashing-and-quadtrees",
+    "author": "Karan Pratap Singh",
+    "tags": [
+      "system design",
+      "geospatial",
+      "indexing"
+    ]
+  },
+  {
+    "title": "Google SRE: Managing Load",
+    "description": "Google's approach to load management and traffic handling at scale.",
+    "category": "sre.google",
+    "format": "Chapter",
+    "url": "https://sre.google/workbook/managing-load/",
+    "author": "Google SRE",
+    "tags": [
+      "sre",
+      "load balancing",
+      "reliability"
+    ]
+  },
+  {
+    "title": "Testcontainers for Go",
+    "description": "Guide to integration testing with Testcontainers in Go applications.",
+    "category": "testcontainers.com",
+    "format": "Guide",
+    "url": "https://testcontainers.com/guides/getting-started-with-testcontainers-for-go/",
+    "author": "Testcontainers",
+    "tags": [
+      "go",
+      "testing",
+      "containers"
+    ]
+  },
+  {
+    "title": "Brandur's Fragments",
+    "description": "Short-form technical writing on Go, Postgres, and building reliable systems.",
+    "category": "brandur.org",
+    "format": "Blog",
+    "url": "https://brandur.org/fragments",
+    "author": "Brandur",
+    "tags": [
+      "go",
+      "postgres",
+      "engineering"
+    ]
+  },
+  {
+    "title": "Dave Cheney: Table Driven Tests",
+    "description": "The definitive guide to writing table-driven tests in Go.",
+    "category": "dave.cheney.net",
+    "format": "Article",
+    "url": "https://dave.cheney.net/2019/05/07/prefer-table-driven-tests",
+    "author": "Dave Cheney",
+    "tags": [
+      "go",
+      "testing",
+      "patterns"
+    ]
+  },
+  {
+    "title": "Common Anti-Patterns in Go Web Apps",
+    "description": "Practical guide to avoiding common mistakes in Go web applications.",
+    "category": "threedots.tech",
+    "format": "Article",
+    "url": "https://threedots.tech/post/common-anti-patterns-in-go-web-applications/",
+    "author": "Three Dots Labs",
+    "tags": [
+      "go",
+      "web",
+      "anti-patterns"
+    ]
+  },
+  {
+    "title": "Helm Chart Template Guide",
+    "description": "Official guide to creating Helm chart templates for Kubernetes.",
+    "category": "helm.sh",
+    "format": "Documentation",
+    "url": "https://helm.sh/docs/chart_template_guide/#the-chart-template-developer-s-guide",
+    "author": "Helm",
+    "tags": [
+      "helm",
+      "kubernetes",
+      "templates"
+    ]
+  },
+  {
+    "title": "Conventional Commits",
+    "description": "Specification for adding human and machine readable meaning to commit messages.",
+    "category": "conventionalcommits.org",
+    "format": "Specification",
+    "url": "https://www.conventionalcommits.org/en/v1.0.0-beta.2/",
+    "author": "Community",
+    "tags": [
+      "git",
+      "commits",
+      "conventions"
+    ]
+  },
+  {
+    "title": "HTTP Headers Reference",
+    "description": "MDN's comprehensive reference for HTTP headers.",
+    "category": "developer.mozilla.org",
+    "format": "Reference",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers",
+    "author": "MDN",
+    "tags": [
+      "http",
+      "headers",
+      "web"
+    ]
+  },
+  {
+    "title": "LSM Tree",
+    "description": "Wikipedia article explaining log-structured merge-trees used in modern databases.",
+    "category": "wikipedia.org",
+    "format": "Reference",
+    "url": "https://en.wikipedia.org/wiki/Log-structured_merge-tree",
+    "author": "Wikipedia",
+    "tags": [
+      "databases",
+      "data structures",
+      "storage"
+    ]
+  },
+  {
+    "title": "Teach Yourself CS",
+    "description": "Self-study guide for a rigorous computer science education.",
+    "category": "teachyourselfcs.com",
+    "format": "Guide",
+    "url": "https://teachyourselfcs.com/",
+    "author": "Oz Nova & Myles Byrne",
+    "tags": [
+      "cs fundamentals",
+      "education",
+      "self-study"
+    ]
+  },
+  {
+    "title": "Staff Engineer Book",
+    "description": "Guide to navigating the staff engineer career path.",
+    "category": "staffeng.com",
+    "format": "Book",
+    "url": "https://staffeng.com/book/",
+    "author": "Will Larson",
+    "tags": [
+      "career",
+      "staff engineer",
+      "leadership"
+    ]
+  },
+  {
+    "title": "Google Go Style Guide",
+    "description": "Google's official style guide for writing Go code.",
+    "category": "google.github.io",
+    "format": "Guide",
+    "url": "https://google.github.io/styleguide/go/",
+    "author": "Google",
+    "tags": [
+      "go",
+      "style guide",
+      "google"
+    ]
+  },
+  {
+    "title": "Stanford CS329S: ML Systems Design",
+    "description": "Stanford course on designing and deploying machine learning systems.",
+    "category": "stanford-cs329s.github.io",
+    "format": "Course",
+    "url": "https://stanford-cs329s.github.io/syllabus.html",
+    "author": "Stanford",
+    "tags": [
+      "ml",
+      "mlops",
+      "systems"
+    ]
+  },
+  {
+    "title": "GoReleaser Homebrew",
+    "description": "Guide to distributing Go CLI tools via Homebrew with GoReleaser.",
+    "category": "goreleaser.com",
+    "format": "Documentation",
+    "url": "https://goreleaser.com/customization/homebrew/",
+    "author": "GoReleaser",
+    "tags": [
+      "go",
+      "distribution",
+      "homebrew"
+    ]
+  },
+  {
+    "title": "The Absolute Minimum About Unicode",
+    "description": "Essential knowledge about Unicode for every developer.",
+    "category": "tonsky.me",
+    "format": "Article",
+    "url": "https://tonsky.me/blog/unicode/",
+    "author": "Nikita Prokopov",
+    "tags": [
+      "unicode",
+      "encoding",
+      "fundamentals"
+    ]
+  },
+  {
+    "title": "UTF-8 Everywhere",
+    "description": "Manifesto for using UTF-8 as the universal text encoding.",
+    "category": "utf8everywhere.org",
+    "format": "Manifesto",
+    "url": "https://utf8everywhere.org/",
+    "author": "Community",
+    "tags": [
+      "unicode",
+      "utf-8",
+      "encoding"
+    ]
+  },
+  {
+    "title": "Redis Internals",
+    "description": "Visual deep dive into Redis internals and data structures.",
+    "category": "systemsinpixels.com",
+    "format": "Article",
+    "url": "https://systemsinpixels.com/blog/redis-internal",
+    "author": "Systems in Pixels",
+    "tags": [
+      "redis",
+      "internals",
+      "data structures"
+    ]
+  },
+  {
+    "title": "Mercari: How to Use t.Parallel",
+    "description": "Guide to parallel testing in Go from Mercari engineering.",
+    "category": "engineering.mercari.com",
+    "format": "Article",
+    "url": "https://engineering.mercari.com/en/blog/entry/20220408-how_to_use_t_parallel/",
+    "author": "Mercari Engineering",
+    "tags": [
+      "go",
+      "testing",
+      "parallel"
+    ]
+  },
+  {
+    "title": "Foundry Getting Started",
+    "description": "Introduction to Foundry, the Ethereum development toolkit.",
+    "category": "getfoundry.sh",
+    "format": "Documentation",
+    "url": "https://getfoundry.sh/introduction/getting-started",
+    "author": "Foundry",
+    "tags": [
+      "ethereum",
+      "solidity",
+      "tooling"
+    ]
+  },
+  {
+    "title": "Crypto Reading List",
+    "description": "Jump Crypto's curated reading list for blockchain and crypto engineering.",
+    "category": "github.com/jumpcrypto",
+    "format": "Repository",
+    "url": "https://github.com/JumpCrypto/crypto-reading-list",
+    "author": "Jump Crypto",
+    "tags": [
+      "crypto",
+      "blockchain",
+      "reading list"
+    ]
+  },
+  {
+    "title": "Solana Developers Cookbook",
+    "description": "Recipes and patterns for building on Solana.",
+    "category": "solana.com",
+    "format": "Documentation",
+    "url": "https://solana.com/developers/cookbook",
+    "author": "Solana",
+    "tags": [
+      "solana",
+      "blockchain",
+      "development"
+    ]
+  },
+  {
+    "title": "Smart Contract Best Practices",
+    "description": "ConsenSys security best practices for Ethereum smart contracts.",
+    "category": "consensysdiligence.github.io",
+    "format": "Guide",
+    "url": "https://consensysdiligence.github.io/smart-contract-best-practices/",
+    "author": "ConsenSys Diligence",
+    "tags": [
+      "solidity",
+      "security",
+      "ethereum"
+    ]
+  },
+  {
+    "title": "Apache DataSketches",
+    "description": "Library of streaming algorithms for approximate query processing.",
+    "category": "datasketches.apache.org",
+    "format": "Documentation",
+    "url": "https://datasketches.apache.org/",
+    "author": "Apache",
+    "tags": [
+      "streaming",
+      "probabilistic",
+      "big data"
+    ]
+  },
+  {
+    "title": "Feature Engineering",
+    "description": "IBM's guide to feature engineering for machine learning.",
+    "category": "ibm.com",
+    "format": "Article",
+    "url": "https://www.ibm.com/think/topics/feature-engineering",
+    "author": "IBM",
+    "tags": [
+      "ml",
+      "feature engineering",
+      "data science"
+    ]
+  },
+  {
+    "title": "Two Tower Model for Recommendations",
+    "description": "Deep dive into the two-tower architecture for recommendation systems.",
+    "category": "shaped.ai",
+    "format": "Article",
+    "url": "https://www.shaped.ai/blog/the-two-tower-model-for-recommendation-systems-a-deep-dive",
+    "author": "Shaped",
+    "tags": [
+      "ml",
+      "recommendations",
+      "architecture"
+    ]
+  },
+  {
+    "title": "vLLM",
+    "description": "High-throughput LLM serving engine with PagedAttention.",
+    "category": "github.com/vllm-project",
+    "format": "Repository",
+    "url": "https://github.com/vllm-project/vllm",
+    "author": "vLLM Project",
+    "tags": [
+      "llm",
+      "inference",
+      "ml"
+    ]
+  },
+  {
+    "title": "Don't Build Multi-Agents",
+    "description": "Cognition's lessons on building long-running AI agents.",
+    "category": "cognition.ai",
+    "format": "Article",
+    "url": "https://cognition.ai/blog/dont-build-multi-agents#a-theory-of-building-long-running-agents",
+    "author": "Cognition",
+    "tags": [
+      "ai",
+      "agents",
+      "architecture"
+    ]
+  },
+  {
+    "title": "Google Research Publications",
+    "description": "Google's research publications across all domains.",
+    "category": "research.google",
+    "format": "Repository",
+    "url": "https://research.google/pubs/",
+    "author": "Google Research",
+    "tags": [
+      "research",
+      "papers",
+      "google"
+    ]
+  },
+  {
+    "title": "SaaS Landing Page Examples",
+    "description": "Curated collection of SaaS landing page designs.",
+    "category": "saaslandingpage.com",
+    "format": "Gallery",
+    "url": "https://saaslandingpage.com/",
+    "author": "SaaS Landing Page",
+    "tags": [
+      "design",
+      "saas",
+      "landing pages"
+    ]
   }
 ]

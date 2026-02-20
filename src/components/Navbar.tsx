@@ -12,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const NAV_LINKS = [
   { href: '/articles', label: 'Articles' },
   { href: '/notes', label: 'Notes' },
+  { href: '/learnings', label: 'Learnings' },
   { href: '/about', label: 'About' },
   { href: '/resources', label: 'Bookmarks' },
 ];
@@ -20,6 +21,7 @@ const NAV_LINKS_MOBILE = [
   { href: '/', label: 'Home' },
   { href: '/articles', label: 'Articles' },
   { href: '/notes', label: 'Notes' },
+  { href: '/learnings', label: 'Learnings' },
   { href: '/about', label: 'About' },
   { href: '/resources', label: 'Bookmarks' },
 ];

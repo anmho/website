@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
@@ -20,9 +20,29 @@ type Bookmark = {
 };
 
 export default function BookmarksPage() {
-  const resources = resourcesData as Bookmark[];
+  const [resources, setResources] = useState<Bookmark[]>(resourcesData as Bookmark[]);
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const res = await fetch('/api/resources', { cache: 'no-store' });
+        if (!res.ok) return;
+        const data = (await res.json()) as { resources?: Bookmark[] };
+        if (alive && Array.isArray(data.resources)) {
+          setResources(data.resources);
+        }
+      } catch {
+        // Keep static fallback if API fetch fails.
+      }
+    };
+    void load();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const categories = useMemo(
     () => ['All', ...Array.from(new Set(resources.map((r) => r.category)))],
