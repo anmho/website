@@ -377,6 +377,211 @@
     "date": "2026-02-20"
   },
   {
+    "id": "2026-02-20-python-generator-annotation-runtime-evaluation",
+    "question": "Why can `-> Generator[str]` crash at runtime even though Python does not enforce type annotations?",
+    "answer": "Type annotations are not runtime-validated against values, but they are still evaluated as Python expressions at import time (unless postponed). `Generator[str]` is an invalid generic arity for `typing.Generator`, so the annotation expression itself fails during import.",
+    "codeSnippet": "from typing import Generator, Iterator\n\n# CRASHES at import (invalid Generator arity)\ndef stream_bad(prompt: str) -> Generator[str]:\n    yield \"hello\"\n\n# OK: Iterator needs one type param\ndef stream_ok(prompt: str) -> Iterator[str]:\n    yield \"hello\"\n\nfrom __future__ import annotations\n\n# OK: annotation is deferred (stored as string)\ndef stream_deferred(prompt: str) -> Generator[str]:\n    yield \"hello\"",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "typing",
+      "generics",
+      "runtime",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-httpx-stream-annotation-vs-usage-shape",
+    "question": "Why does `httpx` annotate `client.stream()` as `AsyncIterator[Response]` when you use it with `async with`?",
+    "answer": "The implementation uses `@asynccontextmanager` over an async generator that yields one `Response`. Stubs often reflect the generator yield type, but the returned object is an async context manager to be entered with `async with`, not awaited as a value.",
+    "codeSnippet": "# source shape (simplified)\nasync def stream(...) -> AsyncIterator[Response]:\n    response = await self.send(request, stream=True)\n    try:\n        yield response\n    finally:\n        await response.aclose()\n\n# usage\nasync with client.stream(\"POST\", url) as response:  # right\n    ...\n\nr = await client.stream(\"POST\", url)                # wrong",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "httpx",
+      "typing",
+      "async",
+      "streaming",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-context-return-dead-resource",
+    "question": "Why can't you create a context manager inside a method and return the resource?",
+    "answer": "Returning exits the `async with` block immediately, so cleanup runs and the resource is closed before the caller uses it. Use `yield` from an async generator so the context stays open across emitted items.",
+    "codeSnippet": "# broken: resource closes on return\nasync def stream_broken(self, prompt):\n    async with self.client.stream(\"POST\", ...) as r:\n        return AsyncChatStream(r)\n\n# works: yield keeps context alive\nasync def stream_ok(self, prompt):\n    async with self.client.stream(\"POST\", ...) as r:\n        async for chunk in parse_sse_data_line_async(r):\n            yield chunk",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "context-manager",
+      "streaming",
+      "resource-management",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-generator-context-manager-not-awaitable",
+    "question": "Why is `_AsyncGeneratorContextManager` not awaitable even though it is \"async\"?",
+    "answer": "\"Async\" and \"awaitable\" are different protocols. Awaitables implement `__await__`. Async context managers implement `__aenter__`/`__aexit__`. `client.stream()` returns a context manager, so use `async with`, not `await`.",
+    "codeSnippet": "cm = client.stream(\"POST\", url)\n\nawait cm             # TypeError: not awaitable\n\nasync with cm as r:  # correct\n    ...",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "protocols",
+      "context-manager",
+      "errors",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-streaming-leaky-abstraction-lifecycle",
+    "question": "Why is streaming inherently a leaky abstraction?",
+    "answer": "A non-streaming call returns a finished value. A stream is an ongoing relationship: connection lifetime, cancellation, backpressure, and mid-stream errors all matter. Callers must participate in lifecycle handling; wrappers can reduce but not eliminate this complexity.",
+    "codeSnippet": "non_streaming() -> value\nstreaming() -> ongoing resource relationship\n\nYou must handle:\n- open/close lifecycle\n- cancellation\n- partial failures\n- consumer-driven stop conditions",
+    "codeLanguage": "text",
+    "tags": [
+      "streaming",
+      "abstractions",
+      "resource-management",
+      "api-design",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-python-async-streaming-clean-pattern",
+    "question": "What's the cleanest pattern for async streaming abstractions in Python?",
+    "answer": "Async generators. They hold the context manager open via `yield` — the context manager's lifetime equals the stream's lifetime, not the method's lifetime. `return` exits the method and triggers `__aexit__` (closing the connection). `yield` suspends the method, keeping the `async with` block alive until the caller stops iterating. Compose layers with `async for ... yield` (the async equivalent of `yield from`, which does not exist for async).",
+    "codeSnippet": "# Client — owns the connection. yield keeps async with alive.\nasync def stream(self, prompt, model):\n    async with self.client.stream(\"POST\", self.url, json=...) as response:\n        # return AsyncChatStream(response)  # WRONG: __aexit__ fires, connection dies\n        async for chunk in parse_sse_data_line_async(response):\n            yield chunk  # __aexit__ deferred until caller stops iterating\n\n# Provider — delegates (async yield from does not exist)\nasync def stream(self, prompt):\n    async for chunk in self.client.stream(prompt, self.model):\n        yield chunk\n\n# Caller\nasync for chunk in provider.stream(\"Write a story\"):\n    print(chunk.choices[0].delta.content, end=\"\", flush=True)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "streaming",
+      "generators",
+      "api-design",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-python-generator-sendtype-meaning",
+    "question": "What is `SendType` in `Generator[YieldType, SendType, ReturnType]` and `AsyncGenerator[YieldType, SendType]`?",
+    "answer": "Generators are two-way: they can `yield` values out and also receive values back in via `.send()` / `.asend()`. `SendType` is the type accepted on that inbound channel. This pattern exists but is niche in modern async code; most streaming generators only yield outward and never receive input, so `SendType` is usually `None`. That is why `AsyncIterator[T]` is often preferred over `AsyncGenerator[T, None]` in API signatures.",
+    "codeSnippet": "# Async generator that yields out and receives values in\nasync def chat():\n    while True:\n        user_msg = yield \"ready\"\n        yield f\"you said: {user_msg}\"\n\ng = chat()\nawait anext(g)            # \"ready\"\nawait g.asend(\"hello\")   # \"you said: hello\"\nawait g.asend(\"world\")   # \"ready\"\n\n# In stream APIs, inbound .asend(...) is usually unused:\n# prefer AsyncIterator[T] for simpler signatures.",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "typing",
+      "generators",
+      "asyncio",
+      "streaming",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-python-generator-send-why-exists",
+    "question": "What is `generator.send()` and why does it exist?",
+    "answer": "`send(value)` resumes a suspended generator and makes the `yield` expression evaluate to `value`. `next()` also resumes, but `yield` evaluates to `None`. This makes generators two-way: they can yield values out and receive values in.\n\nThis capability was formalized in PEP 342 (2005) so generators could be used as coroutines before native `async`/`await` existed (PEP 492, 2015). That history is why `Generator` and `AsyncGenerator` include `SendType` in their type parameters. In modern streaming/iteration code, `Iterator[T]` / `AsyncIterator[T]` is usually preferred because inbound `send` is rarely used.",
+    "codeSnippet": "def accumulator():\n    total = 0\n    while True:\n        value = yield total   # OUT: yield total | IN: receive sent value\n        total += value\n\ng = accumulator()\nnext(g)        # 0   - prime generator (yield receives None)\ng.send(10)     # 10  - value=10, total=10\ng.send(5)      # 15  - value=5, total=15\n\n# Typing shapes:\n# Generator[YieldType, SendType, ReturnType]\n# AsyncGenerator[YieldType, SendType]\n# Iterator[YieldType] / AsyncIterator[YieldType] (preferred for modern stream APIs)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "generators",
+      "typing",
+      "history",
+      "asyncio",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-asyncio-first-completed-exception-semantics",
+    "question": "Does `asyncio.FIRST_COMPLETED` treat exceptions as \"completed\"?",
+    "answer": "Yes. A task is \"done\" whether it returned a value or raised an exception. With `FIRST_COMPLETED`, the first completed task may be a failure, so robust hedging logic should skip failed tasks and continue waiting on pending ones.",
+    "codeSnippet": "# bad: assumes first done means success\ndone, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)\nresult = next(iter(done)).result()  # may raise\n\n# good: keep waiting until one succeeds (or all fail)\nsuccess = None\nwhile tasks:\n    done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)\n    for t in done:\n        try:\n            success = t.result()\n            break\n        except Exception:\n            pass\n    if success is not None:\n        break\n    tasks = list(pending)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "concurrency",
+      "errors",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-generator-control-surface-close-semantics",
+    "question": "What control methods do generators expose, and what does `.close()` / `.aclose()` actually do?",
+    "answer": "Generators are iterators plus bidirectional control: `send`, `throw`, and `close` (async: `asend`, `athrow`, `aclose`). `close`/`aclose` injects `GeneratorExit` at the suspension point, which unwinds `finally` and context managers for cleanup.",
+    "codeSnippet": "# sync generator controls:\n# __next__(), send(val), throw(exc), close()\n\n# async generator controls (awaitable):\n# __anext__(), asend(val), athrow(exc), aclose()\n\nasync def stream():\n    async with open_connection() as conn:\n        while True:\n            yield await conn.read()\n            # aclose() injects GeneratorExit here -> __aexit__ -> connection closed",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "generators",
+      "asyncio",
+      "cleanup",
+      "protocols",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-async-generator-shutdown-break-return-cancel-gc",
+    "question": "How are async generators closed (`break`, `aclose`, `cancel`, Ctrl+C, GC), and which paths are safe?",
+    "answer": "`break`/`return` from `async for` triggers automatic `aclose()` (safe). Explicit `await gen.aclose()` is safe. `task.cancel()` is safe only if you also await task completion. `asyncio.run()` on Ctrl+C cancels tasks and processes cleanup. GC finalization is risky for async generators because the collector cannot await cleanup.",
+    "codeSnippet": "Closure paths:\n- break/return from async for -> Python calls aclose() (safe)\n- await gen.aclose() (safe)\n- task.cancel(); await gather(...) (safe)\n- Ctrl+C under asyncio.run() -> task cancellation chain (safe)\n- GC finalization of orphaned async generators (unsafe/racy)",
+    "codeLanguage": "text",
+    "tags": [
+      "python",
+      "asyncio",
+      "generators",
+      "cancellation",
+      "cleanup",
+      "lang:text"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-aclose-already-running-root-cause-fix",
+    "question": "What causes `aclose(): asynchronous generator is already running`, and how do you fix it?",
+    "answer": "It usually happens when async generators are orphaned and GC tries to finalize them while async cleanup is still in progress. Root issue: synchronous GC cannot await async cleanup. Fix by cancelling pending tasks and awaiting them so cleanup finishes in event-loop context before shutdown.",
+    "codeSnippet": "for t in pending:\n    t.cancel()\n\n# Required: let cancellation propagate and cleanup complete\nawait asyncio.gather(*pending, return_exceptions=True)\n\n# Now generators are closed and connections released",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "errors",
+      "shutdown",
+      "cleanup",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
+    "id": "2026-02-20-cancel-vs-event-vs-threading-event-vs-to-thread",
+    "question": "When should you use `task.cancel()`, `asyncio.Event`, `threading.Event`, or `asyncio.to_thread()`?",
+    "answer": "Use `task.cancel()` for I/O tasks that regularly await. Use `asyncio.Event` for broadcast stop signals or cooperative shutdown across many coroutines. Use `threading.Event` for real OS threads. Use `asyncio.to_thread()` to bridge unavoidable blocking sync code into async without blocking the event loop.",
+    "codeSnippet": "# task cancellation\ntask.cancel()\n\n# broadcast shutdown signal\nshutdown = asyncio.Event()\n# coroutines check shutdown.is_set()\n\n# thread coordination\nstop = threading.Event()\n\n# bridge sync function into async\nresp = await asyncio.to_thread(requests.get, url)",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "asyncio",
+      "threads",
+      "cancellation",
+      "to-thread",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
     "id": "2026-02-20-async-generator-any-inference-mismatch",
     "question": "Why did `chunk` get inferred as `Any` when iterating over an async generator?",
     "answer": "The function used `yield` (generator behavior) but was annotated like it returned a single item type. That mismatch can degrade inference to `Any`. For async generators, annotate `-> AsyncIterator[T]`; for sync generators, annotate `-> Iterator[T]`.",
