@@ -68,18 +68,35 @@ So the real question is usually "which pipeline?" not "which single algorithm?"
 
 ## Method Chooser
 
-| Problem shape | Primary method | Why |
-|---|---|---|
-| Exact copies | Hash set / Bloom filter | Cheapest exact seen-check |
-| Copies with formatting noise | Normalized hash | Collapses casing/whitespace variants |
-| Typos / OCR-like character errors | Edit distance + BK-tree/SymSpell | Best for character-level misspellings |
-| Similar-sounding names | Phonetic hash | Handles pronunciation variants |
-| Similar short text (titles/tweets) | Jaccard on shingles | Interpretable overlap score |
-| Similar documents (fast path) | SimHash | Very fast near-dup candidate retrieval |
-| Similar documents (higher fidelity) | MinHash + LSH | Better Jaccard-style near-dup quality |
-| Shared substrings / boilerplate reuse | Rolling hash / Rabin | Detects partial chunk overlap |
-| Same meaning, different words | TF-IDF cosine or embeddings | Lexical or semantic retrieval |
-| Mixed workloads | Layered pipeline | Exact -> near-dup -> semantic |
+1. `Exact copies` -> `Hash set / Bloom filter`
+Reason: cheapest exact seen-check.
+
+2. `Copies with formatting noise` -> `Normalized hash`
+Reason: collapses casing/whitespace variants.
+
+3. `Typos / OCR-like character errors` -> `Edit distance + BK-tree/SymSpell`
+Reason: best for character-level misspellings.
+
+4. `Similar-sounding names` -> `Phonetic hash`
+Reason: handles pronunciation variants.
+
+5. `Similar short text (titles/tweets)` -> `Jaccard on shingles`
+Reason: interpretable overlap score.
+
+6. `Similar documents (fast path)` -> `SimHash`
+Reason: very fast near-dup candidate retrieval.
+
+7. `Similar documents (higher fidelity)` -> `MinHash + LSH`
+Reason: better Jaccard-style near-dup quality.
+
+8. `Shared substrings / boilerplate reuse` -> `Rolling hash / Rabin`
+Reason: detects partial chunk overlap.
+
+9. `Same meaning, different words` -> `TF-IDF cosine or embeddings`
+Reason: lexical or semantic retrieval.
+
+10. `Mixed workloads` -> `Layered pipeline`
+Reason: exact -> near-dup -> semantic.
 
 ## Black-Box API Examples
 
