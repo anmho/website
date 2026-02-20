@@ -25,20 +25,25 @@ function CachedMarkdown({ id, content }: { id: string; content: string }) {
   return <>{markdownCache.get(cacheKey)}</>;
 }
 
-function InlineMarkdown({ content }: { content: string }) {
+function InlineCodeTitle({ content }: { content: string }) {
+  const normalized = normalizeEscapedNewlines(content);
+  const parts = normalized.split(/`([^`]+)`/g);
+
   return (
-    <ReactMarkdown
-      components={{
-        p: ({ children }) => <>{children}</>,
-        code: ({ children }) => (
-          <code className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono">
-            {children}
+    <>
+      {parts.map((part, index) =>
+        index % 2 === 1 ? (
+          <code
+            key={`${part}-${index}`}
+            className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono"
+          >
+            {part}
           </code>
-        ),
-      }}
-    >
-      {normalizeEscapedNewlines(content)}
-    </ReactMarkdown>
+        ) : (
+          <span key={`${part}-${index}`}>{part}</span>
+        )
+      )}
+    </>
   );
 }
 
@@ -260,7 +265,7 @@ const LearningCard = memo(function LearningCard({
       }}
     >
       <h3 className="text-lg font-medium mb-3 dark:text-white text-gray-900">
-        <InlineMarkdown content={learning.question} />
+        <InlineCodeTitle content={learning.question} />
       </h3>
       <div className="dark:text-gray-400 text-gray-600 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
         <CachedMarkdown id={learning.id} content={learning.answer} />
