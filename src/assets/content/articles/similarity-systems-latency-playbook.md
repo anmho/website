@@ -200,6 +200,57 @@ As you move right:
 1. You catch richer similarity.
 2. You pay more compute and ops tax.
 
+## Latency Ladder (Back-of-Envelope)
+
+```text
+        0.001ms   0.01ms   0.1ms    1ms     10ms     100ms
+           |        |        |       |        |         |
+Hash ------*
+Norm+Hash ---------*
+Phonetic ----------*
+Jaccard ---------------------*-------*
+SimHash ---------------------*-------*
+Edit dist -------------------*-------*
+Rolling hash ----------------*-------*
+MinHash+LSH -------------------------*-------*
+TF-IDF cos --------------------------*-------*
+Embeddings -----------------------------------*--------*
+                                                (CPU)
+```
+
+Exact ranges depend on corpus size, indexing strategy, and hardware, but this is a useful planning heuristic.
+
+## Method Selection Tree
+
+```text
+What are you deduping?
+|
+|-- Exact copies -----------------> #1 Hash set (or Bloom filter at scale)
+|
+|-- Copies with noise ------------> #2 Normalized hash
+|   (casing, whitespace)
+|
+|-- Typos / OCR errors -----------> #6 Edit distance (+ BK-tree/SymSpell)
+|   (character-level)
+|
+|-- Similar names ----------------> #10 Phonetic hash
+|
+|-- Similar short text -----------> #4 Jaccard on shingles
+|   (product titles, tweets)
+|
+|-- Similar documents ------------> #3 SimHash or #5 MinHash+LSH
+|   (web pages, articles)           (SimHash if speed matters,
+|                                    MinHash if accuracy matters)
+|
+|-- Shared substrings ------------> #8 Rolling hash / Rabin
+|   (boilerplate, copy-paste)
+|
+|-- Same topic, different words --> #7 TF-IDF cosine or #9 Embeddings
+|   (paraphrases, translations)      (TF-IDF if fast, Embeddings if precise)
+|
+`-- All of the above -------------> Layer them: hash -> SimHash -> Embeddings
+```
+
 ## Practical Architecture Pattern
 
 Production systems usually layer these methods:
