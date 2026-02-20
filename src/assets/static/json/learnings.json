@@ -1293,6 +1293,26 @@
     "codeLanguage": "python"
   },
   {
+    "id": "2026-02-20-go-blocking-iterators-vs-python-async-iterators",
+    "question": "How does Go streaming with blocking reads compare to Python async iterators?",
+    "answer": "In Python, an async iterator cooperatively yields control at each `await`, so the event loop can run other tasks. In Go, you typically keep a blocking `Next(ctx)`/`ReadBytes` loop and run it in a goroutine. The goroutine can block on network I/O while the runtime scheduler runs other goroutines, so you still get async behavior at the system level without an `async iterator` language feature.",
+    "codeSnippet": "# Python: async iterator style\nasync def stream_py(resp):\n    async for line in resp.aiter_lines():\n        yield line\n\n# Go: blocking iterator/read loop in goroutine style\nfunc streamGo(ctx context.Context, r *bufio.Reader, emit func([]byte) bool) error {\n    for {\n        line, err := r.ReadBytes('\\n') // blocking read\n        if err != nil {\n            if errors.Is(err, io.EOF) { return nil }\n            return err\n        }\n        if !emit(line) { return nil }\n        if ctx.Err() != nil { return ctx.Err() }\n    }\n}",
+    "codeLanguage": "text",
+    "tags": [
+      "go",
+      "python",
+      "asyncio",
+      "iterators",
+      "streaming",
+      "concurrency",
+      "event-loop",
+      "goroutines",
+      "lang:go",
+      "lang:python"
+    ],
+    "date": "2026-02-20"
+  },
+  {
     "id": "2026-02-19-openrouter-streaming",
     "question": "How do I stream responses from the OpenRouter API?",
     "answer": "Use the `stream: true` parameter in your chat completion request. The response will be a stream of Server-Sent Events (SSE) that you can process incrementally.",
