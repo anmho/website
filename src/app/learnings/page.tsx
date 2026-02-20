@@ -25,6 +25,23 @@ function CachedMarkdown({ id, content }: { id: string; content: string }) {
   return <>{markdownCache.get(cacheKey)}</>;
 }
 
+function InlineMarkdown({ content }: { content: string }) {
+  return (
+    <ReactMarkdown
+      components={{
+        p: ({ children }) => <>{children}</>,
+        code: ({ children }) => (
+          <code className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono">
+            {children}
+          </code>
+        ),
+      }}
+    >
+      {normalizeEscapedNewlines(content)}
+    </ReactMarkdown>
+  );
+}
+
 interface Learning {
   id: string;
   question: string;
@@ -243,7 +260,7 @@ const LearningCard = memo(function LearningCard({
       }}
     >
       <h3 className="text-lg font-medium mb-3 dark:text-white text-gray-900">
-        {learning.question}
+        <InlineMarkdown content={learning.question} />
       </h3>
       <div className="dark:text-gray-400 text-gray-600 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
         <CachedMarkdown id={learning.id} content={learning.answer} />
