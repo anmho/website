@@ -57,35 +57,159 @@ In practice:
 
 So the real question is usually "which pipeline?" not "which single algorithm?"
 
-## Decision Tree
+## Method Chooser
 
-```text
-What are you deduping?
-|
-|-- Exact copies -----------------> Hash set (or Bloom filter at scale)
-|
-|-- Copies with noise ------------> Normalized hash
-|   (casing, whitespace)
-|
-|-- Typos / OCR errors -----------> Edit distance (+ BK-tree/SymSpell)
-|   (character-level)
-|
-|-- Similar names ----------------> Phonetic hash
-|
-|-- Similar short text -----------> Jaccard on shingles
-|   (product titles, tweets)
-|
-|-- Similar documents ------------> SimHash or MinHash+LSH
-|   (web pages, articles)           (SimHash if speed matters,
-|                                    MinHash if Jaccard fidelity matters)
-|
-|-- Shared substrings ------------> Rolling hash / Rabin
-|   (boilerplate, copy-paste)
-|
-|-- Same topic, different words --> TF-IDF cosine or Embeddings
-|   (paraphrases, translations)      (TF-IDF if fast, Embeddings if precise)
-|
-`-- All of the above -------------> Layer them: exact -> near-dup -> semantic
+| Problem shape | Primary method | Why |
+|---|---|---|
+| Exact copies | Hash set / Bloom filter | Cheapest exact seen-check |
+| Copies with formatting noise | Normalized hash | Collapses casing/whitespace variants |
+| Typos / OCR-like character errors | Edit distance + BK-tree/SymSpell | Best for character-level misspellings |
+| Similar-sounding names | Phonetic hash | Handles pronunciation variants |
+| Similar short text (titles/tweets) | Jaccard on shingles | Interpretable overlap score |
+| Similar documents (fast path) | SimHash | Very fast near-dup candidate retrieval |
+| Similar documents (higher fidelity) | MinHash + LSH | Better Jaccard-style near-dup quality |
+| Shared substrings / boilerplate reuse | Rolling hash / Rabin | Detects partial chunk overlap |
+| Same meaning, different words | TF-IDF cosine or embeddings | Lexical or semantic retrieval |
+| Mixed workloads | Layered pipeline | Exact -> near-dup -> semantic |
+
+## Black-Box API Examples
+
+A useful way to reason about these methods is with two interfaces:
+1. `seen_before(item) -> bool`
+2. `find_similar(item, k) -> list[Match]`
+
+Below are concrete examples for each method.
+
+### 1) Exact hash set / Bloom filter (URL frontier dedup)
+
+```python
+def seen_before_url(url: str) -> bool:
+    key = canonicalize(url)
+    return bloom_contains(key)  # or hash_set_contains(key)
+
+# Example:
+# input: "https://example.com/page?utm_source=x"
+# checks canonical form "https://example.com/page"
+```
+
+### 2) Normalized hash (noise-tolerant exactness)
+
+```python
+def seen_before_normalized(text: str) -> bool:
+    normalized = normalize_whitespace_case_punctuation(text)
+    return hash_set_contains(sha256(normalized))
+
+# Example:
+# "  Hello, WORLD!! " and "hello world" map to same fingerprint
+```
+
+### 3) SimHash (fast near-dup filter for documents)
+
+```python
+def find_similar_simhash(doc: str, max_hamming: int = 3) -> list[str]:
+    fp = simhash64(shingles(doc))
+    candidates = simhash_index_lookup(fp, max_hamming)
+    return candidates
+
+# Example:
+# input: crawled article with ad boilerplate changes
+# output: likely near-duplicate page ids
+```
+
+### 4) Jaccard on shingles (short text overlap)
+
+```python
+def find_similar_jaccard(title: str, threshold: float = 0.8) -> list[str]:
+    q = char_3gram_set(title)
+    return [id for id, s in title_store if jaccard(q, s) >= threshold]
+
+# Example:
+# "Apple iPhone 15 Pro Max 256GB"
+# vs "iPhone 15 Pro Max by Apple 256 GB"
+```
+
+### 5) MinHash + LSH (Jaccard at scale)
+
+```python
+def find_similar_minhash(doc: str) -> list[str]:
+    sig = minhash_signature(shingles(doc))
+    candidates = lsh_lookup(sig)
+    return rerank_by_jaccard(doc, candidates)
+
+# Example:
+# millions of product descriptions; return near-dup candidates without full scan
+```
+
+### 6) Edit distance (+ BK-tree/SymSpell) for typos
+
+```python
+def find_similar_spelling(term: str, max_edits: int = 2) -> list[str]:
+    return bktree_search(term, max_edits)  # or symspell_lookup(term)
+
+# Example:
+# "tehcnical" -> ["technical"]
+```
+
+### 7) TF-IDF cosine (fast lexical semantic-ish retrieval)
+
+```python
+def find_similar_tfidf(query: str, k: int = 10) -> list[str]:
+    qv = tfidf_vectorize(query)
+    return tfidf_index_topk_cosine(qv, k)
+
+# Example:
+# "refund policy annual subscription"
+# returns docs with overlapping terminology
+```
+
+### 8) Rolling hash / Rabin (shared substrings)
+
+```python
+def find_shared_chunks(doc: str) -> list[str]:
+    chunks = content_defined_chunks(doc)
+    return lookup_docs_by_chunk_hashes(chunks)
+
+# Example:
+# detect pages sharing same template/footer blocks
+```
+
+### 9) Embeddings + ANN (semantic near-dup)
+
+```python
+def find_similar_semantic(text: str, k: int = 10) -> list[str]:
+    vec = embed(text)
+    return ann_index_topk(vec, k)
+
+# Example:
+# "how to cancel my plan"
+# matches "terminate subscription" articles even with different wording
+```
+
+### 10) Phonetic hash (name/entity normalization)
+
+```python
+def find_similar_name(name: str) -> list[str]:
+    code = double_metaphone(name)
+    return phonetic_index_lookup(code)
+
+# Example:
+# "Schmidt" -> candidates including "Smith", "Smyth" (then re-rank downstream)
+```
+
+### Composite pipeline (recommended in production)
+
+```python
+def lookup_similar(item: str) -> list[str]:
+    if seen_before_url_or_hash(item):
+        return ["exact_match"]
+
+    # cheap near-dup filter
+    near = find_similar_simhash(item, max_hamming=3)
+    if near:
+        return verify_with_jaccard(item, near)
+
+    # expensive semantic fallback
+    return find_similar_semantic(item, k=5)
 ```
 
 ## Latency Ladder (Back-of-Envelope)
