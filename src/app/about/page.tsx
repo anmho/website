@@ -103,7 +103,7 @@ export default function About() {
                     </div>
                     <div className="flex flex-row justify-between text-gray-600 dark:text-gray-400">
                       <span>Software Engineer Intern</span>
-                      <span>Los Angeles, CA</span>
+                      <span>Palo Alto, CA</span>
                     </div>
                   </div>
                   <div>

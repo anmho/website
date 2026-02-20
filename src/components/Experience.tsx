@@ -26,7 +26,7 @@ const experiences: IExperience[] = [
     company: 'Tesla',
     year: 'Fall 2024',
     title: 'Engineering',
-    location: 'Los Angeles, CA',
+    location: 'Palo Alto, CA',
   },
   {
     company: 'Snap Inc.',
