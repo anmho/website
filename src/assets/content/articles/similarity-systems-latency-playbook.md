@@ -7,6 +7,9 @@ This topic gets confusing because people mix three different layers:
 
 If you separate those layers, SimHash vs Jaccard becomes straightforward.
 
+Jaccard comes up early because teams usually start with a metric they trust, then optimize it.  
+So we start there, then move outward to sketches and indexes that make that metric practical at scale.
+
 ## The Three Layers
 
 ### 1) Metric Layer
