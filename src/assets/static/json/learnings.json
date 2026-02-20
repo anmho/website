@@ -1313,6 +1313,24 @@
     "date": "2026-02-20"
   },
   {
+    "id": "2026-02-20-tail-latency-p9999-importance",
+    "question": "Why do p99/p99.9/p99.99 latencies often matter more than averages?",
+    "answer": "Users do not experience averages; they experience individual requests. At scale, even rare slow paths happen constantly. A p99.99 outlier means 1 in 10,000 requests is slow; with high request volume, that becomes continuous user pain. Tail latency also compounds across fan-out systems: one slow dependency can dominate the whole request.",
+    "codeSnippet": "# Back-of-envelope tail math\n# If you serve 10,000,000 requests/day:\n# p99.99 slow-path rate = 0.01% = 1/10,000\n# -> about 1,000 slow requests/day\n\n# Fan-out amplification:\n# one user request calls 20 downstream services\n# even if each service has good median,\n# combined tail risk increases significantly.\n\n# Practical rule:\n# optimize and monitor p95/p99/p99.9/p99.99,\n# not just average or p50.",
+    "codeLanguage": "text",
+    "tags": [
+      "latency",
+      "performance",
+      "sre",
+      "reliability",
+      "distributed-systems",
+      "p99",
+      "p9999",
+      "lang:general"
+    ],
+    "date": "2026-02-20"
+  },
+  {
     "id": "2026-02-20-sketches-bloom-hll-quantile-minhash-simhash",
     "question": "What are sketches (Bloom, HyperLogLog, quantile sketches, MinHash/SimHash), and when should you use them?",
     "answer": "A sketch is a compact probabilistic summary that trades exactness for speed and memory. Use sketches when exact storage/computation is too expensive and bounded error is acceptable. They are usually a first-pass filter/estimator, not the final source of truth.",
