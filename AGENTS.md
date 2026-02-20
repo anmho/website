@@ -1,5 +1,15 @@
 # Agent Guidelines
 
+## Commit Conventions
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```
+<type>: <description>
+```
+
+**Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+
 ## Email Templates
 
 Email templates use **React Email with Tailwind CSS** for consistency with the main site styling.
@@ -31,3 +41,8 @@ import { render } from '@react-email/components';
 const html = await render(MyTemplate({ props }));
 await resend.emails.send({ html, ... });
 ```
+
+## Frontend Safety Checks
+1. Never leave incomplete JSX ternaries (`condition ? (...)`) without a `: (...)` branch.
+2. Prefer `condition && (...)` for single-branch rendering to reduce syntax mistakes.
+3. After JSX refactors, run a quick TypeScript/compile check before finalizing.

@@ -77,20 +77,24 @@ export function DailyArticleEmail({ article }: DailyArticleEmailProps) {
               <Section className="text-center">
                 <Button
                   href={article.url}
-                  className="inline-block bg-gray-900 text-white text-sm font-semibold rounded-lg px-5 py-3 mr-3 no-underline"
+                  className="inline-block bg-gray-900 text-white text-sm font-semibold rounded-lg px-5 py-3 no-underline"
                 >
                   Read Article
-                </Button>
-                <Button
-                  href={article.url}
-                  className="inline-block bg-white text-gray-700 text-sm font-medium rounded-lg px-5 py-3 border border-gray-300 no-underline"
-                >
-                  Mark as Read
                 </Button>
               </Section>
             </Section>
 
             <Hr className="border-gray-200 my-8" />
+
+            {/* More Articles */}
+            <Section className="text-center mb-6">
+              <Button
+                href="https://anmho.com/resources"
+                className="inline-block bg-white text-gray-600 text-sm font-medium rounded-lg px-5 py-3 border border-gray-200 no-underline"
+              >
+                View More Articles
+              </Button>
+            </Section>
 
             {/* Footer */}
             <Section className="text-center">

@@ -1,5 +1,24 @@
 # Project Guidelines
 
+## Commit Conventions
+
+Use [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```
+<type>: <description>
+
+[optional body]
+```
+
+### Types
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation only
+- `style`: Formatting, no code change
+- `refactor`: Code change that neither fixes a bug nor adds a feature
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks (deps, build, etc.)
+
 ## Email Templates
 
 Email templates are located in `src/lib/email/templates/` and use React Email with Tailwind CSS for styling consistency.
