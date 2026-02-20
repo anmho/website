@@ -4,8 +4,7 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import learningsData from '@/assets/static/json/learnings.json';
-import { useMemo, useRef, useState, memo } from 'react';
-import { useInView } from 'framer-motion';
+import { useMemo, useState, memo } from 'react';
 import { formatDate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { FiSearch } from 'react-icons/fi';
@@ -190,15 +189,11 @@ const DateGroup = memo(function DateGroup({
   groupIndex: number;
   onTagClick: (tag: string) => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-120px' });
-
   return (
     <div
-      ref={ref}
       style={{
-        opacity: isInView ? 1 : 0,
-        transition: `opacity 0.35s ease-out ${groupIndex * 0.04}s`,
+        opacity: 1,
+        transition: `opacity 0.2s ease-out ${groupIndex * 0.02}s`,
       }}
     >
       <div className="sticky top-24 z-10 py-2 backdrop-blur-sm bg-white/80 dark:bg-black/80">
@@ -232,17 +227,13 @@ const LearningCard = memo(function LearningCard({
   groupIndex: number;
   onTagClick: (tag: string) => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-120px' });
-
   return (
     <div
-      ref={ref}
       className="border-l-2 dark:border-gray-700 border-gray-300 pl-6"
       style={{
-        opacity: isInView ? 1 : 0,
-        transform: isInView ? 'translateY(0)' : 'translateY(6px)',
-        transition: `opacity 0.32s ease-out ${groupIndex * 0.04 + index * 0.02}s, transform 0.32s ease-out ${groupIndex * 0.04 + index * 0.02}s`,
+        opacity: 1,
+        transform: 'translateY(0)',
+        transition: `opacity 0.2s ease-out ${groupIndex * 0.02 + index * 0.01}s`,
       }}
     >
       <h3 className="text-lg font-medium mb-3 dark:text-white text-gray-900">
