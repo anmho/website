@@ -12,11 +12,17 @@ import { FiSearch } from 'react-icons/fi';
 // Module-level cache for parsed markdown (persists across renders)
 const markdownCache = new Map<string, React.ReactNode>();
 
+function normalizeEscapedNewlines(text: string): string {
+  return text.replace(/\\n/g, '\n');
+}
+
 function CachedMarkdown({ id, content }: { id: string; content: string }) {
-  if (!markdownCache.has(id)) {
-    markdownCache.set(id, <ReactMarkdown>{content}</ReactMarkdown>);
+  const normalized = normalizeEscapedNewlines(content);
+  const cacheKey = `${id}:${normalized}`;
+  if (!markdownCache.has(cacheKey)) {
+    markdownCache.set(cacheKey, <ReactMarkdown>{normalized}</ReactMarkdown>);
   }
-  return <>{markdownCache.get(id)}</>;
+  return <>{markdownCache.get(cacheKey)}</>;
 }
 
 interface Learning {
@@ -56,8 +62,8 @@ export default function Learnings() {
 
       const haystack = [
         learning.question,
-        learning.answer,
-        learning.codeSnippet || '',
+        normalizeEscapedNewlines(learning.answer),
+        normalizeEscapedNewlines(learning.codeSnippet || ''),
         tags.join(' '),
       ]
         .join(' ')
@@ -246,7 +252,7 @@ const LearningCard = memo(function LearningCard({
       {learning.codeSnippet && (
         <div className="mt-4 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto">
           <pre className="text-sm font-mono dark:text-gray-300 text-gray-800">
-            <code>{learning.codeSnippet}</code>
+            <code>{normalizeEscapedNewlines(learning.codeSnippet)}</code>
           </pre>
         </div>
       )}
