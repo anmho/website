@@ -1,5 +1,19 @@
 [
   {
+    "slug": "similarity-systems-latency-playbook",
+    "title": "Similarity Systems in Production: A Latency Playbook",
+    "date": "2026-02-20",
+    "excerpt": "A pragmatic guide to autocorrect, typeahead, and web-crawl dedup through the lens of latency, memory, and implementation tradeoffs.",
+    "readTime": "11 min read"
+  },
+  {
+    "slug": "us-west-to-us-east-rtt",
+    "title": "US West to US East RTT: The Number, The Floor, and the Lie",
+    "date": "2026-02-20",
+    "excerpt": "A practical latency deep-dive: coast-to-coast RTT ranges, physics floors, handshake amplification, and how to budget for p95/p99 reality.",
+    "readTime": "8 min read"
+  },
+  {
     "slug": "llm-inference-from-zero-to-modern",
     "title": "LLM Inference: From Zero to Modern",
     "date": "2026-02-20",
