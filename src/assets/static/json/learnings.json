@@ -1313,6 +1313,26 @@
     "date": "2026-02-20"
   },
   {
+    "id": "2026-02-20-sketches-bloom-hll-quantile-minhash-simhash",
+    "question": "What are sketches (Bloom, HyperLogLog, quantile sketches, MinHash/SimHash), and when should you use them?",
+    "answer": "A sketch is a compact probabilistic summary that trades exactness for speed and memory. Use sketches when exact storage/computation is too expensive and bounded error is acceptable. They are usually a first-pass filter/estimator, not the final source of truth.",
+    "codeSnippet": "# Sketch chooser (back-of-envelope)\n# Need fast membership check with tiny memory?\n# -> Bloom filter (false positives possible, no false negatives)\n\n# Need approximate distinct count at scale?\n# -> HyperLogLog (cardinality estimation)\n\n# Need approximate percentiles/quantiles in streams?\n# -> KLL / t-digest / DDSketch (quantile sketches)\n\n# Need near-dup candidate retrieval for text/docs?\n# -> SimHash (Hamming distance on compact fingerprints)\n\n# Need Jaccard-style overlap approximation?\n# -> MinHash (+ LSH for scalable lookup)\n\n# Pattern in production:\n# sketch first (cheap) -> exact/heavier verification on candidates",
+    "codeLanguage": "text",
+    "tags": [
+      "data",
+      "algorithms",
+      "probabilistic",
+      "bloom-filter",
+      "hyperloglog",
+      "quantiles",
+      "minhash",
+      "simhash",
+      "streaming",
+      "lang:general"
+    ],
+    "date": "2026-02-20"
+  },
+  {
     "id": "2026-02-19-openrouter-streaming",
     "question": "How do I stream responses from the OpenRouter API?",
     "answer": "Use the `stream: true` parameter in your chat completion request. The response will be a stream of Server-Sent Events (SSE) that you can process incrementally.",
