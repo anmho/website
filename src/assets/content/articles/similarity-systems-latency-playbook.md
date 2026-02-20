@@ -26,6 +26,15 @@ What Jaccard is for:
 2. Short-text near-dup and title/product-name matching.
 3. Candidate verification after fast approximate retrieval.
 
+Shingles (quick definition):
+1. A shingle is an overlapping chunk of text.
+2. Word shingles use consecutive words (e.g., 2-word windows).
+3. Character shingles use consecutive characters (e.g., 3-char windows).
+
+Example:
+1. Text: `the quick brown fox`
+2. Word 2-shingles: `the quick`, `quick brown`, `brown fox`
+
 ### 2) Sketch Layer
 
 Examples:
