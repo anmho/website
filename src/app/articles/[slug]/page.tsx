@@ -106,6 +106,15 @@ const articleMarkdownComponents: Components = {
       {...props}
     />
   ),
+  pre: ({ node, className, ...props }) => (
+    <pre
+      className={clsx(
+        'bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto mb-6',
+        className
+      )}
+      {...props}
+    />
+  ),
   code: (props) => {
     const { inline, className, children, ...rest } = props as MarkdownCodeProps;
 
@@ -124,17 +133,15 @@ const articleMarkdownComponents: Components = {
     }
 
     return (
-      <pre className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto mb-6">
-        <code
-          className={clsx(
-            'text-sm font-mono text-gray-800 dark:text-gray-200',
-            className
-          )}
-          {...rest}
-        >
-          {String(children).replace(/\n$/, '')}
-        </code>
-      </pre>
+      <code
+        className={clsx(
+          'text-sm font-mono text-gray-800 dark:text-gray-200',
+          className
+        )}
+        {...rest}
+      >
+        {String(children).replace(/\n$/, '')}
+      </code>
     );
   },
   ul: ({ node, className, ...props }) => (
@@ -193,9 +200,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             {/* Back link */}
             <Link
               href="/articles"
-              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 text-sm font-mono mb-12 inline-block transition-colors"
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-300 dark:hover:text-gray-100 text-sm font-mono mb-12 inline-flex items-center gap-2 leading-none transition-colors"
             >
-              ← Articles
+              <span aria-hidden="true" className="relative -top-px">
+                ←
+              </span>
+              <span>Articles</span>
             </Link>
 
             {/* Article header */}
