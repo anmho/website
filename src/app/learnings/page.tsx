@@ -30,6 +30,18 @@ interface Learning {
   date: string;
 }
 
+function parseIsoDayUtc(date: string): number | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!m) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day))
+    return null;
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  return Date.UTC(year, month - 1, day);
+}
+
 export default function Learnings() {
   const learnings = learningsData as Learning[];
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -54,24 +66,27 @@ export default function Learnings() {
       return haystack.includes(q);
     });
 
-    // Sort by date descending
-    const sorted = filtered.sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
+    // Validate and sort dates strictly (YYYY-MM-DD) in descending order.
+    const dated = filtered
+      .map((learning) => ({ learning, ts: parseIsoDayUtc(learning.date) }))
+      .filter((item): item is { learning: Learning; ts: number } => item.ts !== null)
+      .sort((a, b) => b.ts - a.ts);
 
-    // Group by date
-    const grouped = sorted.reduce(
-      (acc, learning) => {
-        if (!acc[learning.date]) {
-          acc[learning.date] = [];
-        }
-        acc[learning.date].push(learning);
-        return acc;
-      },
-      {} as Record<string, Learning[]>
-    );
+    const grouped = new Map<string, Learning[]>();
+    for (const { learning } of dated) {
+      const existing = grouped.get(learning.date);
+      if (existing) {
+        existing.push(learning);
+      } else {
+        grouped.set(learning.date, [learning]);
+      }
+    }
 
-    return Object.entries(grouped);
+    return Array.from(grouped.entries()).sort((a, b) => {
+      const aTs = parseIsoDayUtc(a[0]) ?? 0;
+      const bTs = parseIsoDayUtc(b[0]) ?? 0;
+      return bTs - aTs;
+    });
   }, [learnings, query, selectedTags]);
 
   const addTag = (tag: string) => {
