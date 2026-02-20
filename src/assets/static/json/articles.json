@@ -1,5 +1,19 @@
 [
   {
+    "slug": "llm-inference-from-zero-to-modern",
+    "title": "LLM Inference: From Zero to Modern",
+    "date": "2026-02-20",
+    "excerpt": "A practical bottom-up guide to modern LLM serving: KV cache, continuous batching, PagedAttention, speculative decoding, and disaggregated prefill/decode.",
+    "readTime": "16 min read"
+  },
+  {
+    "slug": "production-llm-streaming-architecture",
+    "title": "Production LLM Streaming Architecture",
+    "date": "2026-02-20",
+    "excerpt": "How to build resilient token streaming with SSE, Redis Streams, replayable offsets, and clean cancellation semantics.",
+    "readTime": "14 min read"
+  },
+  {
     "slug": "database-indexing-deep-dive",
     "title": "Database Indexing: A Deep Dive",
     "date": "2024-01-20",
@@ -21,4 +35,3 @@
     "readTime": "10 min read"
   }
 ]
-
