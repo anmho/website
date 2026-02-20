@@ -26,13 +26,13 @@ export default function Notes() {
 
       <div className="flex justify-center align-center flex-col pt-32">
         <SectionContainer>
-          <div className="w-full text-left py-20">
+          <div className="w-full text-left py-14">
             <AnimatedTitle>
               <h1 className="sm:text-7xl text-5xl flex-grow -tracking-wider leading-relaxed mb-8">
                 Notes
               </h1>
             </AnimatedTitle>
-            <p className="text-md sm:text-xl dark:text-gray-400 text-gray-600 -tracking-wide font-light sm:ml-4 mb-20">
+            <p className="text-md sm:text-xl dark:text-gray-400 text-gray-600 -tracking-wide font-light sm:ml-4 mb-10">
               Quick thoughts, learnings, and observations.
             </p>
 

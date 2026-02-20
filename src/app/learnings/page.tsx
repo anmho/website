@@ -4,10 +4,21 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import learningsData from '@/assets/static/json/learnings.json';
-import { useMemo, useState, memo } from 'react';
+import { useMemo, useRef, useState, memo } from 'react';
+import { useInView } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { FiSearch } from 'react-icons/fi';
+
+// Module-level cache for parsed markdown (persists across renders)
+const markdownCache = new Map<string, React.ReactNode>();
+
+function CachedMarkdown({ id, content }: { id: string; content: string }) {
+  if (!markdownCache.has(id)) {
+    markdownCache.set(id, <ReactMarkdown>{content}</ReactMarkdown>);
+  }
+  return <>{markdownCache.get(id)}</>;
+}
 
 interface Learning {
   id: string;
@@ -153,7 +164,7 @@ export default function Learnings() {
   );
 }
 
-function DateGroup({
+const DateGroup = memo(function DateGroup({
   date,
   learnings,
   groupIndex,
@@ -165,14 +176,14 @@ function DateGroup({
   onTagClick: (tag: string) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const isInView = useInView(ref, { once: true, margin: '-120px' });
 
   return (
     <div
       ref={ref}
       style={{
         opacity: isInView ? 1 : 0,
-        transition: `opacity 0.6s ease-out ${groupIndex * 0.1}s`,
+        transition: `opacity 0.35s ease-out ${groupIndex * 0.04}s`,
       }}
     >
       <div className="sticky top-24 z-10 py-2 backdrop-blur-sm bg-white/80 dark:bg-black/80">
@@ -193,9 +204,9 @@ function DateGroup({
       </div>
     </div>
   );
-}
+});
 
-function LearningCard({
+const LearningCard = memo(function LearningCard({
   learning,
   index,
   groupIndex,
@@ -207,7 +218,7 @@ function LearningCard({
   onTagClick: (tag: string) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
+  const isInView = useInView(ref, { once: true, margin: '-120px' });
 
   return (
     <div
@@ -215,15 +226,15 @@ function LearningCard({
       className="border-l-2 dark:border-gray-700 border-gray-300 pl-6"
       style={{
         opacity: isInView ? 1 : 0,
-        transform: isInView ? 'translateY(0)' : 'translateY(10px)',
-        transition: `opacity 0.6s ease-out ${groupIndex * 0.1 + index * 0.05}s, transform 0.6s ease-out ${groupIndex * 0.1 + index * 0.05}s`,
+        transform: isInView ? 'translateY(0)' : 'translateY(6px)',
+        transition: `opacity 0.32s ease-out ${groupIndex * 0.04 + index * 0.02}s, transform 0.32s ease-out ${groupIndex * 0.04 + index * 0.02}s`,
       }}
     >
       <h3 className="text-lg font-medium mb-3 dark:text-white text-gray-900">
         {learning.question}
       </h3>
       <div className="dark:text-gray-400 text-gray-600 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
-        <ReactMarkdown>{learning.answer}</ReactMarkdown>
+        <CachedMarkdown id={learning.id} content={learning.answer} />
       </div>
 
       {learning.codeSnippet && (
@@ -250,4 +261,4 @@ function LearningCard({
       )}
     </div>
   );
-}
+});
