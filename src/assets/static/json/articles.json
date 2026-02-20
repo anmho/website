@@ -1,5 +1,19 @@
 [
   {
+    "slug": "latency-ladder-for-pragmatic-engineers",
+    "title": "Latency Ladder for Pragmatic Engineers",
+    "date": "2026-02-20",
+    "excerpt": "A practical latency cheat sheet across caches, RTT, TCP/TLS handshakes, and LLM TTFT decomposition.",
+    "readTime": "8 min read"
+  },
+  {
+    "slug": "osi-model-for-pragmatic-engineers",
+    "title": "OSI Model for Pragmatic Engineers",
+    "date": "2026-02-20",
+    "excerpt": "A practical OSI guide focused on debugging flow, fault isolation, and where latency hides in real systems.",
+    "readTime": "7 min read"
+  },
+  {
     "slug": "similarity-systems-latency-playbook",
     "title": "Similarity Systems in Production: A Latency Playbook",
     "date": "2026-02-20",
