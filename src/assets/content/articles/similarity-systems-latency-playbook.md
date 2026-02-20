@@ -1,204 +1,84 @@
 # Similarity Systems in Production: A Latency Playbook
 
-Most discussions of similarity algorithms start with elegance and end with disappointment in production.
+This topic gets confusing because people mix three different layers:
+1. **Metric**: what "similar" means.
+2. **Sketch/Fingerprint**: how to compress data for speed.
+3. **Index/Retrieval**: how to find candidates fast.
 
-In real systems, the first question is usually not "which metric is most principled?"  
-It is "what can we afford at p95?"
+If you separate those layers, SimHash vs Jaccard becomes straightforward.
 
-This article walks through three practical workloads:
-1. Autocorrect
-2. Typeahead
-3. Web crawl deduplication
+## The Three Layers
 
-And frames each by latency, memory, and implementation complexity.
+### 1) Metric Layer
 
-## A Quick Baseline: Jaccard
+Examples:
+1. **Jaccard**: set overlap (`|A∩B| / |A∪B|`).
+2. **Edit distance**: character-level typo distance.
+3. **Cosine**: vector angle (TF-IDF or embeddings).
 
-Jaccard similarity between sets `A` and `B`:
+This is the semantic definition of similarity.
 
-```text
-J(A, B) = |A ∩ B| / |A ∪ B|
-```
+### 2) Sketch Layer
 
-Interpretation:
-1. `1.0` means identical sets.
-2. `0.0` means no overlap.
+Examples:
+1. **SimHash**: compact bit fingerprint for near-dup.
+2. **MinHash**: sketch that approximates Jaccard.
+3. **Content hash (SHA/MD5)**: exact identity fingerprint.
 
-Jaccard is foundational for near-duplicate detection, especially with shingle sets.  
-But at scale, you rarely compute exact Jaccard against every candidate. You use approximations and indexing to avoid quadratic work.
+Sketches trade precision for speed and memory efficiency.
 
-## Use Case 1: Autocorrect / Spell Correction
+### 3) Index Layer
 
-Goal: map misspelled input to likely dictionary terms with low tail latency.
+Examples:
+1. **Hash set / Bloom filter** for exact seen checks.
+2. **BK-tree / Trie** for edit-distance search.
+3. **LSH / ANN / permutation buckets** for approximate retrieval.
 
-### Option A: BK-Tree
+Indexes make lookup cheap at scale.
 
-Distance-aware tree for edit-distance search with threshold pruning.
+## SimHash vs Jaccard (Not Interchangeable)
 
-Good fit:
-1. Exact edit-distance constraints (`<= 2`).
-2. Medium dictionaries.
+They live at different layers.
 
-Typical profile:
-1. Low memory overhead.
-2. Strong practical pruning for small distance thresholds.
-3. Latency often sub-millisecond on ~100K dictionaries.
+1. **Jaccard** is a metric (exact overlap score for sets/shingles).
+2. **SimHash** is a sketch (compact signature; compare with Hamming distance).
 
-### Option B: SymSpell
+In practice:
+1. Use SimHash to retrieve/filter quickly.
+2. Optionally verify with Jaccard on shortlisted candidates.
 
-Precompute delete variants for each term, then query with hash lookups.
+So the real question is usually "which pipeline?" not "which single algorithm?"
 
-Good fit:
-1. Extremely low query latency target.
-2. Static or infrequently updated dictionary.
-
-Typical profile:
-1. Fastest lookup path.
-2. High memory footprint from deletion maps.
-3. Implementation is straightforward.
-
-### Option C: Trie + Levenshtein Automaton
-
-Intersect query automaton with trie to prune invalid branches.
-
-Good fit:
-1. High-performance typo tolerance.
-2. Team can absorb higher implementation complexity.
-
-Typical profile:
-1. Excellent latency.
-2. More complex automaton logic.
-3. Strong control over exact edit-distance behavior.
-
-### Option D: Norvig-Style Candidate Generation
-
-Generate edits at distance 1-2, filter by dictionary, rank by frequency.
-
-Good fit:
-1. Interview settings.
-2. Fast MVP.
-3. Smaller dictionaries.
-
-Typical profile:
-1. Easy to reason about.
-2. Slower than preindexed structures.
-3. Good quality when frequency model is decent.
-
-## Use Case 2: Typeahead / Autocomplete
-
-Target user experience is usually <50 ms end-to-end. That leaves single-digit milliseconds for server compute, often much less.
-
-### Option A: Trie with Precomputed Top-K
-
-At each prefix node, store top completions.
-
-Why teams use it:
-1. Predictable O(prefix length) behavior.
-2. Consistent low latency.
-3. Easy to combine with ranking signals.
-
-### Option B: Sorted Array + Binary Search
-
-Find prefix range lexicographically and return ranked slice.
-
-Why it is underrated:
-1. Simple persistence format.
-2. Cache-friendly scans.
-3. Easy sharding and reload behavior.
-
-### Option C: FST (Finite State Transducer)
-
-Lucene-style compressed dictionary structure.
-
-Why it matters:
-1. Extremely memory efficient.
-2. Excellent lookup latency.
-3. Great for read-heavy static dictionaries.
-
-### Option D: Fuzzy Typeahead (Trie + Edit Automata or N-Gram Index)
-
-Needed when typo tolerance matters in incremental search.
-
-Tradeoff:
-1. Better recall.
-2. More compute and index complexity.
-3. Tighter ranking and cutoff requirements.
-
-## Use Case 3: Web Crawl Deduplication
-
-At crawl scale, duplicate handling is a layered pipeline, not one algorithm.
-
-### Layer 1: Exact URL-Level Dedup
-
-Hash canonicalized URL and drop repeats.
-
-Strength:
-1. Trivial and very fast.
-
-Weakness:
-1. Misses identical content at different URLs.
-
-### Layer 2: Exact Content Hash Dedup
-
-Hash full body and remove byte-identical pages.
-
-Strength:
-1. Cheap and precise for exact dupes.
-
-Weakness:
-1. Tiny content changes defeat matches.
-
-### Layer 3: Near-Duplicate Detection (SimHash)
-
-SimHash is often the practical default at web scale.
-
-Why:
-1. Compact fingerprints (e.g., 64-bit).
-2. Fast comparison via XOR + popcount.
-3. Effective for template-heavy near-duplicates.
-
-Operational note:
-1. Candidate retrieval must be indexed (bucket/permutation strategy), not brute-force scans.
-
-### Layer 4: Jaccard Approximation (MinHash + LSH)
-
-MinHash approximates Jaccard; LSH avoids all-pairs comparison.
-
-Why teams choose it:
-1. Better set-overlap fidelity than single SimHash bits.
-2. Tunable recall/precision via bands/rows.
-
-Cost:
-1. Larger signatures.
-2. Heavier indexing and tuning.
-
-### Layer 5: Semantic Dedup (Embeddings + ANN)
-
-Catch paraphrases and semantic overlap.
-
-Strength:
-1. Highest semantic recall.
-
-Cost:
-1. Embedding generation dominates latency/cost.
-2. More infra complexity (model serving + ANN index ops).
-
-## Latency Hierarchy (Mental Model)
+## Decision Tree
 
 ```text
-Fast + shallow ----------------------------------------------> Slow + deep
-
-URL hash
-  -> content hash
-  -> Bloom-style seen checks
-  -> SimHash near-dup
-  -> MinHash + LSH
-  -> Embeddings + ANN
+What are you deduping?
+|
+|-- Exact copies -----------------> Hash set (or Bloom filter at scale)
+|
+|-- Copies with noise ------------> Normalized hash
+|   (casing, whitespace)
+|
+|-- Typos / OCR errors -----------> Edit distance (+ BK-tree/SymSpell)
+|   (character-level)
+|
+|-- Similar names ----------------> Phonetic hash
+|
+|-- Similar short text -----------> Jaccard on shingles
+|   (product titles, tweets)
+|
+|-- Similar documents ------------> SimHash or MinHash+LSH
+|   (web pages, articles)           (SimHash if speed matters,
+|                                    MinHash if Jaccard fidelity matters)
+|
+|-- Shared substrings ------------> Rolling hash / Rabin
+|   (boilerplate, copy-paste)
+|
+|-- Same topic, different words --> TF-IDF cosine or Embeddings
+|   (paraphrases, translations)      (TF-IDF if fast, Embeddings if precise)
+|
+`-- All of the above -------------> Layer them: exact -> near-dup -> semantic
 ```
-
-As you move right:
-1. You catch richer similarity.
-2. You pay more compute and ops tax.
 
 ## Latency Ladder (Back-of-Envelope)
 
@@ -218,56 +98,21 @@ Embeddings -----------------------------------*--------*
                                                 (CPU)
 ```
 
-Exact ranges depend on corpus size, indexing strategy, and hardware, but this is a useful planning heuristic.
+These ranges vary by corpus, indexing strategy, and hardware. Use them as planning budgets, not guarantees.
 
-## Method Selection Tree
+## Practical Production Pattern
 
-```text
-What are you deduping?
-|
-|-- Exact copies -----------------> #1 Hash set (or Bloom filter at scale)
-|
-|-- Copies with noise ------------> #2 Normalized hash
-|   (casing, whitespace)
-|
-|-- Typos / OCR errors -----------> #6 Edit distance (+ BK-tree/SymSpell)
-|   (character-level)
-|
-|-- Similar names ----------------> #10 Phonetic hash
-|
-|-- Similar short text -----------> #4 Jaccard on shingles
-|   (product titles, tweets)
-|
-|-- Similar documents ------------> #3 SimHash or #5 MinHash+LSH
-|   (web pages, articles)           (SimHash if speed matters,
-|                                    MinHash if accuracy matters)
-|
-|-- Shared substrings ------------> #8 Rolling hash / Rabin
-|   (boilerplate, copy-paste)
-|
-|-- Same topic, different words --> #7 TF-IDF cosine or #9 Embeddings
-|   (paraphrases, translations)      (TF-IDF if fast, Embeddings if precise)
-|
-`-- All of the above -------------> Layer them: hash -> SimHash -> Embeddings
-```
+Most systems should layer methods in this order:
+1. **Hot path exact**: URL/content hash, Bloom filter.
+2. **Near-dup pass**: SimHash or MinHash+LSH.
+3. **Semantic pass (optional)**: embeddings + ANN.
 
-## Practical Architecture Pattern
+This keeps p95 low while preserving quality where it matters.
 
-Production systems usually layer these methods:
-1. Frontier: exact dedup (`URL hash`, `Bloom`).
-2. Ingestion: exact body hash.
-3. Indexing: near-dup (`SimHash` or `MinHash+LSH`).
-4. Optional premium stage: semantic dedup with embeddings.
+## Use-Case Mapping
 
-This keeps the hot path cheap while preserving quality where it matters.
+1. **Autocorrect**: edit-distance metric + BK-tree/SymSpell index.
+2. **Typeahead**: prefix structures (trie/FST); add fuzzy layer only if needed.
+3. **Web crawl dedup**: exact hash at frontier, SimHash/MinHash at indexing, embeddings only for high-value semantic collapse.
 
-## Interview Strategy (40-Minute Version)
-
-If asked to build a streaming dedup/autocomplete system quickly:
-1. Start with exact set dedup and bounded memory window.
-2. Add one strong near-dup primitive (SimHash is usually best ROI).
-3. Explain latency tiers and when each method is justified.
-4. Show clean fallback path from exact to approximate to semantic.
-
-The signal interviewers want is not just algorithm knowledge.  
-It is whether you can choose the right point on the latency-accuracy-cost frontier.
+The core engineering move is to choose the cheapest layer that solves the problem, then add depth only where misses are costly.
