@@ -18,6 +18,11 @@ Examples:
 
 This is the semantic definition of similarity.
 
+What Jaccard is for:
+1. Comparing overlap-heavy text represented as sets (usually token or character shingles).
+2. Short-text near-dup and title/product-name matching.
+3. Candidate verification after fast approximate retrieval.
+
 ### 2) Sketch Layer
 
 Examples:
