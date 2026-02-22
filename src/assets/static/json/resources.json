@@ -14,20 +14,6 @@
     ]
   },
   {
-    "title": "everything is a ralph loop",
-    "description": "A loop-oriented software development mindset focused on iterative autonomous execution and engineering the loop itself.",
-    "category": "ghuntley.com",
-    "format": "Article",
-    "url": "https://ghuntley.com/loop/",
-    "author": "Geoffrey Huntley",
-    "tags": [
-      "agent loops",
-      "ai engineering",
-      "workflow",
-      "automation"
-    ]
-  },
-  {
     "title": "The future belongs to people who can just do things",
     "description": "Perspective on AI adoption stages in engineering teams and why organizations should accelerate practical skill development.",
     "category": "ghuntley.com",
@@ -173,19 +159,6 @@
       "leadership",
       "culture",
       "career"
-    ]
-  },
-  {
-    "title": "Practical Guide to Event-Driven Architectures",
-    "description": "ThoughtWorks' opinionated field guide for designing event-driven systems with real-world constraints.",
-    "category": "Distributed Systems",
-    "format": "Report",
-    "url": "https://www.thoughtworks.com/insights/articles/practical-guide-event-driven-architecture",
-    "author": "ThoughtWorks",
-    "tags": [
-      "events",
-      "integration",
-      "messaging"
     ]
   },
   {
