@@ -1,35 +1,63 @@
 # Similarity Systems in Production: A Latency Playbook
 
-This topic gets confusing because people mix three different layers:
-1. **Metric**: what "similar" means.
+Imagine you are crawling the web and ingesting millions of pages per day.
+
+You need to answer one operational question for every incoming page:
+1. Is this page new?
+2. Or is it a near-duplicate of something we have already seen?
+
+A naive approach compares the incoming page with every stored page.
+That works, but latency and compute explode as the corpus grows.
+
+This article walks from that naive baseline to production retrieval:
+1. Define what "similar" means.
+2. Compress documents into fast fingerprints.
+3. Retrieve only likely candidates instead of scanning everything.
+
+Teams get stuck because these three layers are often mixed together:
+1. **Similarity Objective**: what "similar" means.
 2. **Sketch/Fingerprint**: how to compress data for speed.
 3. **Index/Retrieval**: how to find candidates fast.
 
 If you separate those layers, MinHash vs SimHash becomes straightforward.
 
-Jaccard comes up early because teams usually start with a metric they trust, then optimize it.  
-So we start there, then move outward to sketches and indexes that make that metric practical at scale.
+## Why not just use a hash map?
+
+Because a normal hash map answers exact equality, not similarity.
+
+1. If two documents are exactly the same, exact hashes match and lookup is `O(1)`.
+2. If two documents are only near-duplicates, their exact hashes are usually unrelated.
+3. So for "have we seen something like this before?", a plain hash map forces a scan across many/all documents.
+
+That is why we need similarity-aware fingerprints and indexes (MinHash/SimHash + LSH/Hamming indexing), not only exact hashes.
 
 ## The Three Layers
 
-### 1) Metric Layer
+### 1) Similarity Objective Layer
 
 Examples:
 1. **Jaccard**: set overlap (`|A∩B| / |A∪B|`).
 2. **Edit distance**: character-level typo distance.
 3. **Cosine**: vector angle (TF-IDF or embeddings).
 
-This is the semantic definition of similarity.
+This is the semantic definition of "similar enough" for your use case.
 
-What Jaccard is for:
-1. Comparing overlap-heavy text represented as sets (usually token or character shingles).
-2. Short-text near-dup and title/product-name matching.
-3. Candidate verification after fast approximate retrieval.
+What each metric is for:
+1. **Jaccard**:
+Use when overlap of discrete features matters (tokens/shingles/tags).
+Strong for near-duplicate text, title matching, and set-style similarity.
+2. **Edit distance**:
+Use when small string edits matter (typos, insert/delete/substitute).
+Strong for usernames, SKUs, short fields, and fuzzy exact-string matching.
+3. **Cosine**:
+Use when directional similarity in weighted vectors matters (TF-IDF/embeddings).
+Strong for topical/semantic similarity and ranking related content.
 
 Shingles (quick definition):
 1. A shingle is an overlapping chunk of text.
 2. Word shingles use consecutive words (e.g., 2-word windows).
 3. Character shingles use consecutive characters (e.g., 3-char windows).
+4. In modern terminology, this is just `n`-grams (contiguous token windows); "shingling" is older IR/web-search wording.
 
 Example:
 1. Text: `the quick brown fox`
@@ -38,11 +66,17 @@ Example:
 ### 2) Sketch Layer
 
 Examples:
-1. **SimHash**: compact bit fingerprint for near-dup.
+1. **SimHash**: compact bit fingerprint for near-dup; preserves cosine locality of weighted feature vectors via random-hyperplane sign bits.
 2. **MinHash**: sketch that approximates Jaccard.
 3. **Content hash (SHA/MD5)**: exact identity fingerprint.
 
 Sketches trade precision for speed and memory efficiency.
+
+What sketches add (beyond the raw similarity objective):
+1. **Compression**: map large text/vector representations to tiny fixed-size signatures.
+2. **Fast candidate generation**: enable sublinear retrieval with LSH/Hamming-style indexes.
+3. **Cost control**: reduce memory, network, and CPU spent on full pairwise comparisons.
+4. **Two-stage ranking**: cheap approximate filter first, exact/strong scoring only on shortlisted candidates.
 
 ### 3) Index Layer
 
@@ -105,23 +139,41 @@ def shingles(text: str, k: int = 3) -> set[str]:
     words = text.lower().split()
     return {" ".join(words[i:i+k]) for i in range(len(words) - k + 1)}
 
-doc1 = "minhash is good for set overlap with shingles"
-doc2 = "minhash is useful for overlap with shingles"
+def build_minhash(text: str, num_perm: int = 128) -> MinHash:
+    m = MinHash(num_perm=num_perm)
+    for s in shingles(text, k=3):
+        m.update(s.encode("utf-8"))
+    return m
 
-m1 = MinHash(num_perm=128)
-m2 = MinHash(num_perm=128)
+docs = [
+    ("a", "the quick brown fox jumps over the lazy dog"),
+    ("b", "the quick brown fox jumped over a lazy dog"),
+    ("c", "postgres index tuning for large tables"),
+]
 
-for s in shingles(doc1, k=2):
-    m1.update(s.encode("utf-8"))
-for s in shingles(doc2, k=2):
-    m2.update(s.encode("utf-8"))
-
-print("estimated_jaccard", m1.jaccard(m2))
-
+# 1) Build corpus index once
 lsh = MinHashLSH(threshold=0.5, num_perm=128)
-lsh.insert("doc2", m2)
-print("candidates", lsh.query(m1))
+minhash_by_id = {}
+for doc_id, text in docs:
+    mh = build_minhash(text, num_perm=128)
+    minhash_by_id[doc_id] = mh
+    lsh.insert(doc_id, mh)
+
+# 2) Query without scanning all docs
+q = build_minhash("the quick brown fox jumps over lazy dog", num_perm=128)
+candidates = lsh.query(q)  # candidate doc IDs only
+print("candidates", candidates)
+
+# 3) Optional exact/estimated re-rank on candidates
+for doc_id in candidates:
+    print(doc_id, "estimated_jaccard", q.jaccard(minhash_by_id[doc_id]))
 ```
+
+How MinHash corpus lookup works:
+1. Store one MinHash signature per article.
+2. LSH splits each signature into bands and buckets similar signatures together.
+3. Query signature probes those buckets to get candidate IDs.
+4. Only candidates are scored; you avoid full-corpus comparison.
 
 ### SimHash with `simhash`
 
@@ -129,16 +181,158 @@ print("candidates", lsh.query(m1))
 from simhash import Simhash, SimhashIndex
 
 docs = [
-    ("doc1", "this is a cool algorithm for near duplicate detection"),
-    ("doc2", "this is a cool algorithm for near-duplicate detection"),
+    ("a", "the quick brown fox jumps over the lazy dog"),
+    ("b", "the quick brown fox jumped over a lazy dog"),
+    ("c", "postgres index tuning for large tables"),
 ]
 
+# 1) Build corpus index once
 objs = [(doc_id, Simhash(text)) for doc_id, text in docs]
-index = SimhashIndex(objs, k=3)  # k = max Hamming distance
+index = SimhashIndex(objs, k=3)
+# What this does:
+# - stores each document's 64-bit SimHash fingerprint
+# - builds block-based lookup tables over fingerprint bits
+# - uses k as the max allowed Hamming distance for near-dup matches
+# Practical meaning of k:
+# - lower k -> stricter matching, fewer candidates
+# - higher k -> looser matching, more candidates
 
-query = Simhash("this is a cool algorithm for duplicate detection")
-print("near_dups", index.get_near_dups(query))
+# 2) Incoming document check without scanning all docs
+incoming_fp = Simhash("the quick brown fox jumps over lazy dog")
+candidates = index.get_near_dups(incoming_fp)  # candidate doc IDs only
+print("near_dups", candidates)
+
+# 3) Optional exact Hamming check using stored corpus SimHashes
+simhash_by_id = dict(objs)
+for doc_id in candidates:
+    print(doc_id, "hamming", incoming_fp.distance(simhash_by_id[doc_id]))
 ```
+
+Implementation note (`simhash` package):
+1. `Simhash(text)` does built-in preprocessing for string input.
+2. In the common Python implementation, it lowercases, tokenizes with regex-cleaning, and builds sliding character windows (default width 4).
+3. If you need explicit word shingles (for example, word 3-grams), build features yourself and pass them as an iterable.
+
+How SimHash corpus lookup works:
+1. Store one SimHash fingerprint per article.
+2. The index partitions fingerprint bits into blocks across tables.
+3. Query fingerprint probes matching blocks to collect candidates.
+4. Candidates are verified by full Hamming distance (`distance <= k`).
+
+Hamming distance (why it matters for SimHash):
+1. SimHash outputs a fixed-width bit fingerprint (commonly 64 bits).
+2. Hamming distance is the number of bit positions that differ between two equal-length fingerprints.
+3. For 64-bit SimHash, Hamming distance ranges from `0..64` (smaller means more similar).
+4. It is not cosine similarity itself; in SimHash it acts as a fast proxy because SimHash preserves cosine locality.
+5. In the Python library, use `a.distance(b)` between two `Simhash` objects.
+6. `SimhashIndex(..., k=3)` means only candidates within distance `<= 3` are returned.
+7. Raw decimal hash values can look far apart numerically but still be similar in Hamming space.
+
+Quick check:
+
+```python
+from simhash import Simhash
+
+a = Simhash("the quick brown fox jumps over the lazy dog")
+b = Simhash("the quick brown fox jumped over a lazy dog")
+
+print(a.distance(b))  # smaller = more similar, range 0..64
+```
+
+## How can we check if a document is similar to what we've seen so far?
+
+Do we have to calculate SimHash distance against each and every document we have seen so far?
+Yes, that baseline works, but it is very slow.
+
+Full-scan baseline (correct but slow):
+
+```python
+from simhash import Simhash
+
+corpus = [
+    ("a", "the quick brown fox jumps over the lazy dog"),
+    ("b", "the quick brown fox jumped over a lazy dog"),
+    ("c", "postgres index tuning for large tables"),
+]
+
+incoming_doc = "the quick brown fox jumps over lazy dog"
+incoming_fp = Simhash(incoming_doc)
+
+for doc_id, text in corpus:
+    d = incoming_fp.distance(Simhash(text))
+    if d <= 3:
+        print("near duplicate:", doc_id, "distance:", d)
+```
+
+Better: use `SimhashIndex` from the same package:
+
+```python
+from simhash import Simhash, SimhashIndex
+
+corpus = [
+    ("a", "the quick brown fox jumps over the lazy dog"),
+    ("b", "the quick brown fox jumped over a lazy dog"),
+    ("c", "postgres index tuning for large tables"),
+]
+
+# Build once
+objs = [(doc_id, Simhash(text)) for doc_id, text in corpus]
+index = SimhashIndex(objs, k=3)
+
+# Ingestion-time check
+incoming_doc = "the quick brown fox jumps over lazy dog"
+incoming_fp = Simhash(incoming_doc)
+near = index.get_near_dups(incoming_fp)
+print("near duplicates:", near)
+```
+
+How `SimhashIndex` works:
+1. Store one SimHash fingerprint per document.
+2. Partition fingerprint bits into blocks and index those blocks.
+3. For an incoming document, probe matching blocks to get candidates.
+4. Verify candidates with full Hamming distance and keep `distance <= k`.
+
+### SimHash Q&A: shingling, corpus lookup, and API differences
+
+Q: Does the `simhash` library handle shingling for you?  
+A: For string input in the common Python `simhash` package, yes, partially. It lowercases text, extracts alphanumeric runs, concatenates them, then applies a sliding window of width 4 (character shingles). If you want word shingles or custom features, pass an iterable of your own features.
+
+Q: What is shingling?  
+A: N-grams: a sliding window of size `k` over words or characters. The term comes from overlapping roof shingles.
+
+Q: Why shingle?  
+A: SimHash aggregates a bag of features. If features ignore order too much, reordered text can look too similar. Shingling (especially word/char n-grams) encodes local order and usually improves near-dup quality.
+
+Q: Do I need to shingle?  
+A: You can use the default string path first. In production, many teams choose explicit features (often word 3-grams) so behavior is predictable and tunable.
+
+Q: What shingle size?  
+A: Smaller `k` is more lenient. Larger `k` is stricter. Word 3-grams are a common baseline for text dedup.
+
+Q: Does `Simhash` override `__eq__`?  
+A: Yes. It compares by `.value`.
+
+Q: How do you look up against a corpus?  
+A: Build `SimhashIndex([(id, Simhash), ...], k=N)`, then call `index.get_near_dups(incoming_hash)`. `k` is the maximum Hamming distance.
+
+Q: Is the doc ID required?  
+A: Yes. `SimhashIndex` stores `(id, Simhash)` tuples and returns IDs from `get_near_dups`.
+
+Q: Why `get_near_dups` and not `.query()`?  
+A: Different library APIs. `simhash` uses `get_near_dups`; `datasketch` MinHash LSH uses `.query()`.
+
+Deep dive: how `SimhashIndex` works internally
+
+1. Data structure:
+Bucketed hash tables backed by `defaultdict(set)`, with entries serialized like `<simhash_hex>,<obj_id>`.
+2. Core trick (band partitioning + pigeonhole principle):
+A fingerprint is split into `k+1` bands. Example with `f=64` and `k=2`: 3 bands of about 21 bits each. One bucket key is produced per band (`<band_value_hex>:<band_index_hex>`).
+3. Why this guarantees recall for true near-dups:
+If two fingerprints differ by at most `k` bits, then across `k+1` bands at least one band must match exactly, so true near-duplicates collide in at least one bucket.
+4. Lookup flow (`get_near_dups`):
+Compute band keys for incoming hash -> fetch bucket candidates -> compute exact Hamming distance -> keep only `distance <= k`.
+5. Incremental updates:
+`index.add(id, simhash)` can be called anytime; `index.delete(id, simhash)` is also available. This supports streaming dedup: check first, then add if not duplicate.
 
 ## Under The Hood: Hash + Query Lookup
 
@@ -150,16 +344,18 @@ A standard hash map optimizes exact key equality:
 
 So we need locality-sensitive indexing, not plain dictionaries.
 
-## Do We Compute Jaccard/Cosine Against Every Document?
+## How do we avoid full-corpus comparison in production?
 
-Short answer: no.
-
-You compute exact similarity against the **query** and only a **small candidate set**, not the full corpus.
+1. Define your target objective (Jaccard overlap or cosine-style similarity).
+2. Build a sketch + index (MinHash+LSH or SimHash+Hamming index).
+3. For each incoming document, compute its sketch and ask the index for candidates.
+4. Re-score only those candidates with your stronger/exact metric.
+5. Mark as near-duplicate if score/distance crosses your threshold.
 
 Production pattern is a funnel:
 1. **Filter** (cheap): LSH/Hamming-block lookup narrows search space.
 2. **Candidate pull**: fetch signatures/vectors for only those IDs.
-3. **Rank** (expensive): compute exact/stronger score for each candidate **against the query**.
+3. **Rank** (expensive): compute exact/stronger score for each candidate against the incoming document.
 
 Example shape:
 1. Corpus size `N = 100,000,000`
@@ -167,6 +363,36 @@ Example shape:
 3. Expensive math runs `300` times, not `100,000,000` times.
 
 This is the entire scaling trick.
+
+Practical example with real packages:
+
+```python
+from datasketch import MinHash, MinHashLSH
+from simhash import Simhash, SimhashIndex
+
+# MinHash + LSH path
+lsh = MinHashLSH(threshold=0.5, num_perm=128)
+for doc_id, text in corpus:
+    mh = MinHash(num_perm=128)
+    for token in shingles(text, k=3):
+        mh.update(token.encode("utf-8"))
+    lsh.insert(doc_id, mh)
+
+# SimHash path
+sim_objs = [(doc_id, Simhash(text)) for doc_id, text in corpus]
+sim_index = SimhashIndex(sim_objs, k=3)
+
+# Incoming document checks
+incoming = "the quick brown fox jumps over lazy dog"
+incoming_sim = Simhash(incoming)
+near_simhash = sim_index.get_near_dups(incoming_sim)
+```
+
+Why this avoids full-corpus iteration (theory):
+1. Naive retrieval compares query against `N` docs: `O(N)`.
+2. LSH/Hamming indexing probes a small set of buckets: near `O(K)` bucket probes.
+3. Exact scoring runs on `C` candidates, where `C << N`: `O(C)`.
+4. Total latency is dominated by candidate count, not corpus size.
 
 ### MinHash lookup: LSH banding
 
@@ -430,3 +656,12 @@ This keeps p95 low while preserving quality where it matters.
 3. **Web crawl dedup**: exact hash at frontier, SimHash/MinHash at indexing, embeddings only for high-value semantic collapse.
 
 The core engineering move is to choose the cheapest layer that solves the problem, then add depth only where misses are costly.
+
+## Similarity Learnings Recap
+
+1. Hamming distance is bit-difference count, not cosine itself.
+2. SimHash uses Hamming distance as a fast proxy because it preserves cosine locality.
+3. MinHash approximates Jaccard overlap on feature sets.
+4. For crawl dedup, full-scan distance checks are correct but slow; index first, then verify.
+5. In Python `simhash`, `get_near_dups` is the index query API; in `datasketch` MinHash LSH, it is `.query()`.
+6. Shingling is n-grams; choose explicit features when you need tighter control over quality.

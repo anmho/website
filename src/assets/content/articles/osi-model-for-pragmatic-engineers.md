@@ -65,3 +65,8 @@ If you only look at app traces, you miss transport and routing tax.
 2. "Can ping" does not mean "can connect to app port."
 3. "Connected" does not mean request semantics are valid.
 4. A clean layer-by-layer narrowing beats random guess debugging every time.
+
+## Further Learning
+
+1. Hussein Nasser, **The OSI Model by Example**: [Class Central link](https://www.classcentral.com/course/youtube-the-osi-model-by-example-the-backend-engineering-show-with-hussein-nasser-117280)
+2. Hussein Nasser, **Network Engineering** class collection: [Class Central link](https://www.classcentral.com/course/youtube-network-engineering-93072)
