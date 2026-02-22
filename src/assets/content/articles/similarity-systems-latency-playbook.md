@@ -398,6 +398,14 @@ Why this avoids full-corpus iteration (theory):
 
 MinHash signature: a fixed-length list of integers (one per hash function) that approximates Jaccard overlap between two sets. You can think of it as a compact fingerprint where each row is the minimum hash value seen for that hash function.
 
+How a MinHash signature is built (step-by-step):
+1. Choose `k` hash functions (signature length = `k` rows).
+2. For each feature in the document (e.g., shingles), compute its hash under each hash function.
+3. For each hash function, keep the **minimum** value seen across all features.
+4. The `k` minima become the signature rows.
+
+Because each row is a minimum over the same feature set, two documents with higher Jaccard overlap tend to share more equal rows in their MinHash signatures.
+
 LSH partitioning: take that signature and split it into bands (contiguous groups of rows). Hash each band into its own bucket table. Two documents become candidates if they collide in at least one band bucket.
 
 Bands are contiguous groups of rows from a MinHash signature. More bands (with fewer rows each) increases recall but can raise false positives; fewer bands increases precision but risks missing near-dups.
@@ -435,6 +443,13 @@ Band 3 rows: r9  r10 r11 r12 -> hash -> bucket table 3
 
 Candidate rule: if any band hashes to the same bucket, pull as candidate.
 ```
+
+Further reading (Wikipedia):
+1. [MinHash](https://en.wikipedia.org/wiki/MinHash)
+2. [Locality-sensitive hashing](https://en.wikipedia.org/wiki/Locality-sensitive_hashing)
+3. [SimHash](https://en.wikipedia.org/wiki/SimHash)
+4. [Hamming distance](https://en.wikipedia.org/wiki/Hamming_distance)
+5. [Jaccard index](https://en.wikipedia.org/wiki/Jaccard_index)
 
 For a MinHash signature:
 1. Split signature into bands.
