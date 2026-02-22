@@ -409,6 +409,19 @@ How this compares to a SimHash index:
 4. **Similarity target**: MinHash approximates Jaccard set overlap; SimHash preserves cosine locality on weighted features.
 5. **Tuning knobs**: MinHash LSH tunes `(bands, rows per band)`; SimHashIndex tunes `k` (max Hamming distance).
 
+What is `k` in `SimhashIndex(objs, k=0)`?
+`k` is the maximum allowed Hamming distance between two fingerprints to be considered a near-duplicate candidate. If `k=0`, only exact fingerprint matches are returned (all 64 bits must match).
+
+How to tune `k` (intuition + back-of-the-envelope):
+1. **Interpretation**: each increment of `k` allows one more differing bit in the 64-bit SimHash. Larger `k` = looser matching.
+2. **Candidate growth**: for a 64-bit fingerprint, the number of bitstrings within distance `k` is roughly `sum_{i=0..k} C(64, i)`. This grows quickly:
+   - `k=0`: `C(64,0)=1` (exact match only)
+   - `k=3`: `1 + 64 + 2016 + 41664 ≈ 43,745` neighbors
+   - `k=5`: adds `C(64,4)+C(64,5) ≈ 635,376 + 7,624,512` → ~8.3M neighbors
+3. **Practical effect**: higher `k` improves recall but can explode candidate counts and false positives; lower `k` is fast but misses softer near-dups.
+4. **Rule of thumb**: start with `k=2..4` for short text or strict near-dup, and `k=3..6` for longer text, then measure candidate counts and accuracy.
+5. **Measure, don’t guess**: log `near_dups` counts for real traffic, then adjust `k` to hit your target latency/precision.
+
 Diagram (12-row signature split into 3 bands of 4 rows each):
 
 ```
