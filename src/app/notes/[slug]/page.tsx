@@ -9,7 +9,8 @@ import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import clsx from 'clsx';
-import type { HTMLAttributes, ReactNode } from 'react';
+import CopyCodeBlock from '@/components/CopyCodeBlock';
+import { isValidElement, type HTMLAttributes, type ReactNode } from 'react';
 import { formatDate } from '@/lib/utils';
 
 interface Note {
@@ -68,6 +69,41 @@ export default async function NotePage({ params }: NotePageProps) {
     children?: ReactNode;
   };
 
+  function extractText(node: ReactNode): string {
+    if (typeof node === 'string' || typeof node === 'number') {
+      return String(node);
+    }
+    if (!node) {
+      return '';
+    }
+    if (Array.isArray(node)) {
+      return node.map(extractText).join('');
+    }
+    if (isValidElement<{ children?: ReactNode }>(node)) {
+      return extractText(node.props.children);
+    }
+    return '';
+  }
+
+  function extractCodeBlockFromPre(node: ReactNode): {
+    code: string;
+    className?: string;
+  } | null {
+    const candidate = Array.isArray(node) ? node[0] : node;
+    if (isValidElement<{ children?: ReactNode; className?: string }>(candidate)) {
+      return {
+        code: extractText(candidate.props.children).replace(/\n$/, ''),
+        className: candidate.props.className,
+      };
+    }
+    if (typeof candidate === 'string' || typeof candidate === 'number') {
+      return {
+        code: String(candidate).replace(/\n$/, ''),
+      };
+    }
+    return null;
+  }
+
   const noteMarkdownComponents: Components = {
     h1: ({ node, className, ...props }) => (
       <h1
@@ -118,33 +154,24 @@ export default async function NotePage({ params }: NotePageProps) {
       const { inline, className, children, ...rest } =
         props as MarkdownCodeProps;
 
-      if (inline) {
-        return (
-          <code
-            className={clsx(
-              'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono',
-              className
-            )}
-            {...rest}
-          >
-            {children}
-          </code>
-        );
-      }
-
       return (
-        <pre className="bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto mb-4">
-          <code
-            className={clsx(
-              'text-sm font-mono text-gray-800 dark:text-gray-200',
-              className
-            )}
-            {...rest}
-          >
-            {String(children).replace(/\n$/, '')}
-          </code>
-        </pre>
+        <code
+          className={clsx(
+            'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono',
+            className
+          )}
+          {...rest}
+        >
+          {children}
+        </code>
       );
+    },
+    pre: ({ node, children }) => {
+      const block = extractCodeBlockFromPre(children);
+      if (!block) {
+        return null;
+      }
+      return <CopyCodeBlock code={block.code} className={block.className} />;
     },
     ul: ({ node, className, ...props }) => (
       <ul
