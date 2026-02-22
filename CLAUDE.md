@@ -53,3 +53,8 @@ export function MyEmailTemplate({ props }) {
 ### Cron Jobs
 - Configured in `vercel.json`
 - Daily article email runs at 8 AM Pacific (`0 16 * * *` UTC)
+
+## Mistake Log Policy
+1. Record each mistake made during implementation in both `AGENTS.md` and `CLAUDE.md`.
+2. For each mistake, include: what was wrong, why it happened, and the preventive guardrail added.
+3. Apply the guardrail immediately in the same change set when possible.

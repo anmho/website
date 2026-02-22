@@ -46,3 +46,25 @@ await resend.emails.send({ html, ... });
 1. Never leave incomplete JSX ternaries (`condition ? (...)`) without a `: (...)` branch.
 2. Prefer `condition && (...)` for single-branch rendering to reduce syntax mistakes.
 3. After JSX refactors, run a quick TypeScript/compile check before finalizing.
+
+## Markdown Rendering Guardrails
+1. Treat inline and block code as separate render paths:
+2. Inline code must render only in the `code` renderer.
+3. Fenced code blocks must render only in the `pre` renderer.
+4. Never use `code` renderer fallback logic to guess block-vs-inline.
+5. If copy buttons are used, attach them only to `pre` (fenced code blocks), never inline code.
+6. Before finalizing markdown renderer changes, verify:
+7. Inline backticks inside headings/paragraphs/lists render inline.
+8. Fenced blocks render with copy button.
+9. Run a TypeScript compile check.
+
+## Reliability Skill (Mandatory)
+1. Do a targeted regression sweep after UI renderer changes.
+2. Search all markdown renderers (`ReactMarkdown` usages) and confirm consistent behavior.
+3. Validate with one inline-code example and one fenced-code example in rendered pages.
+4. If behavior is ambiguous, inspect source markdown and renderer output before patching.
+
+## Mistake Log Policy
+1. Record each mistake made during implementation in both `AGENTS.md` and `CLAUDE.md`.
+2. For each mistake, include: what was wrong, why it happened, and the preventive guardrail added.
+3. Apply the guardrail immediately in the same change set when possible.
