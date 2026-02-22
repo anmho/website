@@ -1388,5 +1388,20 @@
       "lang:general"
     ],
     "date": "2026-02-18"
+  },
+  {
+    "id": "2026-02-22-python-iter-unpacking",
+    "question": "How does Python unpacking work with __iter__?",
+    "answer": "Python unpacking (`a, b = x`) calls `iter(x)` under the hood. If your class implements `__iter__` and yields values in order, it can be unpacked like a tuple. This is useful for returning object data ergonomically while keeping named attributes.",
+    "codeSnippet": "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n\n    def __iter__(self):\n        yield self.x\n        yield self.y\n\np = Point(3, 5)\na, b = p\nprint(a, b)  # 3 5\n\n# Also works in loops/functions expecting iterables:\nprint(list(p))  # [3, 5]",
+    "codeLanguage": "python",
+    "tags": [
+      "python",
+      "iterators",
+      "dunder-methods",
+      "unpacking",
+      "lang:python"
+    ],
+    "date": "2026-02-22"
   }
 ]
