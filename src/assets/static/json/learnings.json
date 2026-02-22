@@ -33,7 +33,7 @@
   {
     "id": "2026-02-20-resend-react-email-stack",
     "question": "Does Resend use React Email or its own framework for emails?",
-    "answer": "Resend is an email delivery API/platform, not a required custom rendering framework. You can send `html`, `text`, or a React element via the SDK. The common React setup is to build templates with `@react-email/components` (React Email) and pass them to Resend.\\n\\nSources:\\n- https://resend.com/docs/api-reference/emails/send-email\\n- https://github.com/resend/resend-node\\n- https://resend.com/docs/dashboard/emails/email-templates\\n- https://resend.com/blog/react-email-5",
+    "answer": "Resend is an email delivery API/platform, not a required custom rendering framework. You can send `html`, `text`, or a React element via the SDK. The common React setup is to build templates with `@react-email/components` (React Email) and pass them to Resend.\n\nSources:\n- https://resend.com/docs/api-reference/emails/send-email\n- https://github.com/resend/resend-node\n- https://resend.com/docs/dashboard/emails/email-templates\n- https://resend.com/blog/react-email-5",
     "codeSnippet": "import { Resend } from 'resend';\nimport { Html, Body, Container, Heading, Text } from '@react-email/components';\n\nconst resend = new Resend(process.env.RESEND_API_KEY);\n\nfunction WelcomeEmail({ name }: { name: string }) {\n  return (\n    <Html>\n      <Body>\n        <Container>\n          <Heading>Welcome</Heading>\n          <Text>Hey {name}, thanks for joining.</Text>\n        </Container>\n      </Body>\n    </Html>\n  );\n}\n\nawait resend.emails.send({\n  from: 'Acme <onboarding@resend.dev>',\n  to: ['user@example.com'],\n  subject: 'Welcome',\n  react: <WelcomeEmail name=\"Andrew\" />,\n});",
     "codeLanguage": "tsx",
     "tags": [
@@ -334,7 +334,7 @@
   {
     "id": "2026-02-20-ngmi-adaptation-lag-ranking-shift",
     "question": "What is the core \"ngmi\" takeaway for engineering teams?",
-    "answer": "In fast AI-adoption cycles, rankings can change quickly: engineers who operationalize new tools early may leapfrog higher-ranked peers who stay in disbelief too long. The practical lesson is to optimize for adaptation speed, not just historical performance.\\n\\nSource: https://ghuntley.com/ngmi/",
+    "answer": "In fast AI-adoption cycles, rankings can change quickly: engineers who operationalize new tools early may leapfrog higher-ranked peers who stay in disbelief too long. The practical lesson is to optimize for adaptation speed, not just historical performance.\n\nSource: https://ghuntley.com/ngmi/",
     "codeSnippet": "Old ranking stability assumption:\nA > B > C (for years)\n\nAI adoption shock:\nC adopts early + compounds usage\nB delays + underestimates shift\n\nNew output ranking can flip within quarters.",
     "codeLanguage": "text",
     "tags": [
@@ -349,7 +349,7 @@
   {
     "id": "2026-02-20-ngmi-belief-stages-oh-f-moment",
     "question": "What does the \"time to oh-f moment\" idea imply?",
-    "answer": "The longer someone remains in early denial/disbelief stages, the longer it takes to recognize they are being outpaced. Teams should shorten this loop with mandatory hands-on practice, not passive observation.\\n\\nSource: https://ghuntley.com/ngmi/",
+    "answer": "The longer someone remains in early denial/disbelief stages, the longer it takes to recognize they are being outpaced. Teams should shorten this loop with mandatory hands-on practice, not passive observation.\n\nSource: https://ghuntley.com/ngmi/",
     "codeSnippet": "Belief-stage lag (concept):\nlonger disbelief -> slower behavior change -> larger output gap\n\nIntervention:\n- set adoption deadlines\n- require weekly usage artifacts\n- review outcomes, not opinions",
     "codeLanguage": "text",
     "tags": [
@@ -364,7 +364,7 @@
   {
     "id": "2026-02-20-ngmi-org-economics-attrition-over-layoffs",
     "question": "How can org economics shift without immediate layoffs in AI transitions?",
-    "answer": "One pattern is silent restructuring: normal attrition plus selective backfills with AI-native engineers can change team composition over time without explicit mass layoffs. The strategic signal is hiring and replacement policy, not just headline layoffs.\\n\\nSource: https://ghuntley.com/ngmi/",
+    "answer": "One pattern is silent restructuring: normal attrition plus selective backfills with AI-native engineers can change team composition over time without explicit mass layoffs. The strategic signal is hiring and replacement policy, not just headline layoffs.\n\nSource: https://ghuntley.com/ngmi/",
     "codeSnippet": "Headcount stays near flat short-term\nwhile composition shifts over replacement cycles:\n\nattrition -> backfill with higher leverage profile\n=> rising average output per seat",
     "codeLanguage": "text",
     "tags": [
@@ -952,7 +952,7 @@
   {
     "id": "2026-02-20-uv-how-to-use",
     "question": "How do I use `uv` to initialize and manage a Python project?",
-    "answer": "`uv` is a fast Python project/package manager. Typical flow: initialize a project, add deps, run code, then lock/sync environments. You can also pass `--env-file` at runtime so you do not need `python-dotenv` loading in app code.\\n\\nReferences:\\n- https://docs.astral.sh/uv/\\n- https://docs.astral.sh/uv/concepts/projects/init/\\n- https://docs.astral.sh/uv/guides/projects/\\n- https://docs.astral.sh/uv/concepts/projects/run/",
+    "answer": "`uv` is a fast Python project/package manager. Typical flow: initialize a project, add deps, run code, then lock/sync environments. You can also pass `--env-file` at runtime so you do not need `python-dotenv` loading in app code.\n\nReferences:\n- https://docs.astral.sh/uv/\n- https://docs.astral.sh/uv/concepts/projects/init/\n- https://docs.astral.sh/uv/guides/projects/\n- https://docs.astral.sh/uv/concepts/projects/run/",
     "codeSnippet": "# new folder\nmkdir myapp && cd myapp\nuv init\n\n# or initialize an existing folder (same directory target)\nuv init .\n\n# add a dependency\nuv add httpx\n\n# run with env vars from a file (skip dotenv load in code)\nuv run --env-file .env main.py\n\n# produce/update lockfile and sync env\nuv lock\nuv sync",
     "codeLanguage": "bash",
     "tags": [
@@ -1010,7 +1010,7 @@
   {
     "id": "2026-02-20-buffered-io-llm-token-streams",
     "question": "Why does buffered I/O matter for Python LLM token streams?",
-    "answer": "Python stdout is typically line-buffered on terminals (flushes on newline) and more fully buffered when piped/redirected. In token streams, printing partial tokens without `\\n` can delay visible output unless you flush. Buffering exists to reduce syscall count (`write` calls), improving CPU efficiency and throughput. The same tradeoff appears in Go (`bufio.Writer`), C (`setvbuf`), Rust (`BufWriter`), and Node/TypeScript streams: larger buffers reduce overhead but can increase per-token display latency.",
+    "answer": "Python stdout is typically line-buffered on terminals (flushes on newline) and more fully buffered when piped/redirected. In token streams, printing partial tokens without `\n` can delay visible output unless you flush. Buffering exists to reduce syscall count (`write` calls), improving CPU efficiency and throughput. The same tradeoff appears in Go (`bufio.Writer`), C (`setvbuf`), Rust (`BufWriter`), and Node/TypeScript streams: larger buffers reduce overhead but can increase per-token display latency.",
     "codeSnippet": "# Python: line-buffered on TTY; partial tokens may wait without newline\nprint(token, end=\"\")\nprint(token, end=\"\", flush=True)  # force per-token visibility\n\n# Go: buffered writer, explicit flush\nw := bufio.NewWriter(os.Stdout)\nfmt.Fprint(w, token)\nw.Flush()\n\n# C: choose buffering mode (line/full/none)\nsetvbuf(stdout, NULL, _IOLBF, 0); // line buffered\n\n# Rust: BufWriter + explicit flush\nwrite!(writer, \"{}\", token)?;\nwriter.flush()?;\n\n# Node/TS: writes may be buffered by stream/runtime\nprocess.stdout.write(token);",
     "codeLanguage": "text",
     "tags": [
@@ -1296,7 +1296,7 @@
     "id": "2026-02-20-go-blocking-iterators-vs-python-async-iterators",
     "question": "How does Go streaming with blocking reads compare to Python async iterators?",
     "answer": "In Python, an async iterator cooperatively yields control at each `await`, so the event loop can run other tasks. In Go, you typically keep a blocking `Next(ctx)`/`ReadBytes` loop and run it in a goroutine. The goroutine can block on network I/O while the runtime scheduler runs other goroutines, so you still get async behavior at the system level without an `async iterator` language feature.",
-    "codeSnippet": "# Python: async iterator style\nasync def stream_py(resp):\n    async for line in resp.aiter_lines():\n        yield line\n\n# Go: blocking iterator/read loop in goroutine style\nfunc streamGo(ctx context.Context, r *bufio.Reader, emit func([]byte) bool) error {\n    for {\n        line, err := r.ReadBytes('\\n') // blocking read\n        if err != nil {\n            if errors.Is(err, io.EOF) { return nil }\n            return err\n        }\n        if !emit(line) { return nil }\n        if ctx.Err() != nil { return ctx.Err() }\n    }\n}",
+    "codeSnippet": "# Python: async iterator style\nasync def stream_py(resp):\n    async for line in resp.aiter_lines():\n        yield line\n\n# Go: blocking iterator/read loop in goroutine style\nfunc streamGo(ctx context.Context, r *bufio.Reader, emit func([]byte) bool) error {\n    for {\n        line, err := r.ReadBytes('\n') // blocking read\n        if err != nil {\n            if errors.Is(err, io.EOF) { return nil }\n            return err\n        }\n        if !emit(line) { return nil }\n        if ctx.Err() != nil { return ctx.Err() }\n    }\n}",
     "codeLanguage": "text",
     "tags": [
       "go",
