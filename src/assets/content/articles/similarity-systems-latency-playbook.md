@@ -150,6 +150,24 @@ A standard hash map optimizes exact key equality:
 
 So we need locality-sensitive indexing, not plain dictionaries.
 
+## Do We Compute Jaccard/Cosine Against Every Document?
+
+Short answer: no.
+
+You compute exact similarity against the **query** and only a **small candidate set**, not the full corpus.
+
+Production pattern is a funnel:
+1. **Filter** (cheap): LSH/Hamming-block lookup narrows search space.
+2. **Candidate pull**: fetch signatures/vectors for only those IDs.
+3. **Rank** (expensive): compute exact/stronger score for candidates vs query.
+
+Example shape:
+1. Corpus size `N = 100,000,000`
+2. Candidate set `C = 300`
+3. Expensive math runs `300` times, not `100,000,000` times.
+
+This is the entire scaling trick.
+
 ### MinHash lookup: LSH banding
 
 For a MinHash signature:
@@ -170,6 +188,26 @@ For 64-bit SimHash:
 5. Verify with full Hamming distance (`popcount(a ^ b)`).
 
 Pigeonhole principle gives the guarantee: if two hashes differ by only a few bits, at least one block must match exactly.
+
+### Complexity intuition
+
+1. Brute force similarity search: `O(N)`
+2. LSH/Hamming index lookup: near `O(K)` bucket probes (`K` bands/blocks)
+3. Exact rank stage: `O(C)` where `C << N`
+
+You still run exact Jaccard/Cosine, but only on `C` candidates against the query.
+
+### Two-tier pseudocode
+
+```python
+def query_similar(query):
+    candidate_ids = lsh_or_hamming_lookup(query)  # cheap filter
+    scored = []
+    for doc_id in candidate_ids:
+        score = exact_similarity(query, doc_store[doc_id])  # query vs candidate only
+        scored.append((doc_id, score))
+    return topk(scored)
+```
 
 ## Corpus Prep: Jaccard vs Cosine
 
