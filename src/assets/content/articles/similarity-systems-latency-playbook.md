@@ -5,7 +5,7 @@ This topic gets confusing because people mix three different layers:
 2. **Sketch/Fingerprint**: how to compress data for speed.
 3. **Index/Retrieval**: how to find candidates fast.
 
-If you separate those layers, SimHash vs Jaccard becomes straightforward.
+If you separate those layers, MinHash vs SimHash becomes straightforward.
 
 Jaccard comes up early because teams usually start with a metric they trust, then optimize it.  
 So we start there, then move outward to sketches and indexes that make that metric practical at scale.
@@ -53,16 +53,16 @@ Examples:
 
 Indexes make lookup cheap at scale.
 
-## SimHash vs Jaccard (Not Interchangeable)
+## MinHash vs SimHash (Not Interchangeable)
 
 They live at different layers.
 
-1. **Jaccard** is a metric (exact overlap score for sets/shingles).
-2. **SimHash** is a sketch (compact signature; compare with Hamming distance).
+1. **MinHash** is a sketch for **set overlap** and approximates **Jaccard**.
+2. **SimHash** is a sketch for **vector-style similarity** (cosine locality via random hyperplane hashing), queried with **Hamming distance**.
 
 In practice:
 1. Use SimHash to retrieve/filter quickly.
-2. Optionally verify with Jaccard on shortlisted candidates.
+2. Optionally verify with Jaccard (or cosine/embedding score) on shortlisted candidates.
 
 So the real question is usually "which pipeline?" not "which single algorithm?"
 
@@ -70,7 +70,7 @@ So the real question is usually "which pipeline?" not "which single algorithm?"
 
 The fast intuition:
 1. **MinHash** asks: "How much set overlap do these texts have?" (Jaccard view)
-2. **SimHash** asks: "Do these texts have similar weighted feature signatures?" (vector-ish view)
+2. **SimHash** asks: "Do these texts have similar weighted feature signatures?" (vector/cosine-locality view)
 
 ### Important semantic caveat
 
@@ -159,7 +159,7 @@ You compute exact similarity against the **query** and only a **small candidate 
 Production pattern is a funnel:
 1. **Filter** (cheap): LSH/Hamming-block lookup narrows search space.
 2. **Candidate pull**: fetch signatures/vectors for only those IDs.
-3. **Rank** (expensive): compute exact/stronger score for candidates vs query.
+3. **Rank** (expensive): compute exact/stronger score for each candidate **against the query**.
 
 Example shape:
 1. Corpus size `N = 100,000,000`
