@@ -21,7 +21,7 @@ type Bookmark = {
 
 export default function BookmarksPage() {
   const [resources, setResources] = useState<Bookmark[]>(resourcesData as Bookmark[]);
-  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [activeTag, setActiveTag] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -44,15 +44,16 @@ export default function BookmarksPage() {
     };
   }, []);
 
-  const categories = useMemo(
-    () => ['All', ...Array.from(new Set(resources.map((r) => r.category)))],
-    [resources]
-  );
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    resources.forEach((r) => r.tags.forEach((t) => tagSet.add(t)));
+    return ['All', ...Array.from(tagSet).sort()];
+  }, [resources]);
 
   const filteredBookmarks = useMemo(() => {
     return resources.filter((resource) => {
-      const matchesCategory =
-        activeCategory === 'All' || resource.category === activeCategory;
+      const matchesTag =
+        activeTag === 'All' || resource.tags.includes(activeTag);
       const normalizedQuery = searchQuery.trim().toLowerCase();
       const matchesQuery =
         normalizedQuery.length === 0 ||
@@ -62,9 +63,9 @@ export default function BookmarksPage() {
           tag.toLowerCase().includes(normalizedQuery)
         );
 
-      return matchesCategory && matchesQuery;
+      return matchesTag && matchesQuery;
     });
-  }, [resources, activeCategory, searchQuery]);
+  }, [resources, activeTag, searchQuery]);
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
@@ -93,20 +94,20 @@ export default function BookmarksPage() {
                   className="h-12 rounded-2xl border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-black/30 text-base"
                 />
 
-                <div className="flex flex-wrap gap-3">
-                  {categories.map((category) => (
+                <div className="flex flex-wrap gap-2">
+                  {allTags.map((tag) => (
                     <button
-                      key={category}
+                      key={tag}
                       type="button"
-                      onClick={() => setActiveCategory(category)}
+                      onClick={() => setActiveTag(tag)}
                       className={cn(
-                        'px-4 py-2 rounded-full text-sm font-medium transition-all border',
-                        activeCategory === category
+                        'px-3 py-1.5 rounded-full text-xs font-medium transition-all border',
+                        activeTag === tag
                           ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900 dark:border-white'
                           : 'bg-transparent border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600'
                       )}
                     >
-                      {category}
+                      {tag}
                     </button>
                   ))}
                 </div>
@@ -159,10 +160,6 @@ export default function BookmarksPage() {
 
                     <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800 pt-4 mt-6">
                       <span>{resource.author}</span>
-                      <span className="hidden sm:inline-block">•</span>
-                      <span className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-900 text-xs uppercase tracking-wide">
-                        {resource.category}
-                      </span>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mt-5">
