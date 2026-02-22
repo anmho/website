@@ -396,6 +396,8 @@ Why this avoids full-corpus iteration (theory):
 
 ### MinHash lookup: LSH banding
 
+Bands are contiguous groups of rows from a MinHash signature. LSH hashes each band separately into buckets; two signatures become candidates if they share a bucket in at least one band. More bands (with fewer rows each) increases recall but can raise false positives; fewer bands increases precision but risks missing near-dups.
+
 For a MinHash signature:
 1. Split signature into bands.
 2. Hash each band into a bucket table.
