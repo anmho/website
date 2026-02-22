@@ -66,6 +66,124 @@ In practice:
 
 So the real question is usually "which pipeline?" not "which single algorithm?"
 
+## MinHash vs SimHash (Pragmatic Deep Dive)
+
+The fast intuition:
+1. **MinHash** asks: "How much set overlap do these texts have?" (Jaccard view)
+2. **SimHash** asks: "Do these texts have similar weighted feature signatures?" (vector-ish view)
+
+### Important semantic caveat
+
+MinHash is only as order-aware as your features:
+1. If features are unigrams, order is mostly lost.
+2. If features are k-shingles (word/char n-grams), local order is encoded.
+
+Example:
+1. `"the dog bit the man"` vs `"the man bit the dog"`
+2. Unigram sets are nearly the same.
+3. 2-word shingles differ much more.
+
+### When to pick which
+
+1. **MinHash (+ LSH)**:
+Use when you care about Jaccard-like overlap, especially for shingles/sets.
+2. **SimHash**:
+Use when you want compact, very fast near-dup filtering with Hamming distance.
+
+In many pipelines:
+1. SimHash for fast candidate retrieval.
+2. Jaccard/MinHash-style verification on candidates.
+
+## Python: Practical Usage
+
+### MinHash with `datasketch`
+
+```python
+from datasketch import MinHash, MinHashLSH
+
+def shingles(text: str, k: int = 3) -> set[str]:
+    words = text.lower().split()
+    return {" ".join(words[i:i+k]) for i in range(len(words) - k + 1)}
+
+doc1 = "minhash is good for set overlap with shingles"
+doc2 = "minhash is useful for overlap with shingles"
+
+m1 = MinHash(num_perm=128)
+m2 = MinHash(num_perm=128)
+
+for s in shingles(doc1, k=2):
+    m1.update(s.encode("utf-8"))
+for s in shingles(doc2, k=2):
+    m2.update(s.encode("utf-8"))
+
+print("estimated_jaccard", m1.jaccard(m2))
+
+lsh = MinHashLSH(threshold=0.5, num_perm=128)
+lsh.insert("doc2", m2)
+print("candidates", lsh.query(m1))
+```
+
+### SimHash with `simhash`
+
+```python
+from simhash import Simhash, SimhashIndex
+
+docs = [
+    ("doc1", "this is a cool algorithm for near duplicate detection"),
+    ("doc2", "this is a cool algorithm for near-duplicate detection"),
+]
+
+objs = [(doc_id, Simhash(text)) for doc_id, text in docs]
+index = SimhashIndex(objs, k=3)  # k = max Hamming distance
+
+query = Simhash("this is a cool algorithm for duplicate detection")
+print("near_dups", index.get_near_dups(query))
+```
+
+## Under The Hood: Hash + Query Lookup
+
+### Why normal hash maps are not enough
+
+A standard hash map optimizes exact key equality:
+1. `hash("cat")` and `hash("car")` are unrelated.
+2. Similarity lookup would require scanning everything.
+
+So we need locality-sensitive indexing, not plain dictionaries.
+
+### MinHash lookup: LSH banding
+
+For a MinHash signature:
+1. Split signature into bands.
+2. Hash each band into a bucket table.
+3. At query time, gather all docs sharing any bucket.
+4. Re-score candidates (estimated or exact Jaccard).
+
+This turns "compare against all documents" into "compare against collided candidates."
+
+### SimHash lookup: Hamming-space indexing
+
+For 64-bit SimHash:
+1. Choose a distance threshold `k` (e.g., 3).
+2. Partition bits into blocks.
+3. Index each block in separate tables.
+4. Query matching blocks to get candidates.
+5. Verify with full Hamming distance (`popcount(a ^ b)`).
+
+Pigeonhole principle gives the guarantee: if two hashes differ by only a few bits, at least one block must match exactly.
+
+## Corpus Prep: Jaccard vs Cosine
+
+Use different data shapes for different metrics:
+
+1. **Jaccard/MinHash path**:
+Normalize -> tokenize -> shingle -> set/hash set.
+2. **Cosine path (TF-IDF/embeddings)**:
+Normalize -> tokenize -> weighted vectorization.
+
+Practical rule:
+1. If you care about overlap of phrasing/chunks, go shingle-set first.
+2. If you care about topical similarity, go vector first.
+
 ## Method Chooser
 
 1. `Exact copies` -> `Hash set / Bloom filter`
