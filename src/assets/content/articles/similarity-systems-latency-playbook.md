@@ -396,7 +396,32 @@ Why this avoids full-corpus iteration (theory):
 
 ### MinHash lookup: LSH banding
 
-Bands are contiguous groups of rows from a MinHash signature. LSH hashes each band separately into buckets; two signatures become candidates if they share a bucket in at least one band. More bands (with fewer rows each) increases recall but can raise false positives; fewer bands increases precision but risks missing near-dups.
+MinHash signature: a fixed-length list of integers (one per hash function) that approximates Jaccard overlap between two sets. You can think of it as a compact fingerprint where each row is the minimum hash value seen for that hash function.
+
+LSH partitioning: take that signature and split it into bands (contiguous groups of rows). Hash each band into its own bucket table. Two documents become candidates if they collide in at least one band bucket.
+
+Bands are contiguous groups of rows from a MinHash signature. More bands (with fewer rows each) increases recall but can raise false positives; fewer bands increases precision but risks missing near-dups.
+
+How this compares to a SimHash index:
+1. **Signature type**: MinHash uses a list of integer hash minima; SimHash uses a fixed-width bit fingerprint (often 64-bit).
+2. **Partitioning**: LSH bands split rows of the MinHash signature; SimHashIndex splits the bitstring into blocks.
+3. **Collision rule**: MinHash LSH treats any matching band bucket as a candidate; SimHashIndex treats any matching block as a candidate, then filters by full Hamming distance.
+4. **Similarity target**: MinHash approximates Jaccard set overlap; SimHash preserves cosine locality on weighted features.
+5. **Tuning knobs**: MinHash LSH tunes `(bands, rows per band)`; SimHashIndex tunes `k` (max Hamming distance).
+
+Diagram (12-row signature split into 3 bands of 4 rows each):
+
+```
+MinHash signature (12 rows)
+r1   r2   r3   r4   r5   r6   r7   r8   r9   r10  r11  r12
+|---- Band 1 ----|---- Band 2 ----|---- Band 3 ----|
+
+Band 1 rows: r1  r2  r3  r4  -> hash -> bucket table 1
+Band 2 rows: r5  r6  r7  r8  -> hash -> bucket table 2
+Band 3 rows: r9  r10 r11 r12 -> hash -> bucket table 3
+
+Candidate rule: if any band hashes to the same bucket, pull as candidate.
+```
 
 For a MinHash signature:
 1. Split signature into bands.
