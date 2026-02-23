@@ -1475,5 +1475,17 @@
       "lang:python"
     ],
     "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-23-macos-open-docker",
+    "question": "How do you force-open Docker Desktop from the command line on macOS?",
+    "answer": "Use `open -a Docker`. If it doesn't show, try `open -a Docker --args --unattended` to launch in the background.",
+    "tags": [
+      "macos",
+      "docker",
+      "cli",
+      "lang:general"
+    ],
+    "date": "2026-02-23"
   }
 ]
