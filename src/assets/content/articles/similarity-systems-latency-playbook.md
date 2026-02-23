@@ -251,6 +251,32 @@ If you need the distinction:
 
 Key insight: similarity is not correctness. SimHash answers “are these texts structurally similar?” It does not answer “is this a typo?” or “do these mean the same thing?”
 
+## Why edit distance + BK-tree fits word-level near-dup
+
+For single words, edit distance matches the problem directly: one typo is usually 1 edit away. A BK-tree (Burkhard-Keller tree) is built for fast “find all items within distance `k`” queries when the distance is a proper metric (edit distance is).
+
+How a BK-tree works:
+1. Pick any word as the root.
+2. For each new word, compute its edit distance to the current node.
+3. Insert it into the child edge labeled with that distance.
+4. Repeat recursively down the tree.
+
+Why it is fast:
+1. For a query word, compute distance `d` to the node.
+2. Only explore child edges in the range `[d - k, d + k]`.
+3. Everything else is pruned by the triangle inequality.
+
+For near-duplicate words in a stream, good options are:
+1. Edit distance + BK-tree. Natural typo handling; fast for small `k` (typically 1–2).
+2. Set with normalization (lowercase, strip punctuation). Fast but only exact/normalized matches.
+3. Phonetic hashing (Soundex/Metaphone). Useful for names, limited beyond that.
+4. SymSpell. Precomputes deletion variants for O(1) lookups, higher memory cost.
+
+Practical guidance:
+1. Start with exact/normalized set.
+2. If you need typos, add edit distance with a BK-tree.
+3. Keep SimHash for document/chunk-level dedup, not single words.
+
 ## How can we check if a document is similar to what we've seen so far?
 
 Do we have to calculate SimHash distance against each and every document we have seen so far?
