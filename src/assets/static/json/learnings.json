@@ -1452,5 +1452,17 @@
       "lang:general"
     ],
     "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-23-python-import-cache",
+    "question": "How does Python decide whether to load a module or reuse it?",
+    "answer": "Python first checks the module cache in `sys.modules`. If the module is already present, import returns it without re-executing. If not cached, the import machinery searches via `sys.meta_path`/`sys.path`, creates a module object, inserts it into `sys.modules`, and then executes the module code.",
+    "tags": [
+      "python",
+      "imports",
+      "runtime",
+      "lang:python"
+    ],
+    "date": "2026-02-23"
   }
 ]
