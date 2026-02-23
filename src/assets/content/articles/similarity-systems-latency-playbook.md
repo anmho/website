@@ -357,6 +357,7 @@ Practical complexity note:
 2. Words are short, so per-comparison cost is usually tiny.
 3. BK-tree search only computes distance for visited nodes, and pruning keeps that set small for small `k`.
 4. Worst-case behavior exists (skewed tree or large `k`), but typical spell-check workloads are fast.
+5. Empirically, word lengths are short: the 99th percentile is around ~12 letters for tokens and ~15 for distinct word types (Norvig/Google Books analysis), which keeps DP costs bounded.
 
 ## How can we check if a document is similar to what we've seen so far?
 

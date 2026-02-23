@@ -1429,5 +1429,16 @@
       "lang:general"
     ],
     "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-23-word-length-percentiles",
+    "question": "How long are most English words in practice?",
+    "answer": "Using Norvig’s Google Books analysis (words with ≥100k mentions), the 99th percentile is around ~12 letters for word tokens and ~15 letters for distinct word types. This keeps per-comparison edit-distance costs small for most workloads.",
+    "tags": [
+      "strings",
+      "statistics",
+      "lang:general"
+    ],
+    "date": "2026-02-23"
   }
 ]
