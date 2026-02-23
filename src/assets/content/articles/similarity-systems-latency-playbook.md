@@ -255,6 +255,46 @@ Key insight: similarity is not correctness. SimHash answers “are these texts s
 
 For single words, edit distance matches the problem directly: one typo is usually 1 edit away. A BK-tree (Burkhard-Keller tree) is built for fast “find all items within distance `k`” queries when the distance is a proper metric (edit distance is).
 
+## Edit Distance (Levenshtein) and the DP Intuition
+
+Edit distance is the minimum number of single-character edits (insert, delete, substitute) to transform one word into another.
+
+Dynamic programming intuition:
+1. Build a grid where rows are prefixes of `a` and columns are prefixes of `b`.
+2. `dp[i][j]` is the edit distance between `a[:i]` and `b[:j]`.
+3. The value comes from the cheapest of:
+   - delete a char (`dp[i-1][j] + 1`)
+   - insert a char (`dp[i][j-1] + 1`)
+   - substitute or match (`dp[i-1][j-1] + cost`)
+4. This yields the optimal distance in `dp[len(a)][len(b)]`.
+
+Minimal implementation (O(n*m) time, O(m) space):
+
+```python
+def edit_distance(a: str, b: str) -> int:
+    if a == b:
+        return 0
+    if not a:
+        return len(b)
+    if not b:
+        return len(a)
+
+    dp = list(range(len(b) + 1))
+    for i in range(1, len(a) + 1):
+        prev = dp[0]
+        dp[0] = i
+        for j in range(1, len(b) + 1):
+            old = dp[j]
+            cost = 0 if a[i - 1] == b[j - 1] else 1
+            dp[j] = min(
+                dp[j] + 1,      # delete
+                dp[j - 1] + 1,  # insert
+                prev + cost     # substitute/match
+            )
+            prev = old
+    return dp[-1]
+```
+
 Why this is often a better fit than sketches:
 1. **Direct signal**: edit distance counts insert/delete/substitute operations, which is exactly what typos are.
 2. **Deterministic**: distance 1 really means “one edit away.” No hashing noise.
