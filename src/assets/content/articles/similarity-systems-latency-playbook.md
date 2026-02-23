@@ -239,6 +239,18 @@ b = Simhash("the quick brown fox jumped over a lazy dog")
 print(a.distance(b))  # smaller = more similar, range 0..64
 ```
 
+## Why SimHash is not a word-level typo detector
+
+Document similarity sketches (SimHash/MinHash) are not the right tool for word-level typo detection. A single-word edit can flip many bits in a SimHash fingerprint, so a typo can end up with a larger Hamming distance than a different valid word. SimHash has no concept of “correct” vs “typo”; it only measures surface-level feature overlap.
+
+This is fine for document dedup. The goal is to suppress near-duplicates, not to decide whether a specific token is a typo. At document scale, thousands of features average out, and Hamming distance correlates with overall overlap. At single-word scale, it is too noisy to be useful.
+
+If you need the distinction:
+1. Spell correction: use a dictionary-backed approach (word list + SymSpell or a BK-tree).
+2. Semantic similarity: use embeddings and compare vector similarity, not sketch fingerprints.
+
+Key insight: similarity is not correctness. SimHash answers “are these texts structurally similar?” It does not answer “is this a typo?” or “do these mean the same thing?”
+
 ## How can we check if a document is similar to what we've seen so far?
 
 Do we have to calculate SimHash distance against each and every document we have seen so far?
