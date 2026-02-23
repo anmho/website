@@ -267,6 +267,11 @@ Conclusion:
 1. Use SimHash/MinHash for document or chunk-level dedup where feature counts are large.
 2. Use edit distance (BK-tree/SymSpell) for word-level near-dup or typo detection.
 
+Performance constraints (why edit distance is practical for words):
+1. Word lengths are short: the 99th percentile is around ~12–15 characters, so the DP table is tiny in practice.
+2. A 2D edit-distance DP is cache-friendly when filled bottom-up.
+3. With small `k` and short words, absolute runtime is typically low even at scale.
+
 ## BK-tree vs brute-force edit distance vs trie + DP
 
 Quick comparison for word-level near-duplicate lookup:
