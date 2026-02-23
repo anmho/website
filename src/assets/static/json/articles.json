@@ -1,5 +1,19 @@
 [
   {
+    "slug": "openai-streaming-ui-smoothness",
+    "title": "Smooth Text Streaming in React + Next.js (OpenAI API)",
+    "date": "2026-02-23",
+    "excerpt": "How to render OpenAI streaming responses smoothly in React and Next.js using requestAnimationFrame batching and UI-friendly buffering.",
+    "readTime": "8 min read"
+  },
+  {
+    "slug": "llm-jailbreaking-in-practice",
+    "title": "LLM Jailbreaking in Practice",
+    "date": "2026-02-23",
+    "excerpt": "A grounded overview of jailbreaks, prompt injection, and layered defenses, with references to OWASP, OpenAI evals, and current research.",
+    "readTime": "12 min read"
+  },
+  {
     "slug": "why-livegrep-is-so-fast",
     "title": "Ever Wonder Why Livegrep Is So Fast?",
     "date": "2026-02-23",
