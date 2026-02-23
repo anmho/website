@@ -251,6 +251,22 @@ If you need the distinction:
 
 Key insight: similarity is not correctness. SimHash answers “are these texts structurally similar?” It does not answer “is this a typo?” or “do these mean the same thing?”
 
+## When to use document sketches vs word-level distance
+
+Documents and words have different constraints:
+1. **Feature count**: documents have thousands of features; a single word has very few.
+2. **Noise tolerance**: SimHash relies on many features to average out hashing noise; words are too short for that to be stable.
+3. **Signal type**: word-level typos are edit operations; document similarity is aggregate overlap.
+
+Why not just use SimHash for words?
+1. A one-character typo can flip many SimHash bits, so distance is noisy.
+2. Two different valid words can end up closer than a typo variant.
+3. You lose interpretability: “distance 3” is not “one edit away.”
+
+Conclusion:
+1. Use SimHash/MinHash for document or chunk-level dedup where feature counts are large.
+2. Use edit distance (BK-tree/SymSpell) for word-level near-dup or typo detection.
+
 ## Why edit distance + BK-tree fits word-level near-dup
 
 For single words, edit distance matches the problem directly: one typo is usually 1 edit away. A BK-tree (Burkhard-Keller tree) is built for fast “find all items within distance `k`” queries when the distance is a proper metric (edit distance is).
