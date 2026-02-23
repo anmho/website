@@ -20,7 +20,7 @@ Most jailbreaks exploit the fact that LLMs:
 2. **Follow statistical patterns** that can be steered by carefully crafted inputs.
 3. **Lack perfect separation** between trusted instructions and untrusted data.
 
-Security surveys and OWASP guidance describe how prompt injection manipulates model behavior by blending untrusted content with instructions, leading to policy bypasses or unsafe actions. The key point is that this is not “one bug” to patch—it's a structural weakness of instruction-following systems. ([OWASP Prompt Injection](https://owasp.org/www-community/attacks/PromptInjection)) ([LLM Security & Privacy Survey](https://arxiv.org/abs/2312.02003))
+OWASP describes this as a “semantic gap” between instructions and data, which makes prompt injection and jailbreaks hard to eliminate. The key point is that this is not “one bug” to patch—it's a structural weakness of instruction-following systems. ([OWASP Prompt Injection](https://owasp.org/www-community/attacks/PromptInjection)) ([LLM Security & Privacy Survey](https://arxiv.org/abs/2312.02003))
 
 ## Jailbreaking vs Prompt Injection
 
@@ -41,7 +41,7 @@ Practical systems often include **output filters** (rule-based or model-based) a
 
 ### 3) Model-Level Guardrails
 
-Research such as Anthropic’s **Constitutional Classifiers** shows that dedicated safety classifiers can reduce jailbreak success while introducing measurable inference overhead and a small increase in refusals on benign traffic. This is a concrete example of the tradeoff between safety and usability. ([Constitutional Classifiers](https://arxiv.org/abs/2501.18837))
+Research such as Anthropic’s **Constitutional Classifiers** shows that dedicated safety classifiers can reduce jailbreak success while introducing measurable inference overhead and a small increase in refusals on benign traffic. The paper reports **over 3,000 hours of red teaming**, an **absolute 0.38% increase in production-traffic refusals**, and **23.7% inference overhead**, illustrating the safety‑usability tradeoff. ([Constitutional Classifiers](https://arxiv.org/abs/2501.18837))
 
 ### 4) Evaluation & Red-Teaming
 
