@@ -1,15 +1,15 @@
 # Smooth Text Streaming in React + Next.js (OpenAI API)
 
-OpenAI’s API supports **streaming responses** over server-sent events (SSE), so you can render tokens as they arrive instead of waiting for the full response. The OpenAI docs describe how to enable streaming and list the streaming event types you can listen for. This article shows a **UI pattern** for making streaming feel smooth in React + Next.js, including `requestAnimationFrame` batching and backpressure‑friendly rendering. OpenAI’s public docs focus on the API and streaming semantics, not frontend rendering details, so the React approach below is a proven, production-style technique that **aligns with OpenAI’s streaming API**, not a claim about OpenAI’s internal UI.
+OpenAI’s API supports **streaming responses** over server-sent events (SSE), so you can render tokens as they arrive instead of waiting for the full response. The OpenAI docs describe how to enable streaming and list the streaming event types you can listen for. This article shows a **UI pattern** for making streaming feel smooth in React + Next.js, including `requestAnimationFrame` batching and backpressure‑friendly rendering. OpenAI’s public docs focus on the API and streaming semantics, not frontend rendering details, so the React approach below is a proven, production-style technique that **aligns with OpenAI’s streaming API**, not a claim about OpenAI’s internal UI. ([OpenAI streaming guide](https://platform.openai.com/docs/guides/streaming-responses))
 
 Sources:
-- [OpenAI streaming guide](https://platform.openai.com/docs/guides/streaming)
+- [OpenAI streaming guide](https://platform.openai.com/docs/guides/streaming-responses)
 - [OpenAI safety checks (streaming can be delayed)](https://platform.openai.com/docs/guides/safety-checks)
 - [Responses API streaming events](https://platform.openai.com/docs/api-reference/responses-streaming)
 
 ## What OpenAI Streaming Gives You
 
-The OpenAI API can stream response events over SSE. You enable streaming by setting `stream=true` in the Responses API. The stream is delivered as **typed events** (e.g., `response.output_text.delta`) so your client can react to incremental text deltas. This is designed for streaming and is the recommended path for text streaming. 
+The OpenAI API can stream response events over SSE. You enable streaming by setting `stream=true` in the Responses API. The stream is delivered as **typed events** (e.g., `response.output_text.delta`) so your client can react to incremental text deltas. This is designed for streaming and is the recommended path for text streaming. ([OpenAI streaming guide](https://platform.openai.com/docs/guides/streaming-responses)) ([Responses API streaming events](https://platform.openai.com/docs/api-reference/responses-streaming))
 
 Why it matters for UI:
 1. You receive **small deltas** frequently.
@@ -58,7 +58,7 @@ function enqueueDelta(delta: string) {
    - On the client, parse and forward deltas to `enqueueDelta`.
 
 2. **Guard against delayed streaming**
-   - OpenAI may delay streaming for safety checks. The docs recommend showing a spinner if streaming is delayed. 
+   - OpenAI may delay streaming for safety checks. The docs recommend showing a spinner if streaming is delayed. ([Safety checks](https://platform.openai.com/docs/guides/safety-checks))
 
 3. **Avoid heavy re-renders**
    - Keep the streaming text in a single text node.
