@@ -255,6 +255,27 @@ Key insight: similarity is not correctness. SimHash answers “are these texts s
 
 For single words, edit distance matches the problem directly: one typo is usually 1 edit away. A BK-tree (Burkhard-Keller tree) is built for fast “find all items within distance `k`” queries when the distance is a proper metric (edit distance is).
 
+Why this is often a better fit than sketches:
+1. **Direct signal**: edit distance counts insert/delete/substitute operations, which is exactly what typos are.
+2. **Deterministic**: distance 1 really means “one edit away.” No hashing noise.
+3. **Scale-appropriate**: a single word has too few features for SimHash to be stable; edit distance does not need feature aggregation.
+4. **Tunable**: `k=1` or `k=2` gives a clear, interpretable threshold.
+
+When this is a good decision:
+1. You care about **word-level** near-duplicates (typos, variants) rather than document-level similarity.
+2. You can keep a dictionary or stream history in memory.
+3. You need **precision** and interpretability more than massive-scale throughput.
+
+When this is a bad decision:
+1. You are deduplicating **documents**, not single words.
+2. The vocabulary is enormous and you cannot keep the BK-tree in memory.
+3. You need semantic equivalence (synonyms) rather than edit-distance proximity.
+
+Decision summary:
+1. Use edit distance + BK-tree for word-typo dedup. It is precise and matches the error model.
+2. Use SimHash/MinHash for document/chunk dedup. They scale and tolerate noise at scale.
+3. Use embeddings if you care about semantic similarity, not spelling proximity.
+
 How a BK-tree works:
 1. Pick any word as the root.
 2. For each new word, compute its edit distance to the current node.
