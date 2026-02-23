@@ -281,14 +281,14 @@ Use when you need “within edit distance <= k” queries with dynamic inserts.
 Search cost is roughly `O(v * L^2)` where `v` is the number of visited nodes (often a small fraction for small `k`).
 Simple to implement and a strong default for `k=1..2`.
 
-3. Trie + edit-distance DP
+3. Trie + edit distance
 Use when you already need prefix/autocomplete or want prefix + fuzzy match in one structure.
-Search cost is roughly `O(visited_nodes * L)` per query because you update a DP row per trie node.
+Search cost is roughly `O(visited_nodes * L)` per query because you update an edit-distance DP row per trie node.
 More complex to implement, but can be fast with pruning for small `k`.
 
 Rule of thumb:
 1. Only near-dup lookup → BK-tree.
-2. Prefix + near-dup lookup → trie + DP.
+2. Prefix + near-dup lookup → trie + edit distance.
 3. Tiny vocab → brute force is fine.
 
 ## Why edit distance + BK-tree fits word-level near-dup
