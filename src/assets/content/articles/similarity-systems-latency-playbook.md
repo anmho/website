@@ -267,6 +267,30 @@ Conclusion:
 1. Use SimHash/MinHash for document or chunk-level dedup where feature counts are large.
 2. Use edit distance (BK-tree/SymSpell) for word-level near-dup or typo detection.
 
+## BK-tree vs brute-force edit distance vs trie + DP
+
+Quick comparison for word-level near-duplicate lookup:
+
+1. Brute-force edit distance
+Use when the vocabulary is tiny or you only run occasional queries.
+Cost per query is `O(n * L^2)` (n words, L word length).
+Simple, but does not scale.
+
+2. BK-tree + edit distance
+Use when you need “within edit distance <= k” queries with dynamic inserts.
+Search cost is roughly `O(v * L^2)` where `v` is the number of visited nodes (often a small fraction for small `k`).
+Simple to implement and a strong default for `k=1..2`.
+
+3. Trie + edit-distance DP
+Use when you already need prefix/autocomplete or want prefix + fuzzy match in one structure.
+Search cost is roughly `O(visited_nodes * L)` per query because you update a DP row per trie node.
+More complex to implement, but can be fast with pruning for small `k`.
+
+Rule of thumb:
+1. Only near-dup lookup → BK-tree.
+2. Prefix + near-dup lookup → trie + DP.
+3. Tiny vocab → brute force is fine.
+
 ## Why edit distance + BK-tree fits word-level near-dup
 
 For single words, edit distance matches the problem directly: one typo is usually 1 edit away. A BK-tree (Burkhard-Keller tree) is built for fast “find all items within distance `k`” queries when the distance is a proper metric (edit distance is).
