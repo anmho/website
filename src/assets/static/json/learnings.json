@@ -1464,5 +1464,16 @@
       "lang:python"
     ],
     "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-23-python-ellipsis-vs-pass",
+    "question": "Is `...` the same as `pass` in Python?",
+    "answer": "No. `pass` is a statement that does nothing and is used where a statement is required. `...` is the Ellipsis object, an expression you can use in code (e.g., type stubs or slicing). In a function body, `...` acts as a no-op expression statement, but it is not the same as `pass`.",
+    "tags": [
+      "python",
+      "syntax",
+      "lang:python"
+    ],
+    "date": "2026-02-23"
   }
 ]
