@@ -1499,5 +1499,17 @@
       "lang:general"
     ],
     "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-23-bk-tree-pruning-rule",
+    "question": "What is the one pruning rule that makes BK-tree fast?",
+    "answer": "At a node, only follow child edges whose distance label is within k of the query’s distance to that node. Formula: `abs(edge_dist - d) <= k`, where `d = dist(query, current_node)`. Equivalently, `d - k <= edge_dist <= d + k`. This rule safely prunes entire branches and is the core speedup.",
+    "tags": [
+      "bk-tree",
+      "edit-distance",
+      "algorithms",
+      "lang:general"
+    ],
+    "date": "2026-02-23"
   }
 ]
