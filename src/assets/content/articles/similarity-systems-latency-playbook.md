@@ -333,6 +333,8 @@ For near-duplicate words in a stream, good options are:
 3. Phonetic hashing (Soundex/Metaphone). Useful for names, limited beyond that.
 4. SymSpell. Precomputes deletion variants for O(1) lookups, higher memory cost.
 
+BK-tree is not the only option. It is just a good fit when the query is “within edit distance <= k,” especially for small `k` (1–2) with dynamic inserts, which is why it is common in autocomplete and spell-check systems.
+
 Practical guidance:
 1. Start with exact/normalized set.
 2. If you need typos, add edit distance with a BK-tree.
