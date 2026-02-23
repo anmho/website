@@ -298,6 +298,18 @@ Practical guidance:
 2. If you need typos, add edit distance with a BK-tree.
 3. Keep SimHash for document/chunk-level dedup, not single words.
 
+Why the BK-tree helps:
+1. Brute-force edit distance scanning is `O(n)` per query.
+2. The BK-tree uses the triangle inequality to prune most branches.
+3. For a query word with distance `d` to a node, you only explore child edges in `[d-k, d+k]`.
+4. For small `k` (1–2), you often check a small fraction of nodes, so lookups scale much better.
+
+Triangle inequality (why pruning is safe):
+For any three words `a`, `b`, `c`, a metric distance satisfies:
+`dist(a, c) <= dist(a, b) + dist(b, c)`.
+That means if `dist(query, node) = d`, any child at edge distance `x` can only be a match if
+`x` is in `[d-k, d+k]`. Outside that range, the child cannot be within distance `k` of the query.
+
 ## How can we check if a document is similar to what we've seen so far?
 
 Do we have to calculate SimHash distance against each and every document we have seen so far?
