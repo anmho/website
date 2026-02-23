@@ -1491,7 +1491,7 @@
   {
     "id": "2026-02-23-git-add-p",
     "question": "How do you stage only certain lines or hunks in git?",
-    "answer": "Use interactive staging: `git add -p`. It shows each hunk and lets you pick `y/n`, split hunks with `s`, or edit them with `e` to stage specific lines.",
+    "answer": "Use interactive staging: `git add -p`. It shows each hunk and lets you pick `y/n`, split hunks with `s`, or edit them with `e` to stage specific lines.\n\nExample:\n```bash\ngit add -p\n# y = stage hunk\n# n = skip hunk\n# s = split hunk\n# e = edit hunk\n```",
     "tags": [
       "git",
       "workflow",
