@@ -38,6 +38,15 @@ In distributed systems, latency is often bounded by the slowest component.
 - 99th percentile dominates perceived performance.
 - Parallelism changes your effective complexity from sum → max.
 
+### Why p99/p99.99 dominates
+
+Users remember the slowest experiences, not the median. Tail latency matters because:
+1. **Fan‑out amplifies tails**: if a request touches multiple services or shards, the slowest response dominates.
+2. **Queueing effects**: small bursts can cause long tails even if averages look fine.
+3. **SLO math**: to meet 99.9% availability/latency targets, you must control p99/p99.99, not p50.
+
+Rule of thumb: if your request fans out to `N` independent calls, the tail gets worse with `N` because you take the max. The practical result is that **p99 becomes product‑defining**, while p50 often hides the pain.
+
 ## 6) The Real Complexity Is the Product of Constraints
 
 Performance is usually a product of:
