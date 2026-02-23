@@ -1,5 +1,12 @@
 [
   {
+    "slug": "when-time-complexity-lies",
+    "title": "When Time Complexity Lies (And What Actually Matters)",
+    "date": "2026-02-23",
+    "excerpt": "Why Big-O can mislead in production and what to pay attention to instead: constants, cache behavior, input ranges, and p99 latency.",
+    "readTime": "7 min read"
+  },
+  {
     "slug": "openai-streaming-ui-smoothness",
     "title": "Smooth Text Streaming in React + Next.js (OpenAI API)",
     "date": "2026-02-23",
