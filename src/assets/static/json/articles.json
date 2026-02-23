@@ -1,5 +1,12 @@
 [
   {
+    "slug": "tiktoken-vs-sentencepiece",
+    "title": "Tiktoken vs SentencePiece: Methodology, BPE, and When to Use Each",
+    "date": "2026-02-23",
+    "excerpt": "A practical comparison of tiktoken and SentencePiece, including how BPE works, high-level pseudocode, and which model families use each.",
+    "readTime": "10 min read"
+  },
+  {
     "slug": "when-time-complexity-lies",
     "title": "When Time Complexity Lies (And What Actually Matters)",
     "date": "2026-02-23",
