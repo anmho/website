@@ -1,5 +1,12 @@
 [
   {
+    "slug": "why-livegrep-is-so-fast",
+    "title": "Ever Wonder Why Livegrep Is So Fast?",
+    "date": "2026-02-23",
+    "excerpt": "A practical breakdown of how Livegrep works, why indexed search feels instant, and how it compares to GitHub Code Search, Google Code Search, and grep.app.",
+    "readTime": "9 min read"
+  },
+  {
     "slug": "latency-ladder-for-pragmatic-engineers",
     "title": "Latency Ladder for Pragmatic Engineers",
     "date": "2026-02-20",
