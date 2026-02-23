@@ -1403,5 +1403,31 @@
       "lang:python"
     ],
     "date": "2026-02-22"
+  },
+  {
+    "id": "2026-02-23-bk-tree-typo-dedup",
+    "question": "Is a BK-tree the only option for near-duplicate word lookup?",
+    "answer": "No. A BK-tree is just a strong fit for typo-distance queries (edit distance <= k). It works best for small k (1–2) and supports dynamic inserts, which makes it a common choice for autocomplete and spell-checking. Other options include normalized set lookups, phonetic hashing, or SymSpell depending on accuracy, speed, and memory needs.",
+    "tags": [
+      "strings",
+      "edit-distance",
+      "bk-tree",
+      "dedup",
+      "lang:general"
+    ],
+    "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-23-bk-tree-practical-complexity",
+    "question": "Why is BK-tree search fast in practice for word-level dedup?",
+    "answer": "Edit distance per comparison is O(n*m) but words are short, so the cost is small. A BK-tree only computes distances for nodes it visits, and the triangle-inequality pruning keeps that set small when k is low (usually 1–2). Worst-case behavior exists for large k or skewed trees, but typical spell-check workloads are fast.",
+    "tags": [
+      "strings",
+      "edit-distance",
+      "bk-tree",
+      "complexity",
+      "lang:general"
+    ],
+    "date": "2026-02-23"
   }
 ]
