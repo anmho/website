@@ -1440,5 +1440,17 @@
       "lang:general"
     ],
     "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-23-edit-distance-base-case",
+    "question": "Why is the edit-distance base case the remaining length?",
+    "answer": "In DP, dp[i][j] is the cost to transform word1[i:] into word2[j:]. If i == len(word1), the source suffix is empty, so the only valid operations are inserting all remaining characters of word2[j:], costing len(word2) - j. If j == len(word2), the only valid operations are deleting the remaining word1[i:] characters, costing len(word1) - i.",
+    "tags": [
+      "strings",
+      "edit-distance",
+      "dynamic-programming",
+      "lang:general"
+    ],
+    "date": "2026-02-23"
   }
 ]

@@ -375,6 +375,12 @@ Practical complexity note:
 4. Worst-case behavior exists (skewed tree or large `k`), but typical spell-check workloads are fast.
 5. Empirically, word lengths are short: the 99th percentile is around ~12 letters for tokens and ~15 for distinct word types (Norvig/Google Books analysis), which keeps DP costs bounded.
 
+Edit distance base case intuition:
+1. `dp[i][j]` means the cost to transform `word1[i:]` into `word2[j:]`.
+2. If `i == len(word1)`, `word1[i:]` is empty, so the only valid operations are inserting the remaining `word2[j:]` characters.
+3. If `j == len(word2)`, `word2[j:]` is empty, so the only valid operations are deleting the remaining `word1[i:]` characters.
+4. That is why the base-case cost is exactly the remaining length of the non-empty suffix.
+
 ## How can we check if a document is similar to what we've seen so far?
 
 Do we have to calculate SimHash distance against each and every document we have seen so far?
