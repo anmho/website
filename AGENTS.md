@@ -68,3 +68,7 @@ await resend.emails.send({ html, ... });
 1. Record each mistake made during implementation in both `AGENTS.md` and `CLAUDE.md`.
 2. For each mistake, include: what was wrong, why it happened, and the preventive guardrail added.
 3. Apply the guardrail immediately in the same change set when possible.
+
+## Source-Backed Claims
+1. When adding factual claims, back them up with a credible source and cite it explicitly.
+2. Avoid time-sensitive or performance claims without a source or a clear caveat.

@@ -1511,5 +1511,17 @@
       "lang:general"
     ],
     "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-23-supabase-resume-time",
+    "question": "How long does it take to restart a paused Supabase project?",
+    "answer": "Community reports indicate that resuming a paused Supabase project can take a few minutes, and sometimes longer depending on load. Plan for a non-instant resume when scheduling work that depends on a paused project.",
+    "tags": [
+      "supabase",
+      "infra",
+      "operations",
+      "lang:general"
+    ],
+    "date": "2026-02-23"
   }
 ]
