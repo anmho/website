@@ -1,5 +1,12 @@
 [
   {
+    "slug": "bursty-traffic-playbook",
+    "title": "Bursty Traffic: Queue Growth and Control Patterns",
+    "date": "2026-02-24",
+    "excerpt": "A pragmatic playbook for handling bursty traffic with rate limiting, load shedding, backpressure, and retry control, plus a Dynamo-style case study.",
+    "readTime": "9 min read"
+  },
+  {
     "slug": "tiktoken-vs-sentencepiece",
     "title": "Tiktoken vs SentencePiece: Methodology, BPE, and When to Use Each",
     "date": "2026-02-23",
