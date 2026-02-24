@@ -1,5 +1,12 @@
 [
   {
+    "slug": "python-threading-primitives-and-queues",
+    "title": "Python Threading Primitives and Queues (and asyncio)",
+    "date": "2026-02-24",
+    "excerpt": "A practical guide to Python threading primitives, queue.Queue, asyncio.Queue, and when to use asyncio.to_thread.",
+    "readTime": "9 min read"
+  },
+  {
     "slug": "bursty-traffic-playbook",
     "title": "Bursty Traffic: Queue Growth and Control Patterns",
     "date": "2026-02-24",
