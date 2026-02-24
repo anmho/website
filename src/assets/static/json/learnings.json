@@ -1535,5 +1535,17 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-spurious-wakeups",
+    "question": "Why must condition variable waits be wrapped in a while loop?",
+    "answer": "Condition variables can wake up spuriously or be notified when the condition is still false. Always re-check the predicate in a `while` loop to ensure correctness.\n\nExample:\n```python\nwith self.cv:\n    while not self.q and self.running:\n        self.cv.wait()  # no timeout here\n```\n",
+    "tags": [
+      "concurrency",
+      "threads",
+      "python",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
