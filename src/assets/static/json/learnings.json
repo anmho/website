@@ -1523,5 +1523,17 @@
       "lang:general"
     ],
     "date": "2026-02-23"
+  },
+  {
+    "id": "2026-02-24-event-sourcing",
+    "question": "What is the pattern called when you store every state change as an append-only log?",
+    "answer": "That’s Event Sourcing. You persist every state-changing event in an append-only log, and rebuild current state by replaying events. It’s often paired with CQRS so read models are derived from the event stream.\n\nExample:\n```text\nEvents:\n- AccountCreated(id=123)\n- MoneyDeposited(id=123, amount=50)\n- MoneyWithdrawn(id=123, amount=10)\n\nRebuild balance by replaying in order:\n0 -> +50 -> -10 = 40\n```\n",
+    "tags": [
+      "architecture",
+      "event-sourcing",
+      "cqrs",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
