@@ -70,6 +70,26 @@ If you can’t store everything:
 
 This version is **approximate** and no longer satisfies “exact distribution.”
 
+### Before vs After (Exact vs Approximate)
+
+**Before (ExactProbabilityStream):**
+- `counts: dict[int, int]`
+- `values: list[int]`
+- `uniques: set[int]`
+
+**After (ApproximateProbabilityStream):**
+- `counts: CountMinSketch`
+- `values: reservoir sample`
+- `uniques: HyperLogLog`
+- `seen: BloomFilter`
+
+### Recommended Python Libraries (Approximate Stack)
+
+- **Count‑Min Sketch**: Apache DataSketches `count_min_sketch`. citeturn0search2turn0search6
+- **HyperLogLog**: Apache DataSketches HLL wrappers (production‑grade). citeturn0search2  
+  Alternative: `datasketch` provides HLL/HLL++ in a lighter pure‑Python package. citeturn0search3
+- **Bloom filter**: `bloom-filter2` (pure Python). citeturn0search0
+
 ### Approximate counting
 
 Count‑Min Sketch gives overestimates with bounded error, so any uniformity test becomes **heuristic**, not statistically valid.
@@ -88,6 +108,10 @@ Count‑Min Sketch gives overestimates with bounded error, so any uniformity tes
 - Explain chi‑square: null hypothesis, expected counts, p‑value decision.
 - Call out the **small‑sample limitation**.
 - Offer the **approximate variant**: Bloom + HLL + CMS.
+
+## Related Concept: Singleflight / Request Coalescing
+
+When many identical requests arrive at once, **singleflight** (request coalescing) ensures only one does the expensive work while the rest wait and reuse the result. This is a temporary “in‑flight cache,” and you can still store the completed result in a normal cache afterward.
 
 ## Summary
 

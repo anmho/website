@@ -1653,5 +1653,17 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-singleflight",
+    "question": "What is singleflight (request coalescing)?",
+    "answer": "Singleflight is request coalescing for identical in-flight work. If many identical requests arrive together, only the first does the work; the rest wait and reuse the same result. It is a temporary in-flight cache and is often paired with a normal result cache.",
+    "tags": [
+      "performance",
+      "systems",
+      "caching",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
