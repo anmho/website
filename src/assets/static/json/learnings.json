@@ -1629,5 +1629,17 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-percentiles-from-list",
+    "question": "How do you compute percentiles from a list without a sketch?",
+    "answer": "Sort the list and index into it. This is O(n log n).\n\nExample:\n```python\ndef percentile(values, p):\n    if not values:\n        return None\n    v = sorted(values)\n    idx = int(p * (len(v) - 1))\n    return v[idx]\n\np50 = percentile(durations, 0.50)\np99 = percentile(durations, 0.99)\n```\n",
+    "tags": [
+      "statistics",
+      "performance",
+      "python",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
