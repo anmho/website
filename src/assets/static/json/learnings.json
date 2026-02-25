@@ -1641,5 +1641,17 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-uvicorn-workers-processes",
+    "question": "Does Uvicorn use processes or threads for concurrency?",
+    "answer": "Uvicorn runs a single process by default (async event loop). If you start it with `--workers N`, it spawns N separate processes (multiprocessing).",
+    "tags": [
+      "python",
+      "uvicorn",
+      "web",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
