@@ -1559,5 +1559,38 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-random-choice-sequence",
+    "question": "Does random.choice accept any iterable?",
+    "answer": "`random.choice` requires a sequence (supports `__len__` and `__getitem__`), not a generic iterable. It works with list/tuple/str/range but not generators or sets.",
+    "tags": [
+      "python",
+      "random",
+      "lang:python"
+    ],
+    "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-random-sample-range",
+    "question": "How do you pick 3 random numbers from a range?",
+    "answer": "For distinct numbers, use `random.sample(range(a, b+1), 3)`. For numbers with repeats, use `[random.randint(a, b) for _ in range(3)]`.",
+    "tags": [
+      "python",
+      "random",
+      "lang:python"
+    ],
+    "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-random-seed",
+    "question": "How do you set the random seed in Python?",
+    "answer": "Call `random.seed(value)` before generating numbers to make results reproducible (for the same Python version).",
+    "tags": [
+      "python",
+      "random",
+      "lang:python"
+    ],
+    "date": "2026-02-24"
   }
 ]
