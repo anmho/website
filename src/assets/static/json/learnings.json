@@ -1604,5 +1604,17 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-chi-square-significance",
+    "question": "When is a chi-square test statistically significant?",
+    "answer": "It’s significant when the chi-square p-value is below your alpha (e.g., 0.05). For validity, expected counts per bin should be large enough (rule of thumb: ≥ 5, often ≥ 10). For k categories, that suggests N ≳ 5k (or 10k) before trusting the test.",
+    "tags": [
+      "statistics",
+      "chi-square",
+      "testing",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
