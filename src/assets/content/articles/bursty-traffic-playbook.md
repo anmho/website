@@ -38,6 +38,20 @@ When downstream is overloaded, propagate a “slow down” signal upstream:
 
 This prevents unbounded queues and spreads the pain to callers early.
 
+### Backpressure vs Load Shedding (Practical Difference)
+
+Backpressure is **mechanism** (signal upstream to slow down). Load shedding is **policy** (reject work to protect latency). Backpressure often shows up as slowness or blocking, while load shedding shows up as explicit rejections.
+
+Typical backpressure mechanisms:
+1. **HTTP 429/503 + Retry-After**: explicit “slow down” signal.
+2. **Connection limits / accept queues**: clients block or back off.
+3. **gRPC deadlines/cancellations**: propagate time budgets upstream.
+4. **Bounded queues**: stop accepting when full.
+
+When to use which:
+1. **Backpressure**: when latency can rise and you want to preserve success rate.
+2. **Load shedding**: when you must protect p99/p99.9 and avoid queue buildup.
+
 ### 4) Retry Control (Prevent Retry Storms)
 
 Retries are necessary but dangerous under overload. The AWS Well‑Architected Framework recommends **exponential backoff with jitter** and limiting retries to avoid retry storms. ([AWS Well‑Architected REL05-BP03](https://docs.aws.amazon.com/wellarchitected/2022-03-31/framework/rel_mitigate_interaction_failure_limit_retries.html))
