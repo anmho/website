@@ -1,5 +1,12 @@
 [
   {
+    "slug": "probability-in-stream-design",
+    "title": "Probability in a Stream: Exact vs Approximate Design",
+    "date": "2026-02-24",
+    "excerpt": "A practical walk-through of the streaming distribution problem, with exact design, chi-square uniformity, and the memory-bounded variant.",
+    "readTime": "9 min read"
+  },
+  {
     "slug": "python-threading-primitives-and-queues",
     "title": "Python Threading Primitives and Queues (and asyncio)",
     "date": "2026-02-24",
