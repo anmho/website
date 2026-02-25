@@ -1608,7 +1608,7 @@
   {
     "id": "2026-02-24-chi-square-significance",
     "question": "When is a chi-square test statistically significant?",
-    "answer": "It’s significant when the chi-square p-value is below your alpha (e.g., 0.05). The chi-square approximation is unreliable for small samples: expected counts per bin should be large enough (rule of thumb: ≥ 5, often ≥ 10). For k categories, that suggests N ≳ 5k (or 10k) before trusting the test. If expected counts are small, combine bins or use an exact test.",
+    "answer": "It’s significant when the chi-square p-value is below your alpha (e.g., 0.05). The chi-square approximation is unreliable for small samples: expected counts per bin should be large enough (rule of thumb: ≥ 5, often ≥ 10). For k categories, that suggests $N \\gtrsim 5 \\times k$ (or $N \\gtrsim 10 \\times k$) before trusting the test. If expected counts are small, combine bins or use an exact test.",
     "tags": [
       "statistics",
       "chi-square",
