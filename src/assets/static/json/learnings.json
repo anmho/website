@@ -1547,5 +1547,17 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-sigint-threading",
+    "question": "Does SIGINT target a specific thread or the whole process?",
+    "answer": "SIGINT is delivered to the process (foreground process group). The default action terminates the process. In Python, custom signal handlers run only in the main thread, so worker threads do not receive SIGINT directly. To stop threads cleanly, set a shared flag/event from the handler.",
+    "tags": [
+      "signals",
+      "threads",
+      "python",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
