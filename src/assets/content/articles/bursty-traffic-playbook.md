@@ -79,6 +79,18 @@ This is defense‑in‑depth for queues.
 4. **Always cap retries**. A retry storm can turn a blip into an outage.
 5. **Assume bursty arrivals**. Dynamo’s observations show that aggregate traffic is not always smooth; design for variance, not just averages. ([Dynamo paper](https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf))
 
+## Optimizations vs p99: Different Problems
+
+Performance optimizations (faster code, caching, batching) reduce **service time**, which helps p99 **indirectly**. But under bursty overload, **queueing** dominates p99. At that point, no amount of micro‑optimization can keep tail latency within SLO unless you **bound the work**.
+
+What this means in practice:
+1. **Always enforce timeouts**. A request that exceeds its budget should fail fast rather than grow the queue.
+2. **Use load shedding/admission control**. This caps queue depth and protects p99 for accepted requests.
+3. **Optimize anyway**. Faster service time raises capacity and delays overload, but it does not remove the breaking point.
+4. **Assume worst‑case inputs**. If someone sends huge, unique payloads, caches won’t save you. Protect p99 with explicit limits.
+
+Bottom line: optimizations improve throughput, but **SLOs are enforced by admission control and time budgets**.
+
 ## Summary
 
 Bursty traffic is not rare; it is normal. The fix is not “handle all bursts,” but to **shape, shed, and control retries** so your system stays stable under load.
