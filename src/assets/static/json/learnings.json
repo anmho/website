@@ -1574,7 +1574,7 @@
   {
     "id": "2026-02-24-random-sample-range",
     "question": "How do you pick 3 random numbers from a range?",
-    "answer": "For distinct numbers, use `random.sample(range(a, b+1), 3)`. For numbers with repeats, use `[random.randint(a, b) for _ in range(3)]`.",
+    "answer": "For distinct numbers, use `random.sample(range(a, b+1), 3)` (no replacement). For numbers with repeats, use `random.choices(range(a, b+1), k=3)` or `[random.randint(a, b) for _ in range(3)]`.\n\nExample:\n```python\nindexes = random.sample(r, k=3)  # no replacement\nindexes = random.choices(r, k=3)  # with replacement\n```\n",
     "tags": [
       "python",
       "random",
@@ -1590,6 +1590,18 @@
       "python",
       "random",
       "lang:python"
+    ],
+    "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-chi-square-summary",
+    "question": "What is Chi-square in statistics?",
+    "answer": "Chi-square refers to two related things:\n\n1) χ² distribution: the distribution of a sum of squared standard normals, `X = Z1^2 + ... + Zk^2`. It is right-skewed and starts at 0. Under H0, the test statistic follows this distribution.\n2) χ² statistic: the deviation measure you compute, `χ² = Σ((O - E)^2 / E)`.\n\nIt is not just for uniformity. The same formula tests any expected distribution (uniform, fair dice, binned normal, custom probs).\n\nExample:\n```python\ndef chi_square(observed, expected):\n    return sum((o - e) ** 2 / e for o, e in zip(observed, expected))\n```\n\nUniformity special case (E = N/k):\n```python\nfrom typing import List, Dict\nimport math\n\nCRITICAL_005 = {1: 3.84, 2: 5.99, 3: 7.81, 4: 9.49, 5: 11.07, 6: 12.59, 7: 14.07}\n\ndef test_uniformity(observed: List[float], alpha: float = 0.05) -> Dict[str, any]:\n    k = len(observed)\n    if k < 2:\n        return {'uniform': True}\n\n    total = sum(observed)\n    expected = total / k\n    stat = sum((o - expected) ** 2 / expected for o in observed)\n    df = k - 1\n    critical = CRITICAL_005.get(df, df + 1.96 * math.sqrt(2 * df))\n    return {'uniform': stat <= critical, 'stat': stat, 'df': df}\n```\n\nKey idea: χ² distribution is the math foundation; χ² statistic is the computed deviation. Uniformity is just one application.",
+    "tags": [
+      "statistics",
+      "chi-square",
+      "testing",
+      "lang:general"
     ],
     "date": "2026-02-24"
   }
