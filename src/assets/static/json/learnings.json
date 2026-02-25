@@ -1616,5 +1616,18 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-llm-encoding-optimization-notes",
+    "question": "What are key design considerations for LLM token encoding/decoding under burst load?",
+    "answer": "Key considerations:\n1) Tokenizer choice + thread safety (tiktoken/sentencepiece/tokenizers; thread-local if needed).\n2) Hot path latency (avoid locks/allocs; preload merges/vocab).\n3) Burst handling (bounded queues/backpressure; limited thread pool).\n4) Caching (LRU for repeated texts/prefixes; decode cache if memory allows).\n5) Batching (micro-batch with tight max wait to protect p99).\n6) Memory cap (single shared model, byte-budgeted caches).\n7) Concurrency model (native libs may release GIL; use thread-local if unsafe).\n8) Observability (p50/p90/p99, hit rate, queue depth, batch size).\n9) Validation (burst load tests; verify p99, not just average).",
+    "tags": [
+      "performance",
+      "llm",
+      "tokenization",
+      "systems",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
