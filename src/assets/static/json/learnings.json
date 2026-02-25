@@ -1665,5 +1665,17 @@
       "lang:general"
     ],
     "date": "2026-02-24"
+  },
+  {
+    "id": "2026-02-24-vercel-inspect",
+    "question": "How do you use `vercel inspect`?",
+    "answer": "Use `vercel inspect [deployment-id-or-url]` to retrieve deployment info. Add `--logs` to include logs and `--wait` to wait for the deployment to be ready. (Vercel CLI docs)",
+    "tags": [
+      "vercel",
+      "cli",
+      "devops",
+      "lang:general"
+    ],
+    "date": "2026-02-24"
   }
 ]
