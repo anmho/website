@@ -849,5 +849,154 @@
       "saas",
       "landing pages"
     ]
+  },
+  {
+    "title": "Anthony Fu's Personal Site",
+    "description": "Minimal text-forward portfolio by the creator of Vitest, Slidev, and VueUse. No hero animation, no decoration — credibility through output density.",
+    "category": "antfu.me",
+    "format": "Portfolio",
+    "url": "https://antfu.me",
+    "author": "Anthony Fu",
+    "tags": [
+      "design",
+      "portfolio",
+      "inspiration",
+      "web design",
+      "minimal"
+    ]
+  },
+  {
+    "title": "Lee Robinson's Site",
+    "description": "Pure content-hierarchy personal site by Vercel's VP of Product. System fonts, generous whitespace, no animations — the restraint is the signal.",
+    "category": "leerob.com",
+    "format": "Portfolio",
+    "url": "https://leerob.com",
+    "author": "Lee Robinson",
+    "tags": [
+      "design",
+      "portfolio",
+      "inspiration",
+      "web design",
+      "minimal"
+    ]
+  },
+  {
+    "title": "Rauno Freiberg's Site",
+    "description": "Interaction designer at Vercel. Refined restraint with subtle geometric CSS accents, careful color variables, and a craft-first philosophy.",
+    "category": "rauno.me",
+    "format": "Portfolio",
+    "url": "https://rauno.me",
+    "author": "Rauno Freiberg",
+    "tags": [
+      "design",
+      "portfolio",
+      "inspiration",
+      "web design",
+      "interaction design"
+    ]
+  },
+  {
+    "title": "Paco Coursey's Site",
+    "description": "Designer-developer focused on typography, motion, and polished interfaces. Minimal personal site embodying his philosophy: all I want to do is build websites.",
+    "category": "paco.me",
+    "format": "Portfolio",
+    "url": "https://paco.me",
+    "author": "Paco Coursey",
+    "tags": [
+      "design",
+      "portfolio",
+      "inspiration",
+      "web design",
+      "minimal"
+    ]
+  },
+  {
+    "title": "Emil Kowalski's Site",
+    "description": "Design engineer whose site opens directly into current work with no traditional hero. Refined typography, dark mode, intentional subtraction over decoration.",
+    "category": "emilkowal.ski",
+    "format": "Portfolio",
+    "url": "https://emilkowal.ski",
+    "author": "Emil Kowalski",
+    "tags": [
+      "design",
+      "portfolio",
+      "inspiration",
+      "web design",
+      "minimal"
+    ]
+  },
+  {
+    "title": "Train Your Judgement — Emil Kowalski",
+    "description": "Interactive article teaching animation quality through A/B comparisons. Centered column, generous whitespace, serif inline elements. A model for content-first technical writing.",
+    "category": "emilkowal.ski",
+    "format": "Article",
+    "url": "https://emilkowal.ski/ui/train-your-judgement",
+    "author": "Emil Kowalski",
+    "tags": [
+      "design",
+      "animation",
+      "inspiration",
+      "web design",
+      "interaction design"
+    ]
+  },
+  {
+    "title": "Egor Builds",
+    "description": "Dark portfolio with yellow hover accents, portrait-led hero, DM Sans + Playfair Display + JetBrains Mono type system. Professional yet approachable.",
+    "category": "egorbuilds.com",
+    "format": "Portfolio",
+    "url": "https://www.egorbuilds.com",
+    "author": "Egor",
+    "tags": [
+      "design",
+      "portfolio",
+      "inspiration",
+      "web design",
+      "dark mode"
+    ]
+  },
+  {
+    "title": "Pedro Duarte's Site",
+    "description": "Creator of Radix UI. Intentional simplicity with custom fonts, SVG noise texture, and content-first layout. Code, content, and other things.",
+    "category": "ped.ro",
+    "format": "Portfolio",
+    "url": "https://ped.ro",
+    "author": "Pedro Duarte",
+    "tags": [
+      "design",
+      "portfolio",
+      "inspiration",
+      "web design",
+      "minimal"
+    ]
+  },
+  {
+    "title": "Godly — Web Design Inspiration",
+    "description": "Curated gallery of astronomically good web design. Best reference for contemporary portfolio and creative site aesthetics.",
+    "category": "godly.website",
+    "format": "Gallery",
+    "url": "https://godly.website",
+    "author": "Godly",
+    "tags": [
+      "design",
+      "inspiration",
+      "gallery",
+      "web design"
+    ]
+  },
+  {
+    "title": "Josh W. Comeau's Site",
+    "description": "React and CSS educator. Animated SVG illustrations and layered section transitions — the most visually decorated of the minimalist-adjacent personal sites, justified by his joy-of-coding brand.",
+    "category": "joshwcomeau.com",
+    "format": "Portfolio",
+    "url": "https://www.joshwcomeau.com",
+    "author": "Josh W. Comeau",
+    "tags": [
+      "design",
+      "portfolio",
+      "inspiration",
+      "web design",
+      "animation"
+    ]
   }
 ]

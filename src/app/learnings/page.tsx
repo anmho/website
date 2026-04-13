@@ -35,7 +35,7 @@ function InlineCodeTitle({ content }: { content: string }) {
         index % 2 === 1 ? (
           <code
             key={`${part}-${index}`}
-            className="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono"
+            className="bg-gray-100 text-gray-700 dark:bg-gray-900 dark:text-gray-300 px-1.5 py-0.5 rounded text-[0.8em] font-mono"
           >
             {part}
           </code>
@@ -173,7 +173,7 @@ export default function Learnings() {
                       key={tag}
                       type="button"
                       onClick={() => removeTag(tag)}
-                      className="text-xs px-3 py-1 rounded-full border dark:border-gray-700 border-gray-300 dark:bg-gray-800 bg-gray-200 dark:text-gray-300 text-gray-700"
+                      className="text-[11px] px-2 py-0.5 rounded border dark:border-gray-700 border-gray-300 dark:text-gray-400 text-gray-600 transition-colors"
                     >
                       {tag} ×
                     </button>
@@ -182,7 +182,7 @@ export default function Learnings() {
               )}
             </div>
 
-            <div className="space-y-12">
+            <div className="space-y-0">
               {dateGroups.length > 0 ? (
                 dateGroups.map(([date, learnings], groupIndex) => (
                   <DateGroup
@@ -224,12 +224,12 @@ const DateGroup = memo(function DateGroup({
         transition: `opacity 0.2s ease-out ${groupIndex * 0.02}s`,
       }}
     >
-      <div className="sticky top-24 z-10 py-2 backdrop-blur-sm bg-white/80 dark:bg-black/80">
-        <span className="dark:text-gray-500 text-gray-500 text-xs font-mono">
+      <div className="sticky top-24 z-10 pt-8 pb-3 bg-white/95 dark:bg-black/95 backdrop-blur-sm border-t border-gray-200/60 dark:border-gray-800/50">
+        <span className="text-[11px] uppercase tracking-widest dark:text-gray-600 text-gray-400">
           {formatDate(date)}
         </span>
       </div>
-      <div className="space-y-6 mt-4">
+      <div className="divide-y divide-gray-100 dark:divide-gray-900/80">
         {learnings.map((learning, index) => (
           <LearningCard
             key={learning.id}
@@ -257,14 +257,14 @@ const LearningCard = memo(function LearningCard({
 }) {
   return (
     <div
-      className="border-l-2 dark:border-gray-700 border-gray-300 pl-6"
+      className="py-6"
       style={{
         opacity: 1,
         transform: 'translateY(0)',
         transition: `opacity 0.2s ease-out ${groupIndex * 0.02 + index * 0.01}s`,
       }}
     >
-      <h3 className="text-lg font-medium mb-3 dark:text-white text-gray-900">
+      <h3 className="text-base font-medium mb-2.5 dark:text-white text-gray-900 leading-snug">
         <InlineCodeTitle content={learning.question} />
       </h3>
       <div className="dark:text-gray-400 text-gray-600 text-sm leading-relaxed prose prose-sm dark:prose-invert max-w-none">
@@ -272,21 +272,21 @@ const LearningCard = memo(function LearningCard({
       </div>
 
       {learning.codeSnippet && (
-        <div className="mt-4 bg-gray-100 dark:bg-gray-900 rounded-lg p-4 overflow-x-auto">
-          <pre className="text-sm font-mono dark:text-gray-300 text-gray-800">
+        <div className="mt-3 bg-gray-50 dark:bg-[#111] rounded p-3 overflow-x-auto">
+          <pre className="text-xs font-mono dark:text-gray-400 text-gray-600 leading-relaxed">
             <code>{normalizeEscapedNewlines(learning.codeSnippet)}</code>
           </pre>
         </div>
       )}
 
       {learning.tags && learning.tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mt-4">
+        <div className="flex flex-wrap gap-1.5 mt-3">
           {learning.tags.map((tag) => (
             <button
               key={tag}
               type="button"
               onClick={() => onTagClick(tag)}
-              className="text-xs px-2 py-1 rounded-full dark:bg-gray-800 bg-gray-200 dark:text-gray-400 text-gray-600 hover:dark:text-gray-200 hover:text-gray-900 transition-colors"
+              className="text-[11px] px-2 py-0.5 rounded border dark:border-gray-800 border-gray-200 dark:text-gray-600 text-gray-400 hover:dark:text-gray-300 hover:text-gray-700 hover:dark:border-gray-600 hover:border-gray-400 transition-colors"
             >
               {tag}
             </button>

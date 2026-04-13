@@ -5,8 +5,7 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import resourcesData from '@/assets/static/json/resources.json';
-import { Input } from '@/components/ui/input';
-import { FiExternalLink } from 'react-icons/fi';
+import { FiExternalLink, FiSearch } from 'react-icons/fi';
 import { cn } from '@/lib/utils';
 
 type Bookmark = {
@@ -19,10 +18,13 @@ type Bookmark = {
   tags: string[];
 };
 
+const TAG_LIMIT = 24;
+
 export default function BookmarksPage() {
   const [resources, setResources] = useState<Bookmark[]>(resourcesData as Bookmark[]);
   const [activeTag, setActiveTag] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAllTags, setShowAllTags] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -44,11 +46,20 @@ export default function BookmarksPage() {
     };
   }, []);
 
-  const allTags = useMemo(() => {
+  const tagFrequencies = useMemo(() => {
+    const freq = new Map<string, number>();
+    resources.forEach((r) => r.tags.forEach((t) => freq.set(t, (freq.get(t) ?? 0) + 1)));
+    return freq;
+  }, [resources]);
+
+  const allTagsSorted = useMemo(() => {
     const tagSet = new Set<string>();
     resources.forEach((r) => r.tags.forEach((t) => tagSet.add(t)));
-    return ['All', ...Array.from(tagSet).sort()];
-  }, [resources]);
+    return Array.from(tagSet).sort((a, b) => (tagFrequencies.get(b) ?? 0) - (tagFrequencies.get(a) ?? 0));
+  }, [resources, tagFrequencies]);
+
+  const visibleTags = showAllTags ? allTagsSorted : allTagsSorted.slice(0, TAG_LIMIT);
+  const hiddenCount = allTagsSorted.length - TAG_LIMIT;
 
   const filteredBookmarks = useMemo(() => {
     return resources.filter((resource) => {
@@ -84,62 +95,100 @@ export default function BookmarksPage() {
               reaching for when I need inspiration or a refresher.
             </p>
 
-            <div className="bg-white/70 dark:bg-gray-900/60 border border-gray-200 dark:border-gray-800 rounded-3xl p-6 sm:p-8 mb-16 shadow-lg shadow-gray-200/30 dark:shadow-black/20">
-              <div className="flex flex-col gap-5">
-                <Input
+            <div className="mb-12">
+              <div className="rounded-full border dark:border-gray-800/80 border-gray-300/80 px-4 h-11 flex items-center gap-3 max-w-xl mb-6">
+                <FiSearch size={14} className="dark:text-gray-500 text-gray-500 flex-shrink-0" />
+                <input
                   type="text"
                   placeholder="Search by title, topic, or tag"
                   value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  className="h-12 rounded-2xl border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-black/30 text-base"
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-full w-full bg-transparent outline-none border-0 text-sm placeholder:dark:text-gray-500 placeholder:text-gray-500 dark:text-gray-200 text-gray-800"
                 />
-
-                <div className="flex flex-wrap gap-2">
-                  {allTags.map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setActiveTag(tag)}
-                      className={cn(
-                        'px-3 py-1.5 rounded-full text-xs font-medium transition-all border',
-                        activeTag === tag
-                          ? 'bg-gray-900 text-white border-gray-900 dark:bg-white dark:text-gray-900 dark:border-white'
-                          : 'bg-transparent border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600'
-                      )}
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="text-sm text-gray-500 dark:text-gray-400">
-                  Showing {filteredBookmarks.length} of {resources.length}{' '}
-                  resources
-                </div>
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="text-xs dark:text-gray-500 text-gray-500 whitespace-nowrap hover:dark:text-gray-300 hover:text-gray-800 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
+
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setActiveTag('All')}
+                  className={cn(
+                    'text-xs px-2 py-0.5 rounded border transition-colors',
+                    activeTag === 'All'
+                      ? 'dark:border-gray-500 border-gray-400 dark:text-gray-100 text-gray-900'
+                      : 'dark:border-gray-800 border-gray-200 dark:text-gray-500 text-gray-500 hover:dark:border-gray-600 hover:border-gray-400 hover:dark:text-gray-300 hover:text-gray-700'
+                  )}
+                >
+                  All
+                </button>
+                {visibleTags.map((tag) => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => setActiveTag(tag)}
+                    className={cn(
+                      'text-xs px-2 py-0.5 rounded border transition-colors',
+                      activeTag === tag
+                        ? 'dark:border-gray-500 border-gray-400 dark:text-gray-100 text-gray-900'
+                        : 'dark:border-gray-800 border-gray-200 dark:text-gray-500 text-gray-500 hover:dark:border-gray-600 hover:border-gray-400 hover:dark:text-gray-300 hover:text-gray-700'
+                    )}
+                  >
+                    {tag}
+                  </button>
+                ))}
+                {!showAllTags && hiddenCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllTags(true)}
+                    className="text-xs px-2 py-0.5 dark:text-gray-600 text-gray-400 hover:dark:text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    +{hiddenCount} more
+                  </button>
+                )}
+                {showAllTags && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllTags(false)}
+                    className="text-xs px-2 py-0.5 dark:text-gray-600 text-gray-400 hover:dark:text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    Show less
+                  </button>
+                )}
+              </div>
+
+              <p className="text-xs dark:text-gray-600 text-gray-400">
+                {filteredBookmarks.length} of {resources.length} resources
+              </p>
             </div>
 
             {filteredBookmarks.length === 0 ? (
-              <div className="text-center text-gray-500 dark:text-gray-400 text-sm py-12">
-                Nothing matches that search just yet. Try a different topic or
-                reset the filters.
+              <div className="text-gray-500 dark:text-gray-500 text-sm py-12">
+                Nothing matches that search. Try a different topic or reset the filters.
               </div>
             ) : (
-              <div className="grid gap-6 sm:gap-8">
+              <div className="divide-y divide-gray-100 dark:divide-gray-900/80">
                 {filteredBookmarks.map((resource) => (
                   <article
                     key={resource.title}
-                    className="rounded-3xl border border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-black/40 p-6 sm:p-8 shadow-lg shadow-gray-200/40 dark:shadow-black/30"
+                    className="py-8"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
-                      <div>
-                        <p className="uppercase text-xs tracking-[0.2em] text-gray-500 dark:text-gray-400 mb-2">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="uppercase text-[10px] tracking-widest text-gray-400 dark:text-gray-600 mb-1.5">
                           {resource.format}
                         </p>
-                        <h2 className="text-2xl sm:text-3xl font-semibold mb-2">
+                        <h2 className="text-lg sm:text-xl font-medium mb-1.5 leading-snug">
                           {resource.title}
                         </h2>
-                        <p className="text-gray-600 dark:text-gray-400 text-base sm:text-lg leading-relaxed">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">
                           {resource.description}
                         </p>
                       </div>
@@ -148,28 +197,24 @@ export default function BookmarksPage() {
                         href={resource.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100/60 dark:hover:bg-gray-900/40 transition-all group"
+                        className="flex-shrink-0 text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 transition-colors mt-1"
                         aria-label={`Visit ${resource.title}`}
                       >
-                        <FiExternalLink
-                          size={16}
-                          className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                        />
+                        <FiExternalLink size={15} />
                       </a>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-800 pt-4 mt-6">
-                      <span>{resource.author}</span>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2 mt-5">
-                      {resource.tags.map((tag) => (
-                        <span
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-4">
+                      <span className="text-xs dark:text-gray-600 text-gray-400">{resource.author}</span>
+                      {resource.tags.slice(0, 5).map((tag) => (
+                        <button
                           key={tag}
-                          className="px-3 py-1 rounded-full border border-gray-200 dark:border-gray-800 text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-black/30"
+                          type="button"
+                          onClick={() => setActiveTag(tag)}
+                          className="text-[11px] dark:text-gray-700 text-gray-400 hover:dark:text-gray-400 hover:text-gray-600 transition-colors"
                         >
                           {tag}
-                        </span>
+                        </button>
                       ))}
                     </div>
                   </article>
