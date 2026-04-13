@@ -34,6 +34,54 @@ npm run build
 npm start
 ```
 
+## Spotify Now Playing
+
+Displays your currently playing Spotify track in the hero section with server-side token refresh and normalized playback states.
+
+### Environment Variables
+
+```bash
+SPOTIFY_CLIENT_ID=your-client-id
+SPOTIFY_CLIENT_SECRET=your-client-secret
+SPOTIFY_REDIRECT_URI=http://localhost:3000/api/spotify/callback
+SPOTIFY_REFRESH_TOKEN=refresh-token-from-bootstrap
+```
+
+### OAuth Bootstrap (one-time)
+
+1. Create a Spotify app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
+2. Add your callback URL (for example: `http://localhost:3000/api/spotify/callback`) to the app settings.
+3. Start your app and visit:
+   ```
+   GET /api/spotify/login
+   ```
+4. Complete consent. The callback response includes a `refreshToken`.
+5. Save that token as `SPOTIFY_REFRESH_TOKEN` in your environment.
+
+### Runtime behavior
+
+- Frontend polls `GET /api/spotify/now-playing` every 30 seconds.
+- Backend refreshes access tokens server-side using the stored refresh token.
+- If nothing is currently playing, backend falls back to the most recently played track.
+- Response states: `playing`, `paused`, `idle`, `unauthorized`, `rate_limited`, `error`.
+
+### Verify it works (local + preview)
+
+1. Open OAuth bootstrap:
+   ```bash
+   open http://localhost:3000/api/spotify/login
+   ```
+2. After consent, copy `refreshToken` from callback JSON and set `SPOTIFY_REFRESH_TOKEN`.
+3. Confirm API response shape:
+   ```bash
+   curl -s http://localhost:3000/api/spotify/now-playing | jq
+   ```
+4. Play or pause a song in Spotify and repeat step 3:
+   - `state: "playing"` while active playback
+   - `state: "paused"` when paused
+   - `state: "idle"` when no active playback (may return recently played track fields)
+5. Open homepage and confirm hero card updates within 30 seconds.
+
 ## Daily Article Email
 
 Sends a random curated article from bookmarks daily via email using Resend and Vercel Cron.
