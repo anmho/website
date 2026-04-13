@@ -51,12 +51,18 @@ SPOTIFY_REFRESH_TOKEN=refresh-token-from-bootstrap
 
 1. Create a Spotify app in the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard).
 2. Add your callback URL (for example: `http://localhost:3000/api/spotify/callback`) to the app settings.
-3. Start your app and visit:
+3. Start your app and open the OAuth helper page:
+   ```
+   http://localhost:3000/spotify/auth
+   ```
+4. Click **Authorize Spotify** (this calls `GET /api/spotify/login`).
+5. Complete consent. The callback response includes a `refreshToken`.
+6. Save that token as `SPOTIFY_REFRESH_TOKEN` in your environment.
+
+Direct bootstrap endpoint (if you prefer raw route):
    ```
    GET /api/spotify/login
    ```
-4. Complete consent. The callback response includes a `refreshToken`.
-5. Save that token as `SPOTIFY_REFRESH_TOKEN` in your environment.
 
 ### Runtime behavior
 
