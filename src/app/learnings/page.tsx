@@ -229,7 +229,7 @@ const DateGroup = memo(function DateGroup({
           {formatDate(date)}
         </span>
       </div>
-      <div className="divide-y divide-gray-100 dark:divide-gray-900/80">
+      <div className="space-y-1 mt-2">
         {learnings.map((learning, index) => (
           <LearningCard
             key={learning.id}
@@ -257,7 +257,7 @@ const LearningCard = memo(function LearningCard({
 }) {
   return (
     <div
-      className="py-6"
+      className="border-l-2 dark:border-gray-800 border-gray-200 pl-5 py-5"
       style={{
         opacity: 1,
         transform: 'translateY(0)',
@@ -272,8 +272,8 @@ const LearningCard = memo(function LearningCard({
       </div>
 
       {learning.codeSnippet && (
-        <div className="mt-3 bg-gray-50 dark:bg-[#111] rounded p-3 overflow-x-auto">
-          <pre className="text-xs font-mono dark:text-gray-400 text-gray-600 leading-relaxed">
+        <div className="mt-3 bg-gray-50 dark:bg-[#111] rounded p-4 overflow-x-auto">
+          <pre className="text-sm font-mono dark:text-gray-400 text-gray-600 leading-relaxed">
             <code>{normalizeEscapedNewlines(learning.codeSnippet)}</code>
           </pre>
         </div>
@@ -286,7 +286,7 @@ const LearningCard = memo(function LearningCard({
               key={tag}
               type="button"
               onClick={() => onTagClick(tag)}
-              className="text-[11px] px-2 py-0.5 rounded border dark:border-gray-800 border-gray-200 dark:text-gray-600 text-gray-400 hover:dark:text-gray-300 hover:text-gray-700 hover:dark:border-gray-600 hover:border-gray-400 transition-colors"
+              className="text-xs px-2 py-0.5 rounded dark:bg-gray-900 bg-gray-100 dark:text-gray-500 text-gray-500 hover:dark:text-gray-300 hover:text-gray-700 transition-colors"
             >
               {tag}
             </button>

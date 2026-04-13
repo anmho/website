@@ -174,11 +174,11 @@ export default function BookmarksPage() {
                 Nothing matches that search. Try a different topic or reset the filters.
               </div>
             ) : (
-              <div className="divide-y divide-gray-100 dark:divide-gray-900/80">
+              <div className="flex flex-col gap-4">
                 {filteredBookmarks.map((resource) => (
                   <article
                     key={resource.title}
-                    className="py-8"
+                    className="rounded-xl border border-gray-200 dark:border-gray-800/80 bg-white/60 dark:bg-white/[0.03] p-5 sm:p-6"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
@@ -204,14 +204,14 @@ export default function BookmarksPage() {
                       </a>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-4">
-                      <span className="text-xs dark:text-gray-600 text-gray-400">{resource.author}</span>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-4 pt-3 border-t border-gray-100 dark:border-gray-800/60">
+                      <span className="text-xs dark:text-gray-500 text-gray-400">{resource.author}</span>
                       {resource.tags.slice(0, 5).map((tag) => (
                         <button
                           key={tag}
                           type="button"
                           onClick={() => setActiveTag(tag)}
-                          className="text-[11px] dark:text-gray-700 text-gray-400 hover:dark:text-gray-400 hover:text-gray-600 transition-colors"
+                          className="text-xs dark:text-gray-600 text-gray-400 hover:dark:text-gray-300 hover:text-gray-600 transition-colors"
                         >
                           {tag}
                         </button>
