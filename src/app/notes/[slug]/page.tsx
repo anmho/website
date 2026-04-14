@@ -8,6 +8,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
 import { isValidElement, type HTMLAttributes, type ReactNode } from 'react';
@@ -247,7 +248,10 @@ export default async function NotePage({ params }: NotePageProps) {
             {/* Note content */}
             <article className="prose dark:prose-invert max-w-none">
               {content ? (
-                <ReactMarkdown components={noteMarkdownComponents}>
+                <ReactMarkdown
+                  components={noteMarkdownComponents}
+                  remarkPlugins={[remarkGfm]}
+                >
                   {content}
                 </ReactMarkdown>
               ) : (

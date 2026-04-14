@@ -8,6 +8,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
 import {
@@ -383,7 +384,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               {/* Article content */}
               <article className="prose prose-lg dark:prose-invert max-w-none">
                 {processedContent ? (
-                  <ReactMarkdown components={markdownComponents}>
+                  <ReactMarkdown
+                    components={markdownComponents}
+                    remarkPlugins={[remarkGfm]}
+                  >
                     {processedContent}
                   </ReactMarkdown>
                 ) : (

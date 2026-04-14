@@ -7,6 +7,7 @@ import learningsData from '@/assets/static/json/learnings.json';
 import { useMemo, useState, memo } from 'react';
 import { formatDate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { FiSearch } from 'react-icons/fi';
 
 // Module-level cache for parsed markdown (persists across renders)
@@ -20,7 +21,10 @@ function CachedMarkdown({ id, content }: { id: string; content: string }) {
   const normalized = normalizeEscapedNewlines(content);
   const cacheKey = `${id}:${normalized}`;
   if (!markdownCache.has(cacheKey)) {
-    markdownCache.set(cacheKey, <ReactMarkdown>{normalized}</ReactMarkdown>);
+    markdownCache.set(
+      cacheKey,
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{normalized}</ReactMarkdown>
+    );
   }
   return <>{markdownCache.get(cacheKey)}</>;
 }
