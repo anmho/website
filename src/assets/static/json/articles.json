@@ -1,5 +1,12 @@
 [
   {
+    "slug": "admission-control-deep-dive",
+    "title": "Admission Control: Client, Service, and Proxy Layers",
+    "date": "2026-04-13",
+    "excerpt": "A deep dive into the three layers of admission control — client-side concurrency limits, service-side in-flight counting, and Envoy proxy circuit breakers — with Go examples and comparisons to load shedding, backpressure, throttling, and rate limiting.",
+    "readTime": "16 min read"
+  },
+  {
     "slug": "probability-in-stream-design",
     "title": "Probability in a Stream: Exact vs Approximate Design",
     "date": "2026-02-24",
