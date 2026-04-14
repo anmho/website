@@ -8,6 +8,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
 import {
@@ -330,6 +331,56 @@ function createArticleMarkdownComponents(
       {...props}
     />
   ),
+  table: ({ node, className, ...props }) => (
+    <div className="my-8 overflow-x-auto">
+      <table
+        className={clsx(
+          'w-full min-w-[760px] border-collapse text-left text-sm',
+          className
+        )}
+        {...props}
+      />
+    </div>
+  ),
+  thead: ({ node, className, ...props }) => (
+    <thead
+      className={clsx(
+        'border-b border-gray-300 dark:border-gray-700',
+        className
+      )}
+      {...props}
+    />
+  ),
+  tbody: ({ node, className, ...props }) => (
+    <tbody
+      className={clsx(
+        'divide-y divide-gray-200 dark:divide-gray-800',
+        className
+      )}
+      {...props}
+    />
+  ),
+  tr: ({ node, className, ...props }) => (
+    <tr className={clsx('align-top', className)} {...props} />
+  ),
+  th: ({ node, className, ...props }) => (
+    <th
+      className={clsx(
+        'px-4 py-3 text-base font-semibold leading-tight text-gray-900 dark:text-gray-100',
+        className
+      )}
+      {...props}
+    />
+  ),
+  td: ({ node, className, ...props }) => (
+    <td
+      className={clsx(
+        'px-4 py-3 leading-relaxed text-gray-700 dark:text-gray-300',
+        className
+      )}
+      {...props}
+    />
+  ),
   };
 }
 
@@ -383,7 +434,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               {/* Article content */}
               <article className="prose prose-lg dark:prose-invert max-w-none">
                 {processedContent ? (
-                  <ReactMarkdown components={markdownComponents}>
+                  <ReactMarkdown
+                    components={markdownComponents}
+                    remarkPlugins={[remarkGfm]}
+                  >
                     {processedContent}
                   </ReactMarkdown>
                 ) : (

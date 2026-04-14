@@ -7,10 +7,63 @@ import learningsData from '@/assets/static/json/learnings.json';
 import { useMemo, useState, memo } from 'react';
 import { formatDate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import type { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { FiSearch } from 'react-icons/fi';
 
 // Module-level cache for parsed markdown (persists across renders)
 const markdownCache = new Map<string, React.ReactNode>();
+
+const learningMarkdownComponents: Components = {
+  table: ({ node, className, ...props }) => (
+    <div className="my-4 overflow-x-auto">
+      <table
+        className={['w-full min-w-[680px] border-collapse text-left text-sm', className]
+          .filter(Boolean)
+          .join(' ')}
+        {...props}
+      />
+    </div>
+  ),
+  thead: ({ node, className, ...props }) => (
+    <thead
+      className={['border-b border-gray-300 dark:border-gray-700', className]
+        .filter(Boolean)
+        .join(' ')}
+      {...props}
+    />
+  ),
+  tbody: ({ node, className, ...props }) => (
+    <tbody
+      className={['divide-y divide-gray-200 dark:divide-gray-800', className]
+        .filter(Boolean)
+        .join(' ')}
+      {...props}
+    />
+  ),
+  tr: ({ node, className, ...props }) => (
+    <tr className={['align-top', className].filter(Boolean).join(' ')} {...props} />
+  ),
+  th: ({ node, className, ...props }) => (
+    <th
+      className={[
+        'px-3 py-2 text-sm font-semibold leading-tight text-gray-900 dark:text-gray-100',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      {...props}
+    />
+  ),
+  td: ({ node, className, ...props }) => (
+    <td
+      className={['px-3 py-2 leading-relaxed text-gray-700 dark:text-gray-300', className]
+        .filter(Boolean)
+        .join(' ')}
+      {...props}
+    />
+  ),
+};
 
 function normalizeEscapedNewlines(text: string): string {
   return text.replace(/\\n/g, '\n');
@@ -20,7 +73,15 @@ function CachedMarkdown({ id, content }: { id: string; content: string }) {
   const normalized = normalizeEscapedNewlines(content);
   const cacheKey = `${id}:${normalized}`;
   if (!markdownCache.has(cacheKey)) {
-    markdownCache.set(cacheKey, <ReactMarkdown>{normalized}</ReactMarkdown>);
+    markdownCache.set(
+      cacheKey,
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={learningMarkdownComponents}
+      >
+        {normalized}
+      </ReactMarkdown>
+    );
   }
   return <>{markdownCache.get(cacheKey)}</>;
 }

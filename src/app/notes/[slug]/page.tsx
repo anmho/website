@@ -8,6 +8,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
 import { isValidElement, type HTMLAttributes, type ReactNode } from 'react';
@@ -209,6 +210,56 @@ export default async function NotePage({ params }: NotePageProps) {
         {...props}
       />
     ),
+    table: ({ node, className, ...props }) => (
+      <div className="my-6 overflow-x-auto">
+        <table
+          className={clsx(
+            'w-full min-w-[680px] border-collapse text-left text-sm',
+            className
+          )}
+          {...props}
+        />
+      </div>
+    ),
+    thead: ({ node, className, ...props }) => (
+      <thead
+        className={clsx(
+          'border-b border-gray-300 dark:border-gray-700',
+          className
+        )}
+        {...props}
+      />
+    ),
+    tbody: ({ node, className, ...props }) => (
+      <tbody
+        className={clsx(
+          'divide-y divide-gray-200 dark:divide-gray-800',
+          className
+        )}
+        {...props}
+      />
+    ),
+    tr: ({ node, className, ...props }) => (
+      <tr className={clsx('align-top', className)} {...props} />
+    ),
+    th: ({ node, className, ...props }) => (
+      <th
+        className={clsx(
+          'px-3 py-2 text-sm font-semibold leading-tight text-gray-900 dark:text-gray-100',
+          className
+        )}
+        {...props}
+      />
+    ),
+    td: ({ node, className, ...props }) => (
+      <td
+        className={clsx(
+          'px-3 py-2 leading-relaxed text-gray-700 dark:text-gray-300',
+          className
+        )}
+        {...props}
+      />
+    ),
   };
 
   return (
@@ -247,7 +298,10 @@ export default async function NotePage({ params }: NotePageProps) {
             {/* Note content */}
             <article className="prose dark:prose-invert max-w-none">
               {content ? (
-                <ReactMarkdown components={noteMarkdownComponents}>
+                <ReactMarkdown
+                  components={noteMarkdownComponents}
+                  remarkPlugins={[remarkGfm]}
+                >
                   {content}
                 </ReactMarkdown>
               ) : (
