@@ -10,15 +10,13 @@ This article covers the three canonical layers where admission control lives, co
 
 These terms are often used interchangeably, but they mean different things:
 
-| Pattern | Where the decision lives | What it controls | Mechanism |
-|---|---|---|---|
-| **Rate limiting** | Edge / gateway | Request *rate* over a time window | Token bucket, fixed window, sliding window |
-| **Throttling** | Client or service | Request *rate*, enforced by the caller | Retry delays, leaky-bucket client |
-| **Admission control** | Any layer | Whether to *admit* a new unit of work now | In-flight count, queue depth, CPU, latency gradient |
-| **Load shedding** | Service | Which admitted requests to *drop* when at capacity | Random/priority shedding after admission |
-| **Backpressure** | Service → caller | Signal to the caller to *slow down* | 429/503 + Retry-After, blocked channel, gRPC flow control |
+- **Rate limiting**: A policy limit on request *count per time window* (for example, per API key, per user, or per IP). Usually enforced at the edge or gateway. Typical mechanisms are token bucket, fixed window, or sliding window.
+- **Throttling**: Deliberate *slowing* of request or processing rate (client-side pacing or server-side shaping). It often delays work rather than rejecting it outright.
+- **Admission control**: A real-time accept/reject decision for *new work right now* based on instantaneous capacity signals such as in-flight requests, queue depth, latency, CPU, or memory.
+- **Load shedding**: Intentional rejection of lower-value traffic under overload to protect critical traffic and latency SLOs. In practice this usually happens at or before queue admission.
+- **Backpressure**: A feedback signal from consumer to producer to reduce send rate (for example `Retry-After`, bounded channels, stream windows, or explicit credit-based flow control).
 
-The key distinction: **rate limiting controls the rate of arriving requests**, while **admission control controls the number of concurrently in-flight requests** (or queue depth). Load shedding drops work already accepted. Backpressure propagates the overload signal upstream. Throttling is rate limiting enforced by the client rather than the server.
+The key distinction: **rate limiting governs long-horizon fairness/quota**, while **admission control governs immediate capacity safety**. **Load shedding** is selective rejection under stress, and **backpressure** is how that stress signal propagates upstream. **Throttling** is the pacing behavior a client or service applies in response to policy or overload signals.
 
 A complete system uses all of them, at different layers.
 
