@@ -58,3 +58,8 @@ export function MyEmailTemplate({ props }) {
 1. Record each mistake made during implementation in both `AGENTS.md` and `CLAUDE.md`.
 2. For each mistake, include: what was wrong, why it happened, and the preventive guardrail added.
 3. Apply the guardrail immediately in the same change set when possible.
+
+## Mistake Log
+1. Raw web-search citation placeholders were left in article markdown instead of direct source links.
+Why it happened: research output was copied into the draft without a final content pass for publishable markdown.
+Preventive guardrail: before committing content changes, search the edited files for placeholder citation markers like `cite` and replace them with direct links or remove them.

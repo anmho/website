@@ -10,7 +10,7 @@ Queues don’t grow linearly. Once arrival rate exceeds service capacity, queue 
 - **Cascading failures** across downstream dependencies.
 
 The Google SRE book highlights how overload leads to long queues and missed RPC deadlines, which in turn cause retry storms and more overload. ([Google SRE: Addressing Cascading Failures](https://sre.google/sre-book/addressing-cascading-failures/))
-The AWS Builders’ Library also emphasizes that overload creates queues/backlogs that prolong recovery and that load shedding is an explicit strategy for preserving goodput during spikes. ([Avoiding insurmountable queue backlogs](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/)) ([Resilience lessons from the lunch rush](https://aws.amazon.com/builders-library/resilience-lessons-from-the-lunch-rush/))
+The AWS Builders’ Library emphasizes that queue backlogs can dramatically extend recovery time and that systems need protective mechanisms at multiple layers. ([AWS Builders’ Library: Avoiding insurmountable queue backlogs](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/))
 
 ## The Core Control Patterns
 
@@ -37,7 +37,7 @@ When downstream is overloaded, propagate a “slow down” signal upstream:
 - gRPC deadlines and cancellations
 - circuit breakers
 
-This prevents unbounded queues and spreads the pain to callers early. The AWS Builders’ Library notes that queue backlogs can dramatically extend recovery times after spikes and encourages protective mechanisms at each layer. ([Avoiding insurmountable queue backlogs](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/))
+This prevents unbounded queues and spreads the pain to callers early. The AWS Builders’ Library notes that queue backlogs can dramatically extend recovery times after spikes and encourages protective mechanisms at each layer. ([AWS Builders’ Library: Avoiding insurmountable queue backlogs](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/))
 
 ### Backpressure vs Load Shedding (Practical Difference)
 
@@ -55,7 +55,7 @@ When to use which:
 
 ### 4) Retry Control (Prevent Retry Storms)
 
-Retries are necessary but dangerous under overload. The AWS Well‑Architected Framework recommends **exponential backoff with jitter** and limiting retries to avoid retry storms. The AWS Builders’ Library explains how retries can amplify overload and why backoff with jitter is essential. ([AWS Well‑Architected REL05-BP03](https://docs.aws.amazon.com/wellarchitected/2022-03-31/framework/rel_mitigate_interaction_failure_limit_retries.html)) ([Timeouts, retries, and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/))
+Retries are necessary but dangerous under overload. The AWS Well‑Architected Framework recommends **exponential backoff with jitter** and limiting retries to avoid retry storms. The AWS Builders’ Library explains how retries can amplify overload and why backoff with jitter is essential. ([AWS Well‑Architected: Control and limit retry calls](https://docs.aws.amazon.com/wellarchitected/2022-03-31/framework/rel_mitigate_interaction_failure_limit_retries.html)) ([AWS Builders’ Library: Timeouts, retries, and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/))
 
 ### 5) Case Study: Dynamo‑style Spikes & Retries
 
@@ -82,15 +82,19 @@ This is defense‑in‑depth for queues.
 
 ## Optimizations vs p99: Different Problems
 
-Performance optimizations (faster code, caching, batching) reduce **service time**, which helps p99 **indirectly**. But under bursty overload, **queueing** dominates p99. At that point, no amount of micro‑optimization can keep tail latency within SLO unless you **bound the work**. The Builders’ Library stresses that queues can flip systems into a slow mode with long recovery tails and that overload protection must exist at multiple layers. ([Avoiding insurmountable queue backlogs](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/))
+Performance optimizations (faster code, caching, batching) reduce **service time**, which helps p99 **indirectly**. But under bursty overload, **queueing** dominates p99. At that point, no amount of micro‑optimization can keep tail latency within SLO unless you **bound the work**. The Builders’ Library stresses that queues can flip systems into a slow mode with long recovery tails and that overload protection must exist at multiple layers. ([AWS Builders’ Library: Avoiding insurmountable queue backlogs](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/))
 
 What this means in practice:
-1. **Always enforce timeouts**. A request that exceeds its budget should fail fast rather than grow the queue. ([Timeouts, retries, and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/))
+1. **Always enforce timeouts**. A request that exceeds its budget should fail fast rather than grow the queue. ([AWS Builders’ Library: Timeouts, retries, and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/))
 2. **Use load shedding/admission control**. This caps queue depth and protects p99 for accepted requests.
 3. **Optimize anyway**. Faster service time raises capacity and delays overload, but it does not remove the breaking point.
 4. **Assume worst‑case inputs**. If someone sends huge, unique payloads, caches won’t save you. Protect p99 with explicit limits.
 
 Bottom line: optimizations improve throughput, but **SLOs are enforced by admission control and time budgets**.
+
+## Little’s Law: The Core Intuition
+
+Little’s Law (`L = λW`) says queue length (`L`) grows with arrival rate (`λ`) and waiting time (`W`). If arrival rate exceeds service capacity, waiting time grows without bound, which drives p99 up. Optimizations (caching, coalescing, better algorithms) reduce service time and delay the tipping point, but they don’t remove it. The AWS Builders’ Library uses the same intuition when it explains how latency and arrival rate multiply into concurrency pressure. ([AWS Builders’ Library: Avoiding insurmountable queue backlogs](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/))
 
 ## Summary
 
@@ -99,6 +103,8 @@ Bursty traffic is not rare; it is normal. The fix is not “handle all bursts,�
 ## References
 
 - [Google SRE: Addressing Cascading Failures](https://sre.google/sre-book/addressing-cascading-failures/)
+- [AWS Builders’ Library: Avoiding insurmountable queue backlogs](https://aws.amazon.com/builders-library/avoiding-insurmountable-queue-backlogs/)
+- [AWS Builders’ Library: Timeouts, retries, and backoff with jitter](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)
 - [AWS Well‑Architected: Control and limit retry calls](https://docs.aws.amazon.com/wellarchitected/2022-03-31/framework/rel_mitigate_interaction_failure_limit_retries.html)
 - [Leaky bucket algorithm (Wikipedia)](https://en.wikipedia.org/wiki/Leaky_bucket)
 - [Amazon Dynamo: Highly Available Key‑value Store](https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf)

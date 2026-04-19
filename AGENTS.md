@@ -69,6 +69,11 @@ await resend.emails.send({ html, ... });
 2. For each mistake, include: what was wrong, why it happened, and the preventive guardrail added.
 3. Apply the guardrail immediately in the same change set when possible.
 
+## Mistake Log
+1. Raw web-search citation placeholders were left in article markdown instead of direct source links.
+Why it happened: research output was copied into the draft without a final content pass for publishable markdown.
+Preventive guardrail: before committing content changes, search the edited files for placeholder citation markers like `cite` and replace them with direct links or remove them.
+
 ## Source-Backed Claims
 1. When adding factual claims, back them up with a credible source and cite it explicitly.
 2. Avoid time-sensitive or performance claims without a source or a clear caveat.
