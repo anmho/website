@@ -58,3 +58,9 @@ export function MyEmailTemplate({ props }) {
 1. Record each mistake made during implementation in both `AGENTS.md` and `CLAUDE.md`.
 2. For each mistake, include: what was wrong, why it happened, and the preventive guardrail added.
 3. Apply the guardrail immediately in the same change set when possible.
+
+## Mistake Log
+- **2026-04-20 – Missed route directory creation**
+  - **What was wrong:** Attempted to write `src/app/crawfish/page.tsx` before creating the `src/app/crawfish/` directory, causing a shell error.
+  - **Why it happened:** I assumed the target route folder already existed.
+  - **Preventive guardrail added:** Before creating any new route file, first run `mkdir -p <route-dir>` in the same command block to guarantee directory existence.

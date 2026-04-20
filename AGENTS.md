@@ -72,3 +72,9 @@ await resend.emails.send({ html, ... });
 ## Source-Backed Claims
 1. When adding factual claims, back them up with a credible source and cite it explicitly.
 2. Avoid time-sensitive or performance claims without a source or a clear caveat.
+
+## Mistake Log
+- **2026-04-20 – Missed route directory creation**
+  - **What was wrong:** Attempted to write `src/app/crawfish/page.tsx` before creating the `src/app/crawfish/` directory, causing a shell error.
+  - **Why it happened:** I assumed the target route folder already existed.
+  - **Preventive guardrail added:** Before creating any new route file, first run `mkdir -p <route-dir>` in the same command block to guarantee directory existence.

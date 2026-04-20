@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { href: '/learnings', label: 'Learnings' },
   { href: '/about', label: 'About' },
   { href: '/resources', label: 'Bookmarks' },
+  { href: '/crawfish', label: 'Crawfish' },
 ];
 
 const NAV_LINKS_MOBILE = [
@@ -24,6 +25,7 @@ const NAV_LINKS_MOBILE = [
   { href: '/learnings', label: 'Learnings' },
   { href: '/about', label: 'About' },
   { href: '/resources', label: 'Bookmarks' },
+  { href: '/crawfish', label: 'Crawfish' },
 ];
 
 function Navbar() {
