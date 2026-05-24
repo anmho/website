@@ -5,6 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "content:check": "node scripts/validate-content-search.js",
+    "ci": "npm run content:check && npm run typecheck && npm run build",
     "start": "next start",
     "lint": "next lint",
     "deploy": "sh -c 'mkdir -p .logs && vercel --prod 2>&1 | tee .logs/deploy.log'",

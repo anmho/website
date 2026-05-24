@@ -34,6 +34,25 @@ npm run build
 npm start
 ```
 
+## Validation
+
+CI runs the website validation workflow in `.github/workflows/ci.yml` on pull
+requests and pushes to `main`.
+
+Debug the same checks locally:
+
+```bash
+npm run content:check
+npm run typecheck
+npm run build
+```
+
+`npm run content:check` validates the existing content integrity rules for
+learnings and articles, including article markdown file presence, plus note
+metadata used by the search dialog. It also assembles the same article, note,
+and page entries used by search to catch missing titles, invalid paths, and
+duplicate routes before deploy.
+
 ## CLI
 
 Current status:
