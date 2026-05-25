@@ -7,7 +7,7 @@ const STATE_COOKIE = 'spotify_oauth_state';
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const state = randomUUID();
     const authorizeUrl = getSpotifyAuthorizeUrl(state);
@@ -23,9 +23,7 @@ export async function GET() {
 
     return response;
   } catch (error) {
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to initialize Spotify OAuth' },
-      { status: 500 }
-    );
+    console.error('[spotify-login]', error);
+    return NextResponse.redirect(new URL('/spotify/auth?error=config', request.url));
   }
 }

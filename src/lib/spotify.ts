@@ -5,6 +5,11 @@ import {
   type NowPlayingState,
   type SpotifyNowPlaying,
 } from '@/lib/spotify-types';
+import {
+  readSpotifyTokenBundle,
+  type SpotifyTokenBundle,
+  writeSpotifyTokenBundle,
+} from '@/lib/spotify-vault';
 
 type SpotifyAccessTokenResponse = {
   access_token: string;
@@ -75,6 +80,7 @@ const SPOTIFY_CURRENTLY_PLAYING_ENDPOINT =
   'https://api.spotify.com/v1/me/player/currently-playing';
 const SPOTIFY_RECENTLY_PLAYED_ENDPOINT =
   'https://api.spotify.com/v1/me/player/recently-played?limit=1';
+const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
 
 const requiredSpotifyEnvVars = [
   'SPOTIFY_CLIENT_ID',
@@ -190,6 +196,35 @@ export async function exchangeCodeForTokens(code: string) {
   return (await response.json()) as SpotifyAccessTokenResponse;
 }
 
+function getExpiresAt(expiresInSeconds: number) {
+  return new Date(Date.now() + expiresInSeconds * 1000).toISOString();
+}
+
+function isTokenFresh(bundle: SpotifyTokenBundle) {
+  if (!bundle.accessToken || !bundle.expiresAt) {
+    return false;
+  }
+
+  return Date.parse(bundle.expiresAt) - TOKEN_REFRESH_BUFFER_MS > Date.now();
+}
+
+export async function storeSpotifyTokensFromCode(code: string) {
+  const tokens = await exchangeCodeForTokens(code);
+
+  if (!tokens.refresh_token) {
+    throw new Error('Spotify did not return a refresh token.');
+  }
+
+  return writeSpotifyTokenBundle({
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    expiresAt: getExpiresAt(tokens.expires_in),
+    scope: tokens.scope,
+    tokenType: tokens.token_type,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
 export async function refreshSpotifyAccessToken(refreshToken: string) {
   assertSpotifyBaseEnvVars();
 
@@ -220,7 +255,56 @@ export async function refreshSpotifyAccessToken(refreshToken: string) {
     accessToken: payload.access_token,
     refreshToken: payload.refresh_token ?? refreshToken,
     expiresIn: payload.expires_in,
+    scope: payload.scope,
+    tokenType: payload.token_type,
   };
+}
+
+export async function refreshStoredSpotifyAccessToken() {
+  const current = await readSpotifyTokenBundle();
+
+  if (!current) {
+    throw new Error('Spotify token bundle is not configured in Vault.');
+  }
+
+  const refreshed = await refreshSpotifyAccessToken(current.refreshToken);
+
+  return writeSpotifyTokenBundle({
+    accessToken: refreshed.accessToken,
+    refreshToken: refreshed.refreshToken,
+    expiresAt: getExpiresAt(refreshed.expiresIn),
+    scope: refreshed.scope ?? current.scope,
+    tokenType: refreshed.tokenType ?? current.tokenType,
+    updatedAt: new Date().toISOString(),
+  });
+}
+
+async function getStoredSpotifyAccessToken() {
+  let current;
+
+  try {
+    current = await readSpotifyTokenBundle();
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      error.message.startsWith('Missing required Vault environment variable:')
+    ) {
+      return null;
+    }
+
+    throw error;
+  }
+
+  if (!current) {
+    return null;
+  }
+
+  if (isTokenFresh(current)) {
+    return current.accessToken;
+  }
+
+  const refreshed = await refreshStoredSpotifyAccessToken();
+  return refreshed.accessToken;
 }
 
 async function getRecentlyPlayed(accessToken: string): Promise<SpotifyNowPlaying | null> {
@@ -246,16 +330,14 @@ async function getRecentlyPlayed(accessToken: string): Promise<SpotifyNowPlaying
 }
 
 export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
-  const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
+  const accessToken = await getStoredSpotifyAccessToken();
 
-  if (!refreshToken) {
+  if (!accessToken) {
     return {
       ...EMPTY_SPOTIFY_NOW_PLAYING,
       state: 'unauthorized',
     };
   }
-
-  const { accessToken } = await refreshSpotifyAccessToken(refreshToken);
 
   const response = await fetch(SPOTIFY_CURRENTLY_PLAYING_ENDPOINT, {
     headers: {

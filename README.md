@@ -38,9 +38,9 @@ npm start
 
 The home page can show the Spotify track currently playing on your account. It
 uses Spotify's documented [Authorization Code flow](https://developer.spotify.com/documentation/web-api/tutorials/code-flow)
-once to create a refresh token, then the server uses Spotify's
-[refresh token flow](https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens)
-for future reads.
+once to create a token bundle, stores that bundle in Vault, then uses
+Spotify's [refresh token flow](https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens)
+from Vercel Cron to keep the access token current.
 
 ### Environment Variables
 
@@ -48,7 +48,11 @@ for future reads.
 SPOTIFY_CLIENT_ID=your-client-id
 SPOTIFY_CLIENT_SECRET=your-client-secret
 SPOTIFY_REDIRECT_URI=http://localhost:3000/api/spotify/callback
-SPOTIFY_REFRESH_TOKEN=your-refresh-token
+VAULT_ADDR=https://vault.example.com
+VAULT_TOKEN=your-vault-token
+SPOTIFY_VAULT_MOUNT=secret
+SPOTIFY_VAULT_PATH=prod/apps/website/spotify
+CRON_SECRET=your-secret-string
 ```
 
 For Vercel previews and production, set the same variables in the matching
@@ -57,18 +61,26 @@ Spotify developer app before the OAuth callback will work there.
 
 ### OAuth Bootstrap
 
-1. Add `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, and `SPOTIFY_REDIRECT_URI`.
+1. Add `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REDIRECT_URI`, `VAULT_ADDR`, and `VAULT_TOKEN`.
 2. Start the site locally with `npm run dev`.
 3. Open `http://localhost:3000/spotify/auth`.
 4. Click "Authorize Spotify" and complete the Spotify consent flow.
-5. Copy the returned `refreshToken` into `SPOTIFY_REFRESH_TOKEN`.
+5. The callback writes the token bundle to Vault at `secret/prod/apps/website/spotify` by default.
 
 After that, the browser only calls `/api/spotify/now-playing`. Secrets and token
 refreshes stay on the server. The service reads Spotify's
 [`/me/player/currently-playing`](https://developer.spotify.com/documentation/web-api/reference/get-users-currently-playing-track)
 endpoint and uses
 [`/me/player/recently-played`](https://developer.spotify.com/documentation/web-api/reference/get-recently-played)
-as an idle fallback.
+as an idle fallback. Vercel Cron calls `/api/cron/spotify-refresh` hourly to
+refresh the Vault-stored access token; the now-playing endpoint also refreshes
+on demand if the stored token is expired or close to expiring.
+
+Vault uses KV v2 syntax. To inspect the stored path with the CLI:
+
+```bash
+vault kv get -mount=secret prod/apps/website/spotify
+```
 
 ### Verification
 

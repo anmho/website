@@ -11,7 +11,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SpotifyAuthPage() {
+export default function SpotifyAuthPage({
+  searchParams,
+}: {
+  searchParams?: { connected?: string; error?: string };
+}) {
+  const isConnected = searchParams?.connected === '1';
+  const hasError = Boolean(searchParams?.error);
+
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
       <Navbar />
@@ -24,20 +31,44 @@ export default function SpotifyAuthPage() {
                 Spotify OAuth
               </p>
               <h1 className="mt-4 text-4xl font-medium tracking-tight text-gray-900 dark:text-gray-100 sm:text-5xl">
-                Bootstrap your Spotify refresh token.
+                Connect Spotify to your website.
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-gray-600 dark:text-gray-400">
-                This is a one-time helper page. After consent, Spotify redirects you to the
-                callback route and returns a `refreshToken` you can store as
-                `SPOTIFY_REFRESH_TOKEN`.
+                This is a one-time login flow. After consent, the callback route stores
+                your Spotify token bundle in Vault. The scheduled refresh job keeps it
+                current for the now-playing widget.
               </p>
 
+              {isConnected ? (
+                <div className="mt-6 rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-green-700 dark:text-green-300">
+                  Spotify is connected. Token state was stored in Vault.
+                </div>
+              ) : null}
+
+              {hasError ? (
+                <div className="mt-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
+                  Spotify login did not complete. Check the redirect URI, Vault env vars,
+                  and server logs, then try again.
+                </div>
+              ) : null}
+
               <ol className="mt-8 space-y-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300">
-                <li>1. Add Spotify client credentials and the redirect URI to your environment.</li>
+                <li>
+                  1. Create or open an app in the{' '}
+                  <a
+                    href="https://developer.spotify.com/dashboard"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-green-600 underline-offset-4 hover:underline dark:text-green-400"
+                  >
+                    Spotify Developer Dashboard
+                  </a>
+                  , then copy its Client ID and Client Secret.
+                </li>
                 <li>2. Confirm the same callback URL is allowed in the Spotify developer app.</li>
-                <li>3. Start the OAuth flow.</li>
-                <li>4. Copy the returned `refreshToken` from the callback JSON.</li>
-                <li>5. Save it as `SPOTIFY_REFRESH_TOKEN` and redeploy if needed.</li>
+                <li>3. Add Spotify client credentials, redirect URI, and Vault env vars in Vercel.</li>
+                <li>4. Start the OAuth flow and approve access with your Spotify account.</li>
+                <li>5. The callback stores token state in Vault and returns here.</li>
               </ol>
 
               <div className="mt-8 flex flex-wrap gap-3">

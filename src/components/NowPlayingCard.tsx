@@ -138,7 +138,17 @@ export default function NowPlayingCard({ className }: { className?: string }) {
           </div>
         </a>
       ) : (
-        <p className="text-sm text-gray-500 dark:text-gray-400">{playbackLabel}</p>
+        <div className="space-y-3">
+          <p className="text-sm text-gray-500 dark:text-gray-400">{playbackLabel}</p>
+          {nowPlaying?.state === 'unauthorized' ? (
+            <a
+              href="/spotify/auth"
+              className="inline-flex rounded-xl border border-green-500/30 px-3 py-1.5 text-sm font-medium text-green-600 transition hover:border-green-500/60 hover:bg-green-500/10 dark:text-green-400"
+            >
+              Connect Spotify
+            </a>
+          ) : null}
+        </div>
       )}
     </div>
   );
