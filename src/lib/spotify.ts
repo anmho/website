@@ -82,6 +82,15 @@ const SPOTIFY_CURRENTLY_PLAYING_ENDPOINT =
 const SPOTIFY_RECENTLY_PLAYED_ENDPOINT =
   'https://api.spotify.com/v1/me/player/recently-played?limit=1';
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
+const LOCAL_SPOTIFY_HOST = 'localhost:3000';
+const PRODUCTION_SPOTIFY_HOST = 'anmho.com';
+
+export class UnsupportedSpotifyOAuthOriginError extends Error {
+  constructor(origin: string) {
+    super(`Spotify OAuth bootstrap is not supported from ${origin}.`);
+    this.name = 'UnsupportedSpotifyOAuthOriginError';
+  }
+}
 
 function getAuthHeader(clientId: string, clientSecret: string) {
   return `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
@@ -95,6 +104,36 @@ async function getSpotifyOAuthConfig() {
   }
 
   return config;
+}
+
+function getSpotifyOAuthOrigin(requestUrl: string) {
+  const url = new URL(requestUrl);
+  return `${url.protocol}//${url.host}`;
+}
+
+function getSpotifyRedirectUriForRequest(
+  requestUrl: string,
+  config: Awaited<ReturnType<typeof getSpotifyOAuthConfig>>
+) {
+  const url = new URL(requestUrl);
+
+  if (url.host === LOCAL_SPOTIFY_HOST) {
+    if (!config.localRedirectUri) {
+      throw new Error('Spotify local redirect URI is not configured in Vault.');
+    }
+
+    return config.localRedirectUri;
+  }
+
+  if (url.hostname === PRODUCTION_SPOTIFY_HOST) {
+    if (!config.productionRedirectUri) {
+      throw new Error('Spotify production redirect URI is not configured in Vault.');
+    }
+
+    return config.productionRedirectUri;
+  }
+
+  throw new UnsupportedSpotifyOAuthOriginError(getSpotifyOAuthOrigin(requestUrl));
 }
 
 function normalizeItem(
@@ -146,13 +185,14 @@ async function parseSpotifyError(response: Response) {
   }
 }
 
-export async function getSpotifyAuthorizeUrl(state: string, fallbackRedirectUri: string) {
-  const { clientId, redirectUri } = await getSpotifyOAuthConfig();
+export async function getSpotifyAuthorizeUrl(state: string, requestUrl: string) {
+  const config = await getSpotifyOAuthConfig();
+  const redirectUri = getSpotifyRedirectUriForRequest(requestUrl, config);
 
   const params = new URLSearchParams({
-    client_id: clientId,
+    client_id: config.clientId,
     response_type: 'code',
-    redirect_uri: redirectUri ?? fallbackRedirectUri,
+    redirect_uri: redirectUri,
     scope: SPOTIFY_SCOPES.join(' '),
     state,
     show_dialog: 'false',
@@ -161,19 +201,20 @@ export async function getSpotifyAuthorizeUrl(state: string, fallbackRedirectUri:
   return `${SPOTIFY_AUTHORIZE_ENDPOINT}?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(code: string, fallbackRedirectUri: string) {
-  const { clientId, clientSecret, redirectUri } = await getSpotifyOAuthConfig();
+export async function exchangeCodeForTokens(code: string, requestUrl: string) {
+  const config = await getSpotifyOAuthConfig();
+  const redirectUri = getSpotifyRedirectUriForRequest(requestUrl, config);
 
   const response = await fetch(SPOTIFY_TOKEN_ENDPOINT, {
     method: 'POST',
     headers: {
-      Authorization: getAuthHeader(clientId, clientSecret),
+      Authorization: getAuthHeader(config.clientId, config.clientSecret),
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: redirectUri ?? fallbackRedirectUri,
+      redirect_uri: redirectUri,
     }),
     cache: 'no-store',
   });
@@ -198,8 +239,8 @@ function isTokenFresh(bundle: SpotifyTokenBundle) {
   return Date.parse(bundle.expiresAt) - TOKEN_REFRESH_BUFFER_MS > Date.now();
 }
 
-export async function storeSpotifyTokensFromCode(code: string, redirectUri: string) {
-  const tokens = await exchangeCodeForTokens(code, redirectUri);
+export async function storeSpotifyTokensFromCode(code: string, requestUrl: string) {
+  const tokens = await exchangeCodeForTokens(code, requestUrl);
 
   if (!tokens.refresh_token) {
     throw new Error('Spotify did not return a refresh token.');

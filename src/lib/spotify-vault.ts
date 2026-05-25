@@ -12,7 +12,8 @@ export type SpotifyTokenBundle = {
 export type SpotifyOAuthConfig = {
   clientId: string;
   clientSecret: string;
-  redirectUri: string | null;
+  localRedirectUri: string | null;
+  productionRedirectUri: string | null;
 };
 
 type SpotifyVaultSecret = Partial<SpotifyTokenBundle> & {
@@ -22,7 +23,11 @@ type SpotifyVaultSecret = Partial<SpotifyTokenBundle> & {
   spotifyClientSecret?: string;
   redirectUri?: string;
   spotifyRedirectUri?: string;
+  spotifyLocalRedirectUri?: string;
+  spotifyProductionRedirectUri?: string;
   'spotify.redirect_uri'?: string;
+  'spotify.redirect_uri.local'?: string;
+  'spotify.redirect_uri.production'?: string;
   'spotify.client_id'?: string;
   'spotify.client_secret'?: string;
   SPOTIFY_CLIENT_ID?: string;
@@ -117,6 +122,14 @@ function normalizeOAuthConfig(data: SpotifyVaultSecret | undefined): SpotifyOAut
     data?.['spotify.redirect_uri'] ??
     data?.SPOTIFY_REDIRECT_URI ??
     null;
+  const localRedirectUri =
+    data?.spotifyLocalRedirectUri ??
+    data?.['spotify.redirect_uri.local'] ??
+    redirectUri;
+  const productionRedirectUri =
+    data?.spotifyProductionRedirectUri ??
+    data?.['spotify.redirect_uri.production'] ??
+    redirectUri;
 
   if (!clientId || !clientSecret) {
     return null;
@@ -125,7 +138,8 @@ function normalizeOAuthConfig(data: SpotifyVaultSecret | undefined): SpotifyOAut
   return {
     clientId,
     clientSecret,
-    redirectUri,
+    localRedirectUri,
+    productionRedirectUri,
   };
 }
 
