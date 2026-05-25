@@ -146,13 +146,13 @@ async function parseSpotifyError(response: Response) {
   }
 }
 
-export async function getSpotifyAuthorizeUrl(state: string, redirectUri: string) {
-  const { clientId } = await getSpotifyOAuthConfig();
+export async function getSpotifyAuthorizeUrl(state: string, fallbackRedirectUri: string) {
+  const { clientId, redirectUri } = await getSpotifyOAuthConfig();
 
   const params = new URLSearchParams({
     client_id: clientId,
     response_type: 'code',
-    redirect_uri: redirectUri,
+    redirect_uri: redirectUri ?? fallbackRedirectUri,
     scope: SPOTIFY_SCOPES.join(' '),
     state,
     show_dialog: 'false',
@@ -161,8 +161,8 @@ export async function getSpotifyAuthorizeUrl(state: string, redirectUri: string)
   return `${SPOTIFY_AUTHORIZE_ENDPOINT}?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(code: string, redirectUri: string) {
-  const { clientId, clientSecret } = await getSpotifyOAuthConfig();
+export async function exchangeCodeForTokens(code: string, fallbackRedirectUri: string) {
+  const { clientId, clientSecret, redirectUri } = await getSpotifyOAuthConfig();
 
   const response = await fetch(SPOTIFY_TOKEN_ENDPOINT, {
     method: 'POST',
@@ -173,7 +173,7 @@ export async function exchangeCodeForTokens(code: string, redirectUri: string) {
     body: new URLSearchParams({
       grant_type: 'authorization_code',
       code,
-      redirect_uri: redirectUri,
+      redirect_uri: redirectUri ?? fallbackRedirectUri,
     }),
     cache: 'no-store',
   });

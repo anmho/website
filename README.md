@@ -62,18 +62,19 @@ secret supports provider-style, camelCase, or env-style keys:
 ```bash
 spotify.client_id=your-client-id
 spotify.client_secret=your-client-secret
+spotify.redirect_uri=https://your-site.example.com/api/spotify/callback
 ```
 
-The callback derives the redirect URI from the current site origin, so register
-`https://your-site.example.com/api/spotify/callback` in the Spotify developer
-app before the OAuth callback will work. The callback writes `accessToken`,
-`refreshToken`, `expiresAt`, `scope`, `tokenType`, and `updatedAt` into
-`SPOTIFY_VAULT_PATH`, leaving provider credentials separate from the website's
-token bundle.
+The login and callback routes use `spotify.redirect_uri` when present, falling
+back to the current site origin. Register the exact same URI in the Spotify
+developer app before the OAuth callback will work. The callback writes
+`accessToken`, `refreshToken`, `expiresAt`, `scope`, `tokenType`, and
+`updatedAt` into `SPOTIFY_VAULT_PATH`, leaving provider credentials separate
+from the website's token bundle.
 
 ### OAuth Bootstrap
 
-1. Store `spotify.client_id` and `spotify.client_secret` in Vault.
+1. Store `spotify.client_id`, `spotify.client_secret`, and `spotify.redirect_uri` in Vault.
 2. Start the site locally with `npm run dev`.
 3. Open `http://localhost:3000/spotify/auth`.
 4. Click "Authorize Spotify" and complete the Spotify consent flow.
