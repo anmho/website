@@ -89,6 +89,39 @@ select {
   animation: spotify-album-pulse 1.9s ease-out infinite;
 }
 
+.spotify-skeleton-wave {
+  position: relative;
+  overflow: hidden;
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.spotify-skeleton-wave::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: spotify-skeleton-wave 1.35s ease-in-out infinite;
+}
+
+html.light .spotify-skeleton-wave {
+  background: rgba(100, 116, 139, 0.16);
+}
+
+html.light .spotify-skeleton-wave::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.56),
+    transparent
+  );
+}
+
 @keyframes spotify-equalizer {
   0% {
     height: 28%;
@@ -113,9 +146,16 @@ select {
   }
 }
 
+@keyframes spotify-skeleton-wave {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .spotify-equalizer-bar,
-  .spotify-album-pulse {
+  .spotify-album-pulse,
+  .spotify-skeleton-wave::after {
     animation: none;
   }
 }

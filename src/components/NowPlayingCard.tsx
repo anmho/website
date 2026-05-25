@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import type { SpotifyNowPlaying } from '@/lib/spotify-types';
 import { useEffect, useState } from 'react';
-import { FaHistory, FaMusic, FaPause, FaSpotify } from 'react-icons/fa';
+import { FaPause, FaSpotify } from 'react-icons/fa';
 
 const DEFAULT_STATE: SpotifyNowPlaying = {
   isPlaying: false,
@@ -18,6 +18,12 @@ const DEFAULT_STATE: SpotifyNowPlaying = {
   timestamp: null,
   state: 'idle',
 };
+
+const MIN_INITIAL_LOADING_MS = 1200;
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function getPlaybackLabel(nowPlaying: SpotifyNowPlaying | null) {
   switch (nowPlaying?.state) {
@@ -34,7 +40,7 @@ function getPlaybackLabel(nowPlaying: SpotifyNowPlaying | null) {
     case 'error':
       return 'Spotify unavailable';
     default:
-      return 'Checking Spotify';
+      return 'Checking now';
   }
 }
 
@@ -53,7 +59,7 @@ function getCardTitle(nowPlaying: SpotifyNowPlaying | null) {
     case 'error':
       return 'Spotify unavailable';
     default:
-      return 'Spotify';
+      return 'Currently listening to';
   }
 }
 
@@ -73,13 +79,48 @@ function PlaybackEqualizer() {
   );
 }
 
+function NowPlayingSkeleton() {
+  return (
+    <div className="relative flex items-center gap-3" aria-label="Checking Spotify">
+      <div className="spotify-skeleton-wave h-14 w-14 shrink-0 rounded-xl" />
+      <div className="min-w-0 flex-1 space-y-2.5">
+        <div className="spotify-skeleton-wave h-3.5 w-3/4 rounded-full" />
+        <div className="spotify-skeleton-wave h-3 w-1/2 rounded-full" />
+        <div className="spotify-skeleton-wave h-2.5 w-24 rounded-full" />
+      </div>
+    </div>
+  );
+}
+
 export default function NowPlayingCard({ className }: { className?: string }) {
   const [nowPlaying, setNowPlaying] = useState<SpotifyNowPlaying | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    let initialLoadComplete = false;
+    const initialLoadStartedAt = Date.now();
     let intervalMs = 15000;
     let intervalHandle: ReturnType<typeof setInterval> | null = null;
+
+    const finishInitialLoading = async () => {
+      if (initialLoadComplete) return;
+
+      const elapsedMs = Date.now() - initialLoadStartedAt;
+      const remainingMs = MIN_INITIAL_LOADING_MS - elapsedMs;
+
+      if (remainingMs > 0) {
+        await sleep(remainingMs);
+      }
+
+      initialLoadComplete = true;
+    };
+
+    const setResolvedNowPlaying = async (nextState: SpotifyNowPlaying) => {
+      await finishInitialLoading();
+      if (isMounted) {
+        setNowPlaying(nextState);
+      }
+    };
 
     const fetchNowPlaying = async () => {
       try {
@@ -88,7 +129,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
         });
 
         if (!response.ok) {
-          if (isMounted) setNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+          await setResolvedNowPlaying({ ...DEFAULT_STATE, state: 'error' });
           return;
         }
 
@@ -96,7 +137,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
         if (!isMounted) return;
 
-        setNowPlaying(payload);
+        await setResolvedNowPlaying(payload);
 
         const nextIntervalMs =
           payload.state === 'rate_limited'
@@ -112,7 +153,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
         }
       } catch (error) {
         console.error('[hero-spotify]', error);
-        if (isMounted) setNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+        await setResolvedNowPlaying({ ...DEFAULT_STATE, state: 'error' });
       }
     };
 
@@ -131,7 +172,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
   const cardTitle = getCardTitle(nowPlaying);
   const isPlaying = nowPlaying?.state === 'playing';
   const isPaused = nowPlaying?.state === 'paused';
-  const isRecentlyPlayed = nowPlaying?.state === 'idle' && Boolean(nowPlaying.title);
+  const isLoading = nowPlaying === null;
 
   return (
     <div
@@ -151,22 +192,21 @@ export default function NowPlayingCard({ className }: { className?: string }) {
       ) : null}
 
       <div className="relative mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-        <FaMusic
+        <FaSpotify
           className={cn(
             'text-green-500',
             isPlaying && 'drop-shadow-[0_0_8px_rgba(34,197,94,0.55)]',
-            !isPlaying && 'opacity-80'
+            !isPlaying && !isLoading && 'opacity-80'
           )}
         />
         <span>{cardTitle}</span>
-        {isPlaying ? <PlaybackEqualizer /> : null}
+        {isPlaying || isLoading ? <PlaybackEqualizer /> : null}
         {isPaused ? <FaPause className="text-[10px] text-gray-500 dark:text-gray-500" /> : null}
-        {isRecentlyPlayed ? (
-          <FaHistory className="text-[10px] text-gray-500 dark:text-gray-500" />
-        ) : null}
       </div>
 
-      {nowPlaying?.title ? (
+      {isLoading ? (
+        <NowPlayingSkeleton />
+      ) : nowPlaying?.title ? (
         <a
           href={nowPlaying.songUrl || 'https://open.spotify.com'}
           target="_blank"
