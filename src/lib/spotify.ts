@@ -6,6 +6,7 @@ import {
   type SpotifyNowPlaying,
 } from '@/lib/spotify-types';
 import {
+  readSpotifyOAuthConfig,
   readSpotifyTokenBundle,
   type SpotifyTokenBundle,
   writeSpotifyTokenBundle,
@@ -82,22 +83,18 @@ const SPOTIFY_RECENTLY_PLAYED_ENDPOINT =
   'https://api.spotify.com/v1/me/player/recently-played?limit=1';
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
 
-const requiredSpotifyEnvVars = [
-  'SPOTIFY_CLIENT_ID',
-  'SPOTIFY_CLIENT_SECRET',
-  'SPOTIFY_REDIRECT_URI',
-] as const;
-
-function assertSpotifyBaseEnvVars() {
-  for (const envVar of requiredSpotifyEnvVars) {
-    if (!process.env[envVar]) {
-      throw new Error(`Missing required Spotify environment variable: ${envVar}`);
-    }
-  }
-}
-
 function getAuthHeader(clientId: string, clientSecret: string) {
   return `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`;
+}
+
+async function getSpotifyOAuthConfig() {
+  const config = await readSpotifyOAuthConfig();
+
+  if (!config) {
+    throw new Error('Spotify OAuth config is not configured in Vault.');
+  }
+
+  return config;
 }
 
 function normalizeItem(
@@ -149,11 +146,8 @@ async function parseSpotifyError(response: Response) {
   }
 }
 
-export function getSpotifyAuthorizeUrl(state: string) {
-  assertSpotifyBaseEnvVars();
-
-  const clientId = process.env.SPOTIFY_CLIENT_ID as string;
-  const redirectUri = process.env.SPOTIFY_REDIRECT_URI as string;
+export async function getSpotifyAuthorizeUrl(state: string, redirectUri: string) {
+  const { clientId } = await getSpotifyOAuthConfig();
 
   const params = new URLSearchParams({
     client_id: clientId,
@@ -167,12 +161,8 @@ export function getSpotifyAuthorizeUrl(state: string) {
   return `${SPOTIFY_AUTHORIZE_ENDPOINT}?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(code: string) {
-  assertSpotifyBaseEnvVars();
-
-  const clientId = process.env.SPOTIFY_CLIENT_ID as string;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET as string;
-  const redirectUri = process.env.SPOTIFY_REDIRECT_URI as string;
+export async function exchangeCodeForTokens(code: string, redirectUri: string) {
+  const { clientId, clientSecret } = await getSpotifyOAuthConfig();
 
   const response = await fetch(SPOTIFY_TOKEN_ENDPOINT, {
     method: 'POST',
@@ -208,8 +198,8 @@ function isTokenFresh(bundle: SpotifyTokenBundle) {
   return Date.parse(bundle.expiresAt) - TOKEN_REFRESH_BUFFER_MS > Date.now();
 }
 
-export async function storeSpotifyTokensFromCode(code: string) {
-  const tokens = await exchangeCodeForTokens(code);
+export async function storeSpotifyTokensFromCode(code: string, redirectUri: string) {
+  const tokens = await exchangeCodeForTokens(code, redirectUri);
 
   if (!tokens.refresh_token) {
     throw new Error('Spotify did not return a refresh token.');
@@ -226,10 +216,7 @@ export async function storeSpotifyTokensFromCode(code: string) {
 }
 
 export async function refreshSpotifyAccessToken(refreshToken: string) {
-  assertSpotifyBaseEnvVars();
-
-  const clientId = process.env.SPOTIFY_CLIENT_ID as string;
-  const clientSecret = process.env.SPOTIFY_CLIENT_SECRET as string;
+  const { clientId, clientSecret } = await getSpotifyOAuthConfig();
 
   const response = await fetch(SPOTIFY_TOKEN_ENDPOINT, {
     method: 'POST',

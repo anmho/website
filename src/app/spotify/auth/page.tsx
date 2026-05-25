@@ -34,9 +34,10 @@ export default function SpotifyAuthPage({
                 Connect Spotify to your website.
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-gray-600 dark:text-gray-400">
-                This is a one-time login flow. After consent, the callback route stores
-                your Spotify token bundle in Vault. The scheduled refresh job keeps it
-                current for the now-playing widget.
+                This is a one-time login flow. The login route reads your Spotify OAuth
+                credentials from Vault, then the callback stores your Spotify token
+                bundle in Vault. The scheduled refresh job keeps it current for the
+                now-playing widget.
               </p>
 
               {isConnected ? (
@@ -65,8 +66,8 @@ export default function SpotifyAuthPage({
                   </a>
                   , then copy its Client ID and Client Secret.
                 </li>
-                <li>2. Confirm the same callback URL is allowed in the Spotify developer app.</li>
-                <li>3. Add Spotify client credentials, redirect URI, and Vault env vars in Vercel.</li>
+                <li>2. Confirm this callback URL is allowed in the Spotify developer app.</li>
+                <li>3. Store Spotify client credentials in Vault.</li>
                 <li>4. Start the OAuth flow and approve access with your Spotify account.</li>
                 <li>5. The callback stores token state in Vault and returns here.</li>
               </ol>

@@ -9,14 +9,31 @@ export type SpotifyTokenBundle = {
   updatedAt: string;
 };
 
+export type SpotifyOAuthConfig = {
+  clientId: string;
+  clientSecret: string;
+};
+
+type SpotifyVaultSecret = Partial<SpotifyTokenBundle> & {
+  clientId?: string;
+  clientSecret?: string;
+  spotifyClientId?: string;
+  spotifyClientSecret?: string;
+  'spotify.client_id'?: string;
+  'spotify.client_secret'?: string;
+  SPOTIFY_CLIENT_ID?: string;
+  SPOTIFY_CLIENT_SECRET?: string;
+};
+
 type VaultKvResponse = {
   data?: {
-    data?: Partial<SpotifyTokenBundle>;
+    data?: SpotifyVaultSecret;
   };
 };
 
 const DEFAULT_SPOTIFY_VAULT_MOUNT = 'secret';
 const DEFAULT_SPOTIFY_VAULT_PATH = 'prod/apps/website/spotify';
+const DEFAULT_SPOTIFY_OAUTH_VAULT_PATH = 'prod/providers/spotify/oauth';
 
 function getVaultConfig() {
   const addr = process.env.VAULT_ADDR;
@@ -39,8 +56,8 @@ function getVaultConfig() {
   };
 }
 
-function getVaultKvUrl() {
-  const { addr, mount, path } = getVaultConfig();
+function getVaultKvUrl(path = getVaultConfig().path) {
+  const { addr, mount } = getVaultConfig();
   return `${addr}/v1/${encodeURIComponent(mount)}/data/${path
     .split('/')
     .map(encodeURIComponent)
@@ -62,7 +79,7 @@ function getVaultHeaders() {
 }
 
 function normalizeTokenBundle(
-  data: Partial<SpotifyTokenBundle> | undefined
+  data: SpotifyVaultSecret | undefined
 ): SpotifyTokenBundle | null {
   if (!data?.refreshToken) {
     return null;
@@ -78,8 +95,30 @@ function normalizeTokenBundle(
   };
 }
 
-export async function readSpotifyTokenBundle() {
-  const response = await fetch(getVaultKvUrl(), {
+function normalizeOAuthConfig(data: SpotifyVaultSecret | undefined): SpotifyOAuthConfig | null {
+  const clientId =
+    data?.clientId ??
+    data?.spotifyClientId ??
+    data?.['spotify.client_id'] ??
+    data?.SPOTIFY_CLIENT_ID;
+  const clientSecret =
+    data?.clientSecret ??
+    data?.spotifyClientSecret ??
+    data?.['spotify.client_secret'] ??
+    data?.SPOTIFY_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    return null;
+  }
+
+  return {
+    clientId,
+    clientSecret,
+  };
+}
+
+async function readSpotifyVaultSecret(path?: string) {
+  const response = await fetch(getVaultKvUrl(path), {
     headers: getVaultHeaders(),
     cache: 'no-store',
   });
@@ -93,14 +132,30 @@ export async function readSpotifyTokenBundle() {
   }
 
   const payload = (await response.json()) as VaultKvResponse;
-  return normalizeTokenBundle(payload.data?.data);
+  return payload.data?.data ?? null;
+}
+
+export async function readSpotifyOAuthConfig() {
+  const configPath = process.env.SPOTIFY_OAUTH_VAULT_PATH ?? DEFAULT_SPOTIFY_OAUTH_VAULT_PATH;
+  const providerConfig = await readSpotifyVaultSecret(configPath);
+
+  if (providerConfig) {
+    return normalizeOAuthConfig(providerConfig);
+  }
+
+  return normalizeOAuthConfig((await readSpotifyVaultSecret()) ?? undefined);
+}
+
+export async function readSpotifyTokenBundle() {
+  return normalizeTokenBundle((await readSpotifyVaultSecret()) ?? undefined);
 }
 
 export async function writeSpotifyTokenBundle(bundle: SpotifyTokenBundle) {
+  const current = await readSpotifyVaultSecret();
   const response = await fetch(getVaultKvUrl(), {
     method: 'POST',
     headers: getVaultHeaders(),
-    body: JSON.stringify({ data: bundle }),
+    body: JSON.stringify({ data: { ...current, ...bundle } }),
     cache: 'no-store',
   });
 

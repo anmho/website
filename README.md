@@ -44,24 +44,36 @@ from Vercel Cron to keep the access token current.
 
 ### Environment Variables
 
+Vercel only needs Vault access and the cron guard:
+
 ```bash
-SPOTIFY_CLIENT_ID=your-client-id
-SPOTIFY_CLIENT_SECRET=your-client-secret
-SPOTIFY_REDIRECT_URI=http://localhost:3000/api/spotify/callback
 VAULT_ADDR=https://vault.example.com
 VAULT_TOKEN=your-vault-token
 SPOTIFY_VAULT_MOUNT=secret
 SPOTIFY_VAULT_PATH=prod/apps/website/spotify
+SPOTIFY_OAUTH_VAULT_PATH=prod/providers/spotify/oauth
 CRON_SECRET=your-secret-string
 ```
 
-For Vercel previews and production, set the same variables in the matching
-Vercel environment. The preview redirect URI must also be registered in the
-Spotify developer app before the OAuth callback will work there.
+`SPOTIFY_OAUTH_VAULT_PATH` is optional and defaults to
+`prod/providers/spotify/oauth`. The Spotify OAuth credentials live there. The
+secret supports provider-style, camelCase, or env-style keys:
+
+```bash
+spotify.client_id=your-client-id
+spotify.client_secret=your-client-secret
+```
+
+The callback derives the redirect URI from the current site origin, so register
+`https://your-site.example.com/api/spotify/callback` in the Spotify developer
+app before the OAuth callback will work. The callback writes `accessToken`,
+`refreshToken`, `expiresAt`, `scope`, `tokenType`, and `updatedAt` into
+`SPOTIFY_VAULT_PATH`, leaving provider credentials separate from the website's
+token bundle.
 
 ### OAuth Bootstrap
 
-1. Add `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REDIRECT_URI`, `VAULT_ADDR`, and `VAULT_TOKEN`.
+1. Store `spotify.client_id` and `spotify.client_secret` in Vault.
 2. Start the site locally with `npm run dev`.
 3. Open `http://localhost:3000/spotify/auth`.
 4. Click "Authorize Spotify" and complete the Spotify consent flow.
@@ -82,6 +94,7 @@ Vault uses KV v2 syntax. To inspect the stored path with the CLI:
 
 ```bash
 vault kv get -mount=secret prod/apps/website/spotify
+vault kv get -mount=secret prod/providers/spotify/oauth
 ```
 
 ### Verification

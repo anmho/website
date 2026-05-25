@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    await storeSpotifyTokensFromCode(code);
+    const redirectUri = new URL('/api/spotify/callback', request.url).toString();
+    await storeSpotifyTokensFromCode(code, redirectUri);
 
     const response = NextResponse.redirect(new URL('/spotify/auth?connected=1', request.url));
 

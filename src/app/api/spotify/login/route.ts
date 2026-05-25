@@ -10,7 +10,8 @@ export const runtime = 'nodejs';
 export async function GET(request: Request) {
   try {
     const state = randomUUID();
-    const authorizeUrl = getSpotifyAuthorizeUrl(state);
+    const redirectUri = new URL('/api/spotify/callback', request.url).toString();
+    const authorizeUrl = await getSpotifyAuthorizeUrl(state, redirectUri);
 
     const response = NextResponse.redirect(authorizeUrl);
     response.cookies.set(STATE_COOKIE, state, {
