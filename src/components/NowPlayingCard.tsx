@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import type { SpotifyNowPlaying } from '@/lib/spotify-types';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FaPause, FaSpotify } from 'react-icons/fa';
 
 const DEFAULT_STATE: SpotifyNowPlaying = {
@@ -63,6 +63,28 @@ function getCardTitle(nowPlaying: SpotifyNowPlaying | null) {
   }
 }
 
+function arraysEqual(left: string[], right: string[]) {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
+}
+
+function hasSameRenderedPlayback(
+  left: SpotifyNowPlaying | null,
+  right: SpotifyNowPlaying
+) {
+  return (
+    left !== null &&
+    left.isPlaying === right.isPlaying &&
+    left.type === right.type &&
+    left.title === right.title &&
+    arraysEqual(left.artists, right.artists) &&
+    left.album === right.album &&
+    left.albumArtUrl === right.albumArtUrl &&
+    left.songUrl === right.songUrl &&
+    left.state === right.state &&
+    left.retryAfterSeconds === right.retryAfterSeconds
+  );
+}
+
 function PlaybackEqualizer() {
   return (
     <span
@@ -94,6 +116,7 @@ function NowPlayingSkeleton() {
 
 export default function NowPlayingCard({ className }: { className?: string }) {
   const [nowPlaying, setNowPlaying] = useState<SpotifyNowPlaying | null>(null);
+  const nowPlayingRef = useRef<SpotifyNowPlaying | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -117,9 +140,13 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
     const setResolvedNowPlaying = async (nextState: SpotifyNowPlaying) => {
       await finishInitialLoading();
-      if (isMounted) {
-        setNowPlaying(nextState);
+
+      if (!isMounted || hasSameRenderedPlayback(nowPlayingRef.current, nextState)) {
+        return;
       }
+
+      nowPlayingRef.current = nextState;
+      setNowPlaying(nextState);
     };
 
     const fetchNowPlaying = async () => {
