@@ -56,6 +56,20 @@
     ]
   },
   {
+    "title": "Artificial Analysis",
+    "description": "Independent AI model and provider comparison hub with intelligence, speed, price, and API performance views.",
+    "category": "artificialanalysis.ai",
+    "format": "Website",
+    "url": "https://artificialanalysis.ai/",
+    "author": "Artificial Analysis",
+    "tags": [
+      "ai",
+      "benchmarks",
+      "models",
+      "pricing"
+    ]
+  },
+  {
     "title": "Graphite: The End of Mammoth Pull Requests? My Experience",
     "description": "Nicolas Charpentier's experience report on using stacked PR workflows with Graphite to reduce oversized pull requests and improve review velocity.",
     "category": "charpeni.com",

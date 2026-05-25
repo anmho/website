@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import learningsData from '@/assets/static/json/learnings.json';
-import { useMemo, useState, memo } from 'react';
+import { useEffect, useMemo, useState, memo } from 'react';
 import { formatDate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { FiSearch } from 'react-icons/fi';
@@ -73,6 +73,14 @@ export default function Learnings() {
   const learnings = learningsData as Learning[];
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const initialQuery = params.get('q');
+    if (initialQuery) {
+      setQuery(initialQuery);
+    }
+  }, []);
 
   const dateGroups = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -257,6 +265,7 @@ const LearningCard = memo(function LearningCard({
 }) {
   return (
     <div
+      id={learning.id}
       className="border-l-2 dark:border-gray-800 border-gray-200 pl-5 py-5"
       style={{
         opacity: 1,

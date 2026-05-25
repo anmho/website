@@ -8,15 +8,39 @@ import { FiSearch } from 'react-icons/fi';
 import { cn } from '@/lib/utils';
 import articlesData from '@/assets/static/json/articles.json';
 import notesData from '@/assets/static/json/notes.json';
+import resourcesData from '@/assets/static/json/resources.json';
+import learningsData from '@/assets/static/json/learnings.json';
 import { createPortal } from 'react-dom';
 
 interface SearchItem {
   slug: string;
   title: string;
   excerpt?: string;
-  type: 'article' | 'note' | 'page';
+  type: 'article' | 'note' | 'page' | 'bookmark' | 'learning';
   date?: string;
   path: string;
+  external?: boolean;
+  searchText: string;
+}
+
+interface Bookmark {
+  title: string;
+  description: string;
+  category: string;
+  format: string;
+  url: string;
+  author: string;
+  tags: string[];
+}
+
+interface Learning {
+  id: string;
+  question: string;
+  answer: string;
+  codeSnippet?: string;
+  codeLanguage?: string;
+  tags?: string[];
+  date: string;
 }
 
 interface SearchProps {
@@ -31,6 +55,14 @@ let portalInstanceId = 0;
 let primaryInstanceId: number | null = null;
 let sharedOpen = false;
 const openListeners = new Set<(open: boolean) => void>();
+
+function buildSearchParam(value: string) {
+  return encodeURIComponent(value);
+}
+
+function normalizeSearchText(...values: Array<string | undefined>) {
+  return values.filter(Boolean).join(' ').toLowerCase();
+}
 
 export default function Search({
   className,
@@ -86,6 +118,10 @@ export default function Search({
         excerpt: 'In-depth articles on building scalable systems',
         type: 'page' as const,
         path: '/articles',
+        searchText: normalizeSearchText(
+          'Articles',
+          'In-depth articles on building scalable systems'
+        ),
       },
       {
         slug: 'notes',
@@ -93,6 +129,33 @@ export default function Search({
         excerpt: 'Quick thoughts, learnings, and observations',
         type: 'page' as const,
         path: '/notes',
+        searchText: normalizeSearchText(
+          'Notes',
+          'Quick thoughts, learnings, and observations'
+        ),
+      },
+      {
+        slug: 'resources',
+        title: 'Bookmarks',
+        excerpt: 'Saved articles, guides, talks, and references',
+        type: 'page' as const,
+        path: '/resources',
+        searchText: normalizeSearchText(
+          'Bookmarks',
+          'Saved articles, guides, talks, and references',
+          'resources'
+        ),
+      },
+      {
+        slug: 'learnings',
+        title: 'Learnings',
+        excerpt: 'Daily tidbits and small discoveries',
+        type: 'page' as const,
+        path: '/learnings',
+        searchText: normalizeSearchText(
+          'Learnings',
+          'Daily tidbits and small discoveries'
+        ),
       },
       {
         slug: 'projects',
@@ -100,6 +163,10 @@ export default function Search({
         excerpt: 'A collection of projects showcasing my work',
         type: 'page' as const,
         path: '/projects',
+        searchText: normalizeSearchText(
+          'Projects',
+          'A collection of projects showcasing my work'
+        ),
       },
       {
         slug: 'about',
@@ -107,6 +174,10 @@ export default function Search({
         excerpt: 'Learn more about me and get in touch',
         type: 'page' as const,
         path: '/about',
+        searchText: normalizeSearchText(
+          'About',
+          'Learn more about me and get in touch'
+        ),
       },
       // Articles
       ...articlesData.map((article) => ({
@@ -116,6 +187,7 @@ export default function Search({
         type: 'article' as const,
         date: article.date,
         path: `/articles/${article.slug}`,
+        searchText: normalizeSearchText(article.title, article.excerpt),
       })),
       // Notes
       ...notesData.map((note) => ({
@@ -125,6 +197,49 @@ export default function Search({
         type: 'note' as const,
         date: note.date,
         path: `/notes/${note.slug}`,
+        searchText: normalizeSearchText(note.title, note.excerpt),
+      })),
+      // Bookmarks
+      ...(resourcesData as Bookmark[]).map((resource, index) => ({
+        slug: `${index}-${resource.url}`,
+        title: resource.title,
+        excerpt: [
+          resource.description,
+          resource.author,
+          resource.category,
+          resource.format,
+          ...resource.tags,
+        ].join(' '),
+        type: 'bookmark' as const,
+        path: resource.url,
+        external: true,
+        searchText: normalizeSearchText(
+          resource.title,
+          resource.description,
+          resource.author,
+          resource.category,
+          resource.format,
+          ...resource.tags
+        ),
+      })),
+      // Learnings
+      ...(learningsData as Learning[]).map((learning) => ({
+        slug: learning.id,
+        title: learning.question,
+        excerpt: [
+          learning.answer,
+          learning.codeSnippet ?? '',
+          ...(learning.tags ?? []),
+        ].join(' '),
+        type: 'learning' as const,
+        date: learning.date,
+        path: `/learnings?q=${buildSearchParam(learning.question)}#${learning.id}`,
+        searchText: normalizeSearchText(
+          learning.question,
+          learning.answer,
+          learning.codeSnippet,
+          ...(learning.tags ?? [])
+        ),
       })),
     ],
     []
@@ -196,6 +311,13 @@ export default function Search({
 
   const handleSelect = (item: SearchItem) => {
     closePalette();
+    if (item.external) {
+      const opened = window.open(item.path, '_blank', 'noopener,noreferrer');
+      if (!opened) {
+        window.location.assign(item.path);
+      }
+      return;
+    }
     router.push(item.path);
   };
 
@@ -300,12 +422,12 @@ export default function Search({
                             (i) => `${i.type}-${i.slug}` === value
                           );
                           if (!item) return 0;
+                          const normalizedSearch = search.toLowerCase();
                           const titleMatch = item.title
                             .toLowerCase()
-                            .includes(search.toLowerCase());
-                          const excerptMatch = item.excerpt
-                            ?.toLowerCase()
-                            .includes(search.toLowerCase());
+                            .includes(normalizedSearch);
+                          const excerptMatch =
+                            item.searchText.includes(normalizedSearch);
                           if (titleMatch) return 2;
                           if (excerptMatch) return 1;
                           return 0;
@@ -326,7 +448,7 @@ export default function Search({
                           />
                           <Command.Input
                             autoFocus
-                            placeholder="Search articles, notes, and pages..."
+                            placeholder="Search articles, notes, bookmarks, learnings..."
                             className={cn(
                               'flex-1 bg-transparent outline-none text-base font-normal',
                               'dark:text-white text-gray-900',
