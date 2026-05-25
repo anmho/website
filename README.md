@@ -72,9 +72,11 @@ refreshes stay on the server. The service reads Spotify's
 [`/me/player/currently-playing`](https://developer.spotify.com/documentation/web-api/reference/get-users-currently-playing-track)
 endpoint and uses
 [`/me/player/recently-played`](https://developer.spotify.com/documentation/web-api/reference/get-recently-played)
-as an idle fallback. Vercel Cron calls `/api/cron/spotify-refresh` hourly to
-refresh the Vault-stored access token; the now-playing endpoint also refreshes
-on demand if the stored token is expired or close to expiring.
+as an idle fallback. Vercel Cron calls `/api/cron/spotify-refresh` daily to
+refresh the Vault-stored token bundle; the now-playing endpoint also refreshes
+on demand if the stored access token is expired or close to expiring. If this
+project is moved to a Vercel plan that supports hourly cron, the same cron route
+can safely be scheduled more frequently.
 
 Vault uses KV v2 syntax. To inspect the stored path with the CLI:
 
