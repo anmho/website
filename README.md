@@ -30,9 +30,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Build
 
 ```bash
+npm run lint
+npm run typecheck
 npm run build
 npm start
 ```
+
+Use `npm run validate` for the full local validation sequence before opening a PR.
 
 ## CLI
 
