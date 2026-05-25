@@ -9,12 +9,11 @@ import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import clsx from 'clsx';
-import CopyCodeBlock from '@/components/CopyCodeBlock';
 import {
-  isValidElement,
-  type HTMLAttributes,
-  type ReactNode,
-} from 'react';
+  extractMarkdownText,
+  markdownCodeBlockPre,
+  markdownInlineCode,
+} from '@/lib/markdown/renderers';
 import { formatDate } from '@/lib/utils';
 
 interface Article {
@@ -60,11 +59,6 @@ export async function generateStaticParams() {
   }));
 }
 
-type MarkdownCodeProps = HTMLAttributes<HTMLElement> & {
-  inline?: boolean;
-  children?: ReactNode;
-};
-
 type TocItem = {
   id: string;
   text: string;
@@ -87,41 +81,6 @@ function stripInlineMarkdown(text: string): string {
     .replace(/[*_~]/g, '')
     .replace(/\s*\{#.*\}\s*$/, '')
     .trim();
-}
-
-function extractText(node: ReactNode): string {
-  if (typeof node === 'string' || typeof node === 'number') {
-    return String(node);
-  }
-  if (!node) {
-    return '';
-  }
-  if (Array.isArray(node)) {
-    return node.map(extractText).join('');
-  }
-  if (isValidElement<{ children?: ReactNode }>(node)) {
-    return extractText(node.props.children);
-  }
-  return '';
-}
-
-function extractCodeBlockFromPre(node: ReactNode): {
-  code: string;
-  className?: string;
-} | null {
-  const candidate = Array.isArray(node) ? node[0] : node;
-  if (isValidElement<{ children?: ReactNode; className?: string }>(candidate)) {
-    return {
-      code: extractText(candidate.props.children).replace(/\n$/, ''),
-      className: candidate.props.className,
-    };
-  }
-  if (typeof candidate === 'string' || typeof candidate === 'number') {
-    return {
-      code: String(candidate).replace(/\n$/, ''),
-    };
-  }
-  return null;
 }
 
 function createHeadingIdAssigner() {
@@ -208,7 +167,7 @@ function createArticleMarkdownComponents(
 ): Components {
   return {
     h1: ({ node, className, children, ...props }) => {
-      const text = extractText(children);
+      const text = extractMarkdownText(children);
       const id = assignHeadingId(text);
       return (
         <h1
@@ -224,7 +183,7 @@ function createArticleMarkdownComponents(
       );
     },
     h2: ({ node, className, children, ...props }) => {
-      const text = extractText(children);
+      const text = extractMarkdownText(children);
       const id = assignHeadingId(text);
       return (
         <h2
@@ -240,7 +199,7 @@ function createArticleMarkdownComponents(
       );
     },
     h3: ({ node, className, children, ...props }) => {
-      const text = extractText(children);
+      const text = extractMarkdownText(children);
       const id = assignHeadingId(text);
       return (
         <h3
@@ -273,27 +232,8 @@ function createArticleMarkdownComponents(
       {...props}
     />
   ),
-  code: (props) => {
-    const { className, children, ...rest } = props as MarkdownCodeProps;
-    return (
-      <code
-        className={clsx(
-          'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono',
-          className
-        )}
-        {...rest}
-      >
-        {children}
-      </code>
-    );
-  },
-  pre: ({ node, children }) => {
-    const block = extractCodeBlockFromPre(children);
-    if (!block) {
-      return null;
-    }
-    return <CopyCodeBlock code={block.code} className={block.className} />;
-  },
+  code: markdownInlineCode,
+  pre: markdownCodeBlockPre,
   ul: ({ node, className, ...props }) => (
     <ul
       className={clsx(

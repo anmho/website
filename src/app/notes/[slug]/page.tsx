@@ -9,8 +9,10 @@ import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import clsx from 'clsx';
-import CopyCodeBlock from '@/components/CopyCodeBlock';
-import { isValidElement, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  markdownCodeBlockPre,
+  markdownInlineCode,
+} from '@/lib/markdown/renderers';
 import { formatDate } from '@/lib/utils';
 
 interface Note {
@@ -64,46 +66,6 @@ export default async function NotePage({ params }: NotePageProps) {
     notFound();
   }
 
-  type MarkdownCodeProps = HTMLAttributes<HTMLElement> & {
-    inline?: boolean;
-    children?: ReactNode;
-  };
-
-  function extractText(node: ReactNode): string {
-    if (typeof node === 'string' || typeof node === 'number') {
-      return String(node);
-    }
-    if (!node) {
-      return '';
-    }
-    if (Array.isArray(node)) {
-      return node.map(extractText).join('');
-    }
-    if (isValidElement<{ children?: ReactNode }>(node)) {
-      return extractText(node.props.children);
-    }
-    return '';
-  }
-
-  function extractCodeBlockFromPre(node: ReactNode): {
-    code: string;
-    className?: string;
-  } | null {
-    const candidate = Array.isArray(node) ? node[0] : node;
-    if (isValidElement<{ children?: ReactNode; className?: string }>(candidate)) {
-      return {
-        code: extractText(candidate.props.children).replace(/\n$/, ''),
-        className: candidate.props.className,
-      };
-    }
-    if (typeof candidate === 'string' || typeof candidate === 'number') {
-      return {
-        code: String(candidate).replace(/\n$/, ''),
-      };
-    }
-    return null;
-  }
-
   const noteMarkdownComponents: Components = {
     h1: ({ node, className, ...props }) => (
       <h1
@@ -150,29 +112,8 @@ export default async function NotePage({ params }: NotePageProps) {
         {...props}
       />
     ),
-    code: (props) => {
-      const { inline, className, children, ...rest } =
-        props as MarkdownCodeProps;
-
-      return (
-        <code
-          className={clsx(
-            'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200 px-1.5 py-0.5 rounded text-sm font-mono',
-            className
-          )}
-          {...rest}
-        >
-          {children}
-        </code>
-      );
-    },
-    pre: ({ node, children }) => {
-      const block = extractCodeBlockFromPre(children);
-      if (!block) {
-        return null;
-      }
-      return <CopyCodeBlock code={block.code} className={block.className} />;
-    },
+    code: markdownInlineCode,
+    pre: markdownCodeBlockPre,
     ul: ({ node, className, ...props }) => (
       <ul
         className={clsx(
