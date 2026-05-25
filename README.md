@@ -63,11 +63,11 @@ secret supports provider-style, camelCase, or env-style keys:
 spotify.client_id=your-client-id
 spotify.client_secret=your-client-secret
 spotify.redirect_uri.local=https://localhost:3000/api/spotify/callback
-spotify.redirect_uri.production=https://anmho.com/api/spotify/callback
+spotify.redirect_uri.production=https://www.anmho.com/api/spotify/callback
 ```
 
 The login and callback routes choose the redirect URI by request host:
-`localhost:3000` uses the local HTTPS URI and `anmho.com` uses the production URI.
+`localhost:3000` uses the local HTTPS URI and `www.anmho.com` uses the production URI.
 Preview deployments intentionally do not run OAuth bootstrap; they can still
 render now-playing once Vault has a token. Register the exact local and
 production URIs in the Spotify developer app before OAuth will work. The

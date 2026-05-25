@@ -83,7 +83,7 @@ const SPOTIFY_RECENTLY_PLAYED_ENDPOINT =
   'https://api.spotify.com/v1/me/player/recently-played?limit=1';
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
 const LOCAL_SPOTIFY_HOST = 'localhost:3000';
-const PRODUCTION_SPOTIFY_HOST = 'anmho.com';
+const PRODUCTION_SPOTIFY_HOSTS = new Set(['anmho.com', 'www.anmho.com']);
 
 export class UnsupportedSpotifyOAuthOriginError extends Error {
   constructor(origin: string) {
@@ -125,7 +125,7 @@ function getSpotifyRedirectUriForRequest(
     return config.localRedirectUri;
   }
 
-  if (url.hostname === PRODUCTION_SPOTIFY_HOST) {
+  if (PRODUCTION_SPOTIFY_HOSTS.has(url.hostname)) {
     if (!config.productionRedirectUri) {
       throw new Error('Spotify production redirect URI is not configured in Vault.');
     }
