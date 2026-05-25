@@ -50,7 +50,7 @@ export default function SpotifyAuthPage({
               {hasError ? (
                 <div className="mt-6 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-700 dark:text-red-300">
                   {isUnsupportedOrigin
-                    ? 'Spotify OAuth bootstrap is only supported from localhost:3000 and anmho.com. Preview deployments can still render now-playing once Vault has a token.'
+                    ? 'Spotify OAuth bootstrap is only supported from https://localhost:3000 and https://anmho.com. Preview deployments can still render now-playing once Vault has a token.'
                     : 'Spotify login did not complete. Check the redirect URI, Vault env vars, and server logs, then try again.'}
                 </div>
               ) : null}
