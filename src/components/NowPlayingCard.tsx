@@ -59,7 +59,7 @@ function getCardTitle(nowPlaying: SpotifyNowPlaying | null) {
     case 'error':
       return 'Spotify unavailable';
     default:
-      return 'Checking Spotify';
+      return '';
   }
 }
 
@@ -81,7 +81,7 @@ function PlaybackEqualizer() {
 
 function NowPlayingSkeleton() {
   return (
-    <div className="relative flex items-center gap-3" aria-label="Checking Spotify">
+    <div className="relative flex items-center gap-3" aria-label="Loading Spotify playback">
       <div className="spotify-skeleton-wave h-14 w-14 shrink-0 rounded-xl" />
       <div className="min-w-0 flex-1 space-y-2.5">
         <div className="spotify-skeleton-wave h-3.5 w-3/4 rounded-full" />
@@ -199,8 +199,12 @@ export default function NowPlayingCard({ className }: { className?: string }) {
             !isPlaying && !isLoading && 'opacity-80'
           )}
         />
-        <span>{cardTitle}</span>
-        {isPlaying || isLoading ? <PlaybackEqualizer /> : null}
+        {isLoading ? (
+          <span className="spotify-skeleton-wave h-3 w-36 rounded-full" aria-hidden="true" />
+        ) : (
+          <span>{cardTitle}</span>
+        )}
+        {isPlaying ? <PlaybackEqualizer /> : null}
         {isPaused ? <FaPause className="text-[10px] text-gray-500 dark:text-gray-500" /> : null}
       </div>
 
