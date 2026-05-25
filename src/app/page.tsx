@@ -5,10 +5,30 @@ import Experience from '@/components/Experience';
 import Hero from '@/components/Hero';
 import Navbar from '@/components/Navbar';
 import Projects from '@/components/Projects';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
+  const [spotifyToastVisible, setSpotifyToastVisible] = useState(false);
+
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('spotify') === 'connected') {
+      setSpotifyToastVisible(true);
+      params.delete('spotify');
+
+      const nextSearch = params.toString();
+      const nextUrl = `${window.location.pathname}${nextSearch ? `?${nextSearch}` : ''}${
+        window.location.hash
+      }`;
+      window.history.replaceState(null, '', nextUrl);
+
+      const timeout = window.setTimeout(() => {
+        setSpotifyToastVisible(false);
+      }, 5000);
+
+      return () => window.clearTimeout(timeout);
+    }
+
     // Handle hash navigation on page load
     if (window.location.hash === '#about') {
       const attemptScroll = (attempts = 0) => {
@@ -35,6 +55,15 @@ export default function Home() {
   return (
     <main className="w-full overflow-hidden scroll-pt-36 snap-y dark:text-white text-gray-900">
       <Navbar />
+      {spotifyToastVisible ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed left-1/2 top-24 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl border border-green-500/30 bg-green-950/95 px-4 py-3 text-center text-sm font-medium text-green-100 shadow-2xl shadow-black/30 backdrop-blur"
+        >
+          Spotify is connected. Token state was stored in Vault.
+        </div>
+      ) : null}
 
       <div className="flex flex-col items-center pt-20 space-y-24">
         <div className="flex w-full justify-center items-center min-h-screen">

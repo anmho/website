@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import type { SpotifyNowPlaying } from '@/lib/spotify-types';
 import { useEffect, useState } from 'react';
-import { FaSpotify } from 'react-icons/fa';
+import { FaHistory, FaPause, FaSpotify } from 'react-icons/fa';
 
 const DEFAULT_STATE: SpotifyNowPlaying = {
   isPlaying: false,
@@ -38,12 +38,47 @@ function getPlaybackLabel(nowPlaying: SpotifyNowPlaying | null) {
   }
 }
 
+function getCardTitle(nowPlaying: SpotifyNowPlaying | null) {
+  switch (nowPlaying?.state) {
+    case 'playing':
+      return 'Spotify now playing';
+    case 'paused':
+      return 'Spotify paused';
+    case 'idle':
+      return nowPlaying.title ? 'Spotify recently played' : 'Spotify idle';
+    case 'rate_limited':
+      return 'Spotify rate limited';
+    case 'unauthorized':
+      return 'Spotify auth required';
+    case 'error':
+      return 'Spotify unavailable';
+    default:
+      return 'Spotify';
+  }
+}
+
+function PlaybackEqualizer() {
+  return (
+    <span
+      className="flex h-4 items-end gap-0.5"
+      aria-hidden="true"
+    >
+      {[0, 1, 2, 3, 4].map((bar) => (
+        <span
+          key={bar}
+          className="spotify-equalizer-bar block w-1 rounded-full bg-green-400"
+        />
+      ))}
+    </span>
+  );
+}
+
 export default function NowPlayingCard({ className }: { className?: string }) {
   const [nowPlaying, setNowPlaying] = useState<SpotifyNowPlaying | null>(null);
 
   useEffect(() => {
     let isMounted = true;
-    let intervalMs = 30000;
+    let intervalMs = 15000;
     let intervalHandle: ReturnType<typeof setInterval> | null = null;
 
     const fetchNowPlaying = async () => {
@@ -66,7 +101,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
         const nextIntervalMs =
           payload.state === 'rate_limited'
             ? Math.max((payload.retryAfterSeconds ?? 60) * 1000, 30000)
-            : 30000;
+            : 15000;
 
         if (nextIntervalMs !== intervalMs) {
           intervalMs = nextIntervalMs;
@@ -93,18 +128,42 @@ export default function NowPlayingCard({ className }: { className?: string }) {
   }, []);
 
   const playbackLabel = getPlaybackLabel(nowPlaying);
+  const cardTitle = getCardTitle(nowPlaying);
+  const isPlaying = nowPlaying?.state === 'playing';
+  const isPaused = nowPlaying?.state === 'paused';
+  const isRecentlyPlayed = nowPlaying?.state === 'idle' && Boolean(nowPlaying.title);
 
   return (
     <div
       className={cn(
-        'rounded-2xl border border-white/15 bg-black/30 p-4 backdrop-blur-md dark:border-white/10 dark:bg-black/35',
+        'relative overflow-hidden rounded-2xl border border-white/15 bg-black/30 p-4 backdrop-blur-md dark:border-white/10 dark:bg-black/35',
         'border-gray-300/70 bg-white/75 text-gray-900 shadow-[0_20px_60px_-40px_rgba(15,23,42,0.65)] dark:text-gray-100',
+        isPlaying &&
+          'border-green-500/30 shadow-[0_20px_70px_-44px_rgba(34,197,94,0.7)]',
         className
       )}
     >
-      <div className="mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-        <FaSpotify className="text-green-500" />
-        <span>Spotify now playing</span>
+      {isPlaying ? (
+        <div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(34,197,94,0.14),transparent_34%)]"
+          aria-hidden="true"
+        />
+      ) : null}
+
+      <div className="relative mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+        <FaSpotify
+          className={cn(
+            'text-green-500',
+            isPlaying && 'drop-shadow-[0_0_8px_rgba(34,197,94,0.55)]',
+            !isPlaying && 'opacity-80'
+          )}
+        />
+        <span>{cardTitle}</span>
+        {isPlaying ? <PlaybackEqualizer /> : null}
+        {isPaused ? <FaPause className="text-[10px] text-gray-500 dark:text-gray-500" /> : null}
+        {isRecentlyPlayed ? (
+          <FaHistory className="text-[10px] text-gray-500 dark:text-gray-500" />
+        ) : null}
       </div>
 
       {nowPlaying?.title ? (
@@ -112,14 +171,22 @@ export default function NowPlayingCard({ className }: { className?: string }) {
           href={nowPlaying.songUrl || 'https://open.spotify.com'}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 transition-opacity hover:opacity-80"
+          className="relative flex items-center gap-3 transition-opacity hover:opacity-80"
         >
           {nowPlaying.albumArtUrl ? (
-            <img
-              src={nowPlaying.albumArtUrl}
-              alt={`${nowPlaying.title} album art`}
-              className="h-14 w-14 rounded-xl object-cover"
-            />
+            <span className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+              {isPlaying ? (
+                <span
+                  className="spotify-album-pulse absolute inset-0 rounded-xl border border-green-400/50"
+                  aria-hidden="true"
+                />
+              ) : null}
+              <img
+                src={nowPlaying.albumArtUrl}
+                alt={`${nowPlaying.title} album art`}
+                className="relative h-14 w-14 rounded-xl object-cover"
+              />
+            </span>
           ) : (
             <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-500/10 text-green-600 dark:bg-green-500/15 dark:text-green-400">
               <FaSpotify size={22} />

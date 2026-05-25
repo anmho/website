@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
   try {
     await storeSpotifyTokensFromCode(code, origin);
 
-    const response = NextResponse.redirect(new URL('/spotify/auth?connected=1', origin));
+    const response = NextResponse.redirect(new URL('/?spotify=connected', origin));
 
     response.cookies.set(STATE_COOKIE, '', {
       httpOnly: true,
