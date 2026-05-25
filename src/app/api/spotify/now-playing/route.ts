@@ -1,4 +1,4 @@
-import { getNowPlaying } from '@/lib/spotify';
+import { getCachedNowPlaying } from '@/lib/spotify';
 import { EMPTY_SPOTIFY_NOW_PLAYING } from '@/lib/spotify-types';
 import { NextResponse } from 'next/server';
 
@@ -7,12 +7,12 @@ export const runtime = 'nodejs';
 
 export async function GET() {
   try {
-    const nowPlaying = await getNowPlaying();
+    const nowPlaying = await getCachedNowPlaying();
 
     return NextResponse.json(nowPlaying, {
       status: 200,
       headers: {
-        'Cache-Control': 'no-store',
+        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=30',
       },
     });
   } catch (error) {
@@ -26,7 +26,7 @@ export async function GET() {
       {
         status: 500,
         headers: {
-          'Cache-Control': 'no-store',
+          'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
         },
       }
     );
