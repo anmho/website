@@ -34,6 +34,84 @@ npm run build
 npm start
 ```
 
+## Spotify Now Playing
+
+The home page can show the Spotify track currently playing on your account. It
+uses Spotify's documented [Authorization Code flow](https://developer.spotify.com/documentation/web-api/tutorials/code-flow)
+once to create a token bundle, stores that bundle in Vault, then uses
+Spotify's [refresh token flow](https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens)
+from Vercel Cron to keep the access token current.
+
+### Environment Variables
+
+Vercel only needs Vault access and the cron guard:
+
+```bash
+VAULT_ADDR=https://vault.example.com
+VAULT_TOKEN=your-vault-token
+SPOTIFY_VAULT_MOUNT=secret
+SPOTIFY_VAULT_PATH=prod/apps/website/spotify
+SPOTIFY_OAUTH_VAULT_PATH=prod/providers/spotify/oauth
+CRON_SECRET=your-secret-string
+```
+
+`SPOTIFY_OAUTH_VAULT_PATH` is optional and defaults to
+`prod/providers/spotify/oauth`. The Spotify OAuth credentials live there. The
+secret supports provider-style, camelCase, or env-style keys:
+
+```bash
+spotify.client_id=your-client-id
+spotify.client_secret=your-client-secret
+spotify.redirect_uri.local=https://localhost:3000/api/spotify/callback
+spotify.redirect_uri.production=https://anmho.com/api/spotify/callback
+```
+
+The login and callback routes choose the redirect URI by request host:
+`localhost:3000` uses the local HTTPS URI and `anmho.com` uses the production URI.
+Preview deployments intentionally do not run OAuth bootstrap; they can still
+render now-playing once Vault has a token. Register the exact local and
+production URIs in the Spotify developer app before OAuth will work. The
+callback writes `accessToken`, `refreshToken`, `expiresAt`, `scope`,
+`tokenType`, and `updatedAt` into `SPOTIFY_VAULT_PATH`, leaving provider
+credentials separate from the website's token bundle.
+
+### OAuth Bootstrap
+
+1. Store `spotify.client_id`, `spotify.client_secret`, `spotify.redirect_uri.local`, and `spotify.redirect_uri.production` in Vault.
+2. Start the site locally with `npm run dev:https`.
+3. Open `https://localhost:3000/spotify/auth`. The script creates an ignored
+   local certificate under `certificates/`; your browser may ask you to approve
+   that local certificate the first time.
+4. Click "Authorize Spotify" and complete the Spotify consent flow.
+5. The callback writes the token bundle to Vault at `secret/prod/apps/website/spotify` by default.
+
+After that, the browser only calls `/api/spotify/now-playing`. Secrets and token
+refreshes stay on the server. The service reads Spotify's
+[`/me/player/currently-playing`](https://developer.spotify.com/documentation/web-api/reference/get-users-currently-playing-track)
+endpoint and uses
+[`/me/player/recently-played`](https://developer.spotify.com/documentation/web-api/reference/get-recently-played)
+as an idle fallback. Vercel Cron calls `/api/cron/spotify-refresh` daily to
+refresh the Vault-stored token bundle; the now-playing endpoint also refreshes
+on demand if the stored access token is expired or close to expiring. If this
+project is moved to a Vercel plan that supports hourly cron, the same cron route
+can safely be scheduled more frequently.
+
+Vault uses KV v2 syntax. To inspect the stored path with the CLI:
+
+```bash
+vault kv get -mount=secret prod/apps/website/spotify
+vault kv get -mount=secret prod/providers/spotify/oauth
+```
+
+### Verification
+
+```bash
+curl -s http://localhost:3000/api/spotify/now-playing | jq
+```
+
+Expected stable states are `playing`, `paused`, `idle`, `unauthorized`,
+`rate_limited`, and `error`.
+
 ## CLI
 
 Current status:
