@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import type { SpotifyNowPlaying } from '@/lib/spotify-types';
 import { useEffect, useState } from 'react';
-import { FaHistory, FaPause, FaSpotify } from 'react-icons/fa';
+import { FaHistory, FaMusic, FaPause, FaSpotify } from 'react-icons/fa';
 
 const DEFAULT_STATE: SpotifyNowPlaying = {
   isPlaying: false,
@@ -41,11 +41,11 @@ function getPlaybackLabel(nowPlaying: SpotifyNowPlaying | null) {
 function getCardTitle(nowPlaying: SpotifyNowPlaying | null) {
   switch (nowPlaying?.state) {
     case 'playing':
-      return 'Spotify now playing';
+      return 'Currently listening to';
     case 'paused':
-      return 'Spotify paused';
+      return 'Paused on';
     case 'idle':
-      return nowPlaying.title ? 'Spotify recently played' : 'Spotify idle';
+      return nowPlaying.title ? 'Recently listened to' : 'Not listening right now';
     case 'rate_limited':
       return 'Spotify rate limited';
     case 'unauthorized':
@@ -151,7 +151,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
       ) : null}
 
       <div className="relative mb-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
-        <FaSpotify
+        <FaMusic
           className={cn(
             'text-green-500',
             isPlaying && 'drop-shadow-[0_0_8px_rgba(34,197,94,0.55)]',
