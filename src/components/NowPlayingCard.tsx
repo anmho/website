@@ -48,9 +48,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
     const fetchNowPlaying = async () => {
       try {
-        const response = await fetch('/api/spotify/now-playing', {
-          cache: 'no-store',
-        });
+        const response = await fetch('/api/spotify/now-playing');
 
         if (!response.ok) {
           if (isMounted) setNowPlaying({ ...DEFAULT_STATE, state: 'error' });

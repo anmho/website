@@ -1,5 +1,7 @@
 import 'server-only';
 
+import { unstable_cache } from 'next/cache';
+
 import {
   EMPTY_SPOTIFY_NOW_PLAYING,
   type NowPlayingState,
@@ -74,12 +76,25 @@ const SPOTIFY_CURRENTLY_PLAYING_ENDPOINT =
   'https://api.spotify.com/v1/me/player/currently-playing';
 const SPOTIFY_RECENTLY_PLAYED_ENDPOINT =
   'https://api.spotify.com/v1/me/player/recently-played?limit=1';
+const SPOTIFY_NOW_PLAYING_CACHE_SECONDS = 30;
+const SPOTIFY_ACCESS_TOKEN_EXPIRY_BUFFER_MS = 60_000;
 
 const requiredSpotifyEnvVars = [
   'SPOTIFY_CLIENT_ID',
   'SPOTIFY_CLIENT_SECRET',
   'SPOTIFY_REDIRECT_URI',
 ] as const;
+
+type CachedSpotifyAccessToken = {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+};
+
+const globalForSpotify = globalThis as typeof globalThis & {
+  __spotifyAccessTokenCache?: CachedSpotifyAccessToken | null;
+  __spotifyAccessTokenRefreshPromise?: Promise<CachedSpotifyAccessToken> | null;
+};
 
 function assertSpotifyBaseEnvVars() {
   for (const envVar of requiredSpotifyEnvVars) {
@@ -222,6 +237,39 @@ export async function refreshSpotifyAccessToken(refreshToken: string) {
   };
 }
 
+async function getSpotifyAccessToken(refreshToken: string) {
+  const cachedToken = globalForSpotify.__spotifyAccessTokenCache;
+  const now = Date.now();
+
+  if (
+    cachedToken &&
+    cachedToken.refreshToken === refreshToken &&
+    cachedToken.expiresAt - SPOTIFY_ACCESS_TOKEN_EXPIRY_BUFFER_MS > now
+  ) {
+    return cachedToken.accessToken;
+  }
+
+  if (!globalForSpotify.__spotifyAccessTokenRefreshPromise) {
+    globalForSpotify.__spotifyAccessTokenRefreshPromise = refreshSpotifyAccessToken(refreshToken)
+      .then((token) => {
+        const cachedAccessToken = {
+          accessToken: token.accessToken,
+          refreshToken: token.refreshToken,
+          expiresAt: Date.now() + token.expiresIn * 1000,
+        };
+
+        globalForSpotify.__spotifyAccessTokenCache = cachedAccessToken;
+        return cachedAccessToken;
+      })
+      .finally(() => {
+        globalForSpotify.__spotifyAccessTokenRefreshPromise = null;
+      });
+  }
+
+  const token = await globalForSpotify.__spotifyAccessTokenRefreshPromise;
+  return token.accessToken;
+}
+
 async function getRecentlyPlayed(accessToken: string): Promise<SpotifyNowPlaying | null> {
   const response = await fetch(SPOTIFY_RECENTLY_PLAYED_ENDPOINT, {
     headers: {
@@ -254,7 +302,7 @@ export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
     };
   }
 
-  const { accessToken } = await refreshSpotifyAccessToken(refreshToken);
+  const accessToken = await getSpotifyAccessToken(refreshToken);
 
   const response = await fetch(SPOTIFY_CURRENTLY_PLAYING_ENDPOINT, {
     headers: {
@@ -308,3 +356,12 @@ export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
     payload.timestamp
   );
 }
+
+export const getCachedNowPlaying = unstable_cache(
+  getNowPlaying,
+  ['spotify-now-playing'],
+  {
+    revalidate: SPOTIFY_NOW_PLAYING_CACHE_SECONDS,
+    tags: ['spotify-now-playing'],
+  }
+);

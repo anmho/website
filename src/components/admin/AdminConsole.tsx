@@ -196,7 +196,7 @@ export default function AdminConsole() {
 
   async function refreshSpotifyState() {
     try {
-      const response = await fetch('/api/spotify/now-playing', { cache: 'no-store' });
+      const response = await fetch('/api/spotify/now-playing');
       const payload = (await response.json()) as SpotifyNowPlaying;
       setSpotifyState(payload);
     } catch {
