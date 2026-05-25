@@ -1,5 +1,6 @@
 'use client';
 
+import NowPlayingCard from './NowPlayingCard';
 import SectionContainer from './SectionContainer';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
@@ -28,6 +29,7 @@ function Hero() {
             a software engineer focused on applying ai to novel areas. currenly
             ml infra @ snap
           </p>
+          <NowPlayingCard className="max-w-md" />
         </motion.div>
       </div>
     </SectionContainer>
