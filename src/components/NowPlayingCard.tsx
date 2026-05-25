@@ -59,7 +59,7 @@ function getCardTitle(nowPlaying: SpotifyNowPlaying | null) {
     case 'error':
       return 'Spotify unavailable';
     default:
-      return 'Currently listening to';
+      return 'Checking Spotify';
   }
 }
 
