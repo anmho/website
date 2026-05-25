@@ -79,7 +79,9 @@ credentials separate from the website's token bundle.
 
 1. Store `spotify.client_id`, `spotify.client_secret`, `spotify.redirect_uri.local`, and `spotify.redirect_uri.production` in Vault.
 2. Start the site locally with `npm run dev:https`.
-3. Open `https://localhost:3000/spotify/auth`.
+3. Open `https://localhost:3000/spotify/auth`. The script creates an ignored
+   local certificate under `certificates/`; your browser may ask you to approve
+   that local certificate the first time.
 4. Click "Authorize Spotify" and complete the Spotify consent flow.
 5. The callback writes the token bundle to Vault at `secret/prod/apps/website/spotify` by default.
 
