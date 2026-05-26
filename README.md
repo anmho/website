@@ -30,6 +30,8 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Build
 
 ```bash
+npm run lint
+npm run typecheck
 npm run build
 npm start
 ```
@@ -111,6 +113,8 @@ curl -s http://localhost:3000/api/spotify/now-playing | jq
 
 Expected stable states are `playing`, `paused`, `idle`, `unauthorized`,
 `rate_limited`, and `error`.
+
+Use `npm run validate` for the full local validation sequence before opening a PR.
 
 ## CLI
 
