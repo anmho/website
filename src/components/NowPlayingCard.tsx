@@ -2,7 +2,13 @@
 
 import { cn } from '@/lib/utils';
 import type { SpotifyNowPlaying } from '@/lib/spotify-types';
-import { useEffect, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { FaPause, FaSpotify } from 'react-icons/fa';
 
 const DEFAULT_STATE: SpotifyNowPlaying = {
@@ -20,6 +26,8 @@ const DEFAULT_STATE: SpotifyNowPlaying = {
 };
 
 const MIN_INITIAL_LOADING_MS = 1200;
+const NORMAL_REFRESH_INTERVAL_MS = 10000;
+const DEFAULT_RATE_LIMIT_RETRY_AFTER_SECONDS = 60;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -85,6 +93,102 @@ function hasSameRenderedPlayback(
   );
 }
 
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updatePreference = () => {
+      setPrefersReducedMotion(mediaQuery.matches);
+    };
+
+    updatePreference();
+
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', updatePreference);
+      return () => mediaQuery.removeEventListener('change', updatePreference);
+    }
+
+    mediaQuery.addListener(updatePreference);
+    return () => mediaQuery.removeListener(updatePreference);
+  }, []);
+
+  return prefersReducedMotion;
+}
+
+function MarqueeLine({
+  text,
+  className,
+}: {
+  text: string;
+  className?: string;
+}) {
+  const containerRef = useRef<HTMLSpanElement>(null);
+  const contentRef = useRef<HTMLSpanElement>(null);
+  const [overflowPx, setOverflowPx] = useState(0);
+  const prefersReducedMotion = usePrefersReducedMotion();
+
+  const measureOverflow = useCallback(() => {
+    const container = containerRef.current;
+    const content = contentRef.current;
+
+    if (!container || !content) {
+      return;
+    }
+
+    const nextOverflowPx = Math.ceil(content.scrollWidth - container.clientWidth);
+    setOverflowPx(nextOverflowPx > 1 ? nextOverflowPx : 0);
+  }, [text]);
+
+  useEffect(() => {
+    measureOverflow();
+
+    const container = containerRef.current;
+    const content = contentRef.current;
+
+    if (!container || !content) {
+      return;
+    }
+
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', measureOverflow);
+      return () => window.removeEventListener('resize', measureOverflow);
+    }
+
+    const resizeObserver = new ResizeObserver(measureOverflow);
+    resizeObserver.observe(container);
+    resizeObserver.observe(content);
+
+    return () => resizeObserver.disconnect();
+  }, [measureOverflow]);
+
+  const shouldMarquee = overflowPx > 0 && !prefersReducedMotion;
+  const marqueeDurationSeconds = Math.min(Math.max(overflowPx / 28 + 5.5, 7), 16);
+  const marqueeStyle: CSSProperties | undefined = shouldMarquee
+    ? ({
+        '--spotify-marquee-distance': `${overflowPx}px`,
+        '--spotify-marquee-duration': `${marqueeDurationSeconds}s`,
+      } as CSSProperties)
+    : undefined;
+
+  return (
+    <span ref={containerRef} className="relative block min-w-0 max-w-full overflow-hidden">
+      <span
+        ref={contentRef}
+        className={cn(
+          'block max-w-full whitespace-nowrap',
+          shouldMarquee ? 'spotify-detail-marquee w-max pr-8' : 'truncate',
+          className
+        )}
+        style={marqueeStyle}
+        title={text}
+      >
+        {text}
+      </span>
+    </span>
+  );
+}
+
 function PlaybackEqualizer() {
   return (
     <span
@@ -122,7 +226,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
     let isMounted = true;
     let initialLoadComplete = false;
     const initialLoadStartedAt = Date.now();
-    let intervalMs = 15000;
+    let intervalMs = NORMAL_REFRESH_INTERVAL_MS;
     let intervalHandle: ReturnType<typeof setInterval> | null = null;
 
     const finishInitialLoading = async () => {
@@ -166,8 +270,11 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
         const nextIntervalMs =
           payload.state === 'rate_limited'
-            ? Math.max((payload.retryAfterSeconds ?? 60) * 1000, 30000)
-            : 15000;
+            ? Math.max(
+                (payload.retryAfterSeconds ?? DEFAULT_RATE_LIMIT_RETRY_AFTER_SECONDS) * 1000,
+                NORMAL_REFRESH_INTERVAL_MS
+              )
+            : NORMAL_REFRESH_INTERVAL_MS;
 
         if (nextIntervalMs !== intervalMs) {
           intervalMs = nextIntervalMs;
@@ -240,7 +347,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
           href={nowPlaying.songUrl || 'https://open.spotify.com'}
           target="_blank"
           rel="noopener noreferrer"
-          className="relative flex items-center gap-3 transition-opacity hover:opacity-80"
+          className="relative flex min-w-0 items-center gap-3 overflow-hidden transition-opacity hover:opacity-80"
         >
           {nowPlaying.albumArtUrl ? (
             <span className="relative flex h-14 w-14 shrink-0 items-center justify-center">
@@ -261,12 +368,14 @@ export default function NowPlayingCard({ className }: { className?: string }) {
               <FaSpotify size={22} />
             </div>
           )}
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">
-              {nowPlaying.title}
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <MarqueeLine text={nowPlaying.title} />
             </p>
-            <p className="truncate text-sm text-gray-600 dark:text-gray-400">
-              {nowPlaying.artists.join(', ') || nowPlaying.album || 'Spotify'}
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              <MarqueeLine
+                text={nowPlaying.artists.join(', ') || nowPlaying.album || 'Spotify'}
+              />
             </p>
             <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
               {playbackLabel}

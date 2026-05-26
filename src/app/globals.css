@@ -109,6 +109,12 @@ select {
   animation: spotify-skeleton-wave 1.35s ease-in-out infinite;
 }
 
+.spotify-detail-marquee {
+  animation: spotify-detail-marquee var(--spotify-marquee-duration, 8s) ease-in-out infinite;
+  transform: translateX(0);
+  will-change: transform;
+}
+
 html.light .spotify-skeleton-wave {
   background: rgba(100, 116, 139, 0.16);
 }
@@ -152,10 +158,27 @@ html.light .spotify-skeleton-wave::after {
   }
 }
 
+@keyframes spotify-detail-marquee {
+  0%,
+  14% {
+    transform: translateX(0);
+  }
+
+  68%,
+  86% {
+    transform: translateX(calc(-1 * var(--spotify-marquee-distance, 0px)));
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .spotify-equalizer-bar,
   .spotify-album-pulse,
-  .spotify-skeleton-wave::after {
+  .spotify-skeleton-wave::after,
+  .spotify-detail-marquee {
     animation: none;
   }
 }
