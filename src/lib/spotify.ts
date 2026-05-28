@@ -84,7 +84,7 @@ const SPOTIFY_CURRENTLY_PLAYING_ENDPOINT =
 const SPOTIFY_RECENTLY_PLAYED_ENDPOINT =
   'https://api.spotify.com/v1/me/player/recently-played?limit=1';
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
-const SPOTIFY_NOW_PLAYING_CACHE_SECONDS = 30;
+export const SPOTIFY_NOW_PLAYING_CACHE_SECONDS = 10;
 const LOCAL_SPOTIFY_HOST = 'localhost:3000';
 const PRODUCTION_SPOTIFY_HOSTS = new Set(['anmho.com', 'www.anmho.com']);
 
