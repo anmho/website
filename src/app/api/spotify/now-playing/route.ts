@@ -2,7 +2,10 @@ import { getCachedNowPlaying } from '@/lib/spotify';
 import { EMPTY_SPOTIFY_NOW_PLAYING } from '@/lib/spotify-types';
 import { NextResponse } from 'next/server';
 
+const NOW_PLAYING_REVALIDATE_SECONDS = 10;
+
 export const dynamic = 'force-dynamic';
+export const revalidate = NOW_PLAYING_REVALIDATE_SECONDS;
 export const runtime = 'nodejs';
 
 export async function GET() {
@@ -12,7 +15,7 @@ export async function GET() {
     return NextResponse.json(nowPlaying, {
       status: 200,
       headers: {
-        'Cache-Control': 'public, s-maxage=30, stale-while-revalidate=30',
+        'Cache-Control': `public, s-maxage=${NOW_PLAYING_REVALIDATE_SECONDS}, stale-while-revalidate=${NOW_PLAYING_REVALIDATE_SECONDS}`,
       },
     });
   } catch (error) {
