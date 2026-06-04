@@ -1,5 +1,20 @@
 [
   {
+    "title": "Artificial Analysis",
+    "description": "Independent AI model and API provider analysis covering intelligence, speed, pricing, coding agents, and multimodal leaderboards.",
+    "category": "artificialanalysis.ai",
+    "format": "Report",
+    "url": "https://artificialanalysis.ai/",
+    "author": "Artificial Analysis",
+    "tags": [
+      "ai",
+      "benchmarks",
+      "model evaluation",
+      "pricing",
+      "coding agents"
+    ]
+  },
+  {
     "title": "tbpn post on X",
     "description": "Referenced X post connected to Geoffrey Huntley's teleport article context.",
     "category": "x.com",
