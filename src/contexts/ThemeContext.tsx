@@ -11,36 +11,64 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
-  const [mounted, setMounted] = useState(false);
+const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+
+function getSavedTheme(fallbackTheme: Theme): Theme {
+  if (typeof window === 'undefined') {
+    return fallbackTheme;
+  }
+
+  try {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme === 'light' || savedTheme === 'dark'
+      ? savedTheme
+      : fallbackTheme;
+  } catch {
+    return fallbackTheme;
+  }
+}
+
+function persistTheme(theme: Theme) {
+  try {
+    localStorage.setItem('theme', theme);
+  } catch {
+    // Keep the in-memory theme change even if storage is unavailable.
+  }
+
+  document.cookie = [
+    `theme=${theme}`,
+    'path=/',
+    `max-age=${THEME_COOKIE_MAX_AGE}`,
+    'samesite=lax',
+  ].join('; ');
+}
+
+export function ThemeProvider({
+  children,
+  initialTheme = 'dark',
+}: {
+  children: React.ReactNode;
+  initialTheme?: Theme;
+}) {
+  const [theme, setTheme] = useState<Theme>(initialTheme);
 
   useEffect(() => {
-    setMounted(true);
-    // Check localStorage or default to dark
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle('light', savedTheme === 'light');
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    } else {
-      // Default to dark
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+    const savedTheme = getSavedTheme(initialTheme);
+    setTheme(savedTheme);
+    persistTheme(savedTheme);
+  }, [initialTheme]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('light', newTheme === 'light');
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
+    persistTheme(newTheme);
   };
 
-  // Always provide the context, even before mounting
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      <div className={`min-h-screen ${theme}`} suppressHydrationWarning>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 }
@@ -52,4 +80,3 @@ export function useTheme() {
   }
   return context;
 }
-
