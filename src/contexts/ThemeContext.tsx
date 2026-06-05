@@ -50,7 +50,7 @@ export function ThemeProvider({
   children: React.ReactNode;
   initialTheme?: Theme;
 }) {
-  const [theme, setTheme] = useState<Theme>(() => getSavedTheme(initialTheme));
+  const [theme, setTheme] = useState<Theme>(initialTheme);
 
   useEffect(() => {
     const savedTheme = getSavedTheme(initialTheme);
