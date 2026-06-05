@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useState,
-} from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -17,42 +11,64 @@ interface ThemeContextType {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const useIsomorphicLayoutEffect =
-  typeof window === 'undefined' ? useEffect : useLayoutEffect;
+const THEME_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
-function applyTheme(theme: Theme) {
-  document.documentElement.classList.toggle('light', theme === 'light');
-  document.documentElement.classList.toggle('dark', theme === 'dark');
-}
-
-function getSavedTheme(): Theme {
+function getSavedTheme(fallbackTheme: Theme): Theme {
   if (typeof window === 'undefined') {
-    return 'dark';
+    return fallbackTheme;
   }
 
-  const savedTheme = localStorage.getItem('theme');
-  return savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark';
+  try {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme === 'light' || savedTheme === 'dark'
+      ? savedTheme
+      : fallbackTheme;
+  } catch {
+    return fallbackTheme;
+  }
 }
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('dark');
+function persistTheme(theme: Theme) {
+  try {
+    localStorage.setItem('theme', theme);
+  } catch {
+    // Keep the in-memory theme change even if storage is unavailable.
+  }
 
-  useIsomorphicLayoutEffect(() => {
-    const savedTheme = getSavedTheme();
+  document.cookie = [
+    `theme=${theme}`,
+    'path=/',
+    `max-age=${THEME_COOKIE_MAX_AGE}`,
+    'samesite=lax',
+  ].join('; ');
+}
+
+export function ThemeProvider({
+  children,
+  initialTheme = 'dark',
+}: {
+  children: React.ReactNode;
+  initialTheme?: Theme;
+}) {
+  const [theme, setTheme] = useState<Theme>(() => getSavedTheme(initialTheme));
+
+  useEffect(() => {
+    const savedTheme = getSavedTheme(initialTheme);
     setTheme(savedTheme);
-    applyTheme(savedTheme);
-  }, []);
+    persistTheme(savedTheme);
+  }, [initialTheme]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    applyTheme(newTheme);
+    persistTheme(newTheme);
   };
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
-      {children}
+      <div className={`min-h-screen ${theme}`} suppressHydrationWarning>
+        {children}
+      </div>
     </ThemeContext.Provider>
   );
 }

@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import './globals.css';
 import { ThemeProvider } from '@/contexts/ThemeContext';
+
+type Theme = 'light' | 'dark';
 
 export const metadata: Metadata = {
   title: 'Andrew Ho',
@@ -16,10 +19,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const savedTheme = cookies().get('theme')?.value;
+  const initialTheme: Theme = savedTheme === 'light' ? 'light' : 'dark';
+
   return (
     <html lang="en">
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider initialTheme={initialTheme}>{children}</ThemeProvider>
       </body>
     </html>
   );
