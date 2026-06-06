@@ -30,10 +30,34 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Build
 
 ```bash
+npm run validate:content-search
 npm run lint
 npm run typecheck
 npm run build
 npm start
+```
+
+## CI Validation
+
+Pull requests run the `Validate` workflow in GitHub Actions. It installs with
+`npm ci`, runs `npm run validate:content-search`, then runs the existing
+`npm run validate` sequence.
+
+`npm run validate:content-search` compiles the TypeScript validator source at
+`scripts/validate-content-search.ts` to `.tmp/scripts/` and runs the compiled
+output. The check verifies the static JSON used by the site search, catches
+malformed article/note/bookmark/learning metadata, and confirms generated search
+entries have titles, paths, and searchable text.
+Page generation and markdown rendering are still covered by `npm run build`;
+the health check does not require every legacy content metadata entry to have a
+markdown body because the current article and note routes handle missing body
+content at render time.
+
+If CI fails locally, run:
+
+```bash
+npm run validate:content-search
+npm run validate
 ```
 
 ## Spotify Now Playing

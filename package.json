@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "validate:content-search": "tsc -p tsconfig.scripts.json && mkdir -p .tmp/src/assets/static/json && cp src/assets/static/json/*.json .tmp/src/assets/static/json/ && node .tmp/scripts/validate-content-search.js",
     "validate": "npm run lint && npm run typecheck && npm run build",
     "deploy": "sh -c 'mkdir -p .logs && vercel --prod 2>&1 | tee .logs/deploy.log'",
     "deploy:last": "cat .logs/deploy.log",
