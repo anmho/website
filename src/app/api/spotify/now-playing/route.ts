@@ -3,7 +3,7 @@ import { EMPTY_SPOTIFY_NOW_PLAYING } from '@/lib/spotify-types';
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = SPOTIFY_NOW_PLAYING_CACHE_SECONDS;
+export const revalidate = 10;
 export const runtime = 'nodejs';
 
 export async function GET() {
