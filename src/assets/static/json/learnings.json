@@ -1,5 +1,21 @@
 [
   {
+    "id": "2026-06-26-python-micro-optimizations-ai-infrastructure",
+    "question": "What is the bigger lesson behind Python micro-optimizations, PyTorch vs LibTorch, and faster inference engines?",
+    "answer": "Performance work depends on the layer. In Python, caching repeated indexing and avoiding redundant comparisons can reduce interpreter work in hot loops. In optimized C++, compilers often remove those source-level differences. For AI systems, the bigger wins usually come from batching, KV cache management, CUDA kernels, schedulers, quotas, storage, and cluster resource management rather than simply switching languages.",
+    "codeSnippet": "Python hot loop -> reduce interpreter work\nC++ hot path -> focus on memory, algorithms, vectorization\nLLM inference -> optimize batching, KV cache, kernels, scheduling\nAI platform -> coordinate admission, quota, pods, GPUs, CUDA, engine, model\n\nArticle: /articles/python-micro-optimizations-to-ai-infrastructure",
+    "codeLanguage": "text",
+    "tags": [
+      "python",
+      "performance",
+      "ai-infrastructure",
+      "kubernetes",
+      "inference",
+      "lang:text"
+    ],
+    "date": "2026-06-26"
+  },
+  {
     "id": "2026-02-20-kill-process-on-port-simple",
     "question": "What is the simplest way to kill a process on a port (macOS/Linux)?",
     "answer": "Use `lsof` to find the PID on that port, then kill it in one command.",

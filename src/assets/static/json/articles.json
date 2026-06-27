@@ -1,5 +1,12 @@
 [
   {
+    "slug": "python-micro-optimizations-to-ai-infrastructure",
+    "title": "Python Micro-Optimizations and the AI Infrastructure Stack",
+    "date": "2026-06-26",
+    "excerpt": "A practical walk from Python hot-loop cleanup to C++ compiler behavior, PyTorch and LibTorch boundaries, inference engines, and the systems stack behind AI infrastructure.",
+    "readTime": "8 min read"
+  },
+  {
     "slug": "admission-control-deep-dive",
     "title": "Admission Control: Client, Service, and Proxy Layers",
     "date": "2026-04-13",
