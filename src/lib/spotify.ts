@@ -244,6 +244,20 @@ function getExpiresAt(expiresInSeconds: number) {
   return new Date(Date.now() + expiresInSeconds * 1000).toISOString();
 }
 
+function getTokenTtlMs(expiresAt: string | null) {
+  return expiresAt ? Date.parse(expiresAt) - Date.now() : null;
+}
+
+function logSpotifyTokenEvent(
+  event: string,
+  metadata: Record<string, string | number | boolean | null | undefined> = {}
+) {
+  console.info('[spotify-token]', {
+    event,
+    ...metadata,
+  });
+}
+
 function isTokenFresh(bundle: SpotifyTokenBundle) {
   if (!bundle.accessToken || !bundle.expiresAt) {
     return false;
@@ -271,6 +285,7 @@ export async function storeSpotifyTokensFromCode(code: string, requestUrl: strin
 
 export async function refreshSpotifyAccessToken(refreshToken: string) {
   const { clientId, clientSecret } = await getSpotifyOAuthConfig();
+  const startedAt = Date.now();
 
   const response = await fetch(SPOTIFY_TOKEN_ENDPOINT, {
     method: 'POST',
@@ -287,10 +302,20 @@ export async function refreshSpotifyAccessToken(refreshToken: string) {
 
   if (!response.ok) {
     const message = await parseSpotifyError(response);
+    logSpotifyTokenEvent('refresh_failed', {
+      status: response.status,
+      durationMs: Date.now() - startedAt,
+      message,
+    });
     throw new Error(`Failed to refresh Spotify token: ${message}`);
   }
 
   const payload = (await response.json()) as SpotifyAccessTokenResponse;
+  logSpotifyTokenEvent('refresh_succeeded', {
+    durationMs: Date.now() - startedAt,
+    expiresIn: payload.expires_in,
+    receivedRefreshToken: Boolean(payload.refresh_token),
+  });
 
   return {
     accessToken: payload.access_token,
@@ -305,8 +330,17 @@ export async function refreshStoredSpotifyAccessToken() {
   const current = await readSpotifyTokenBundle();
 
   if (!current) {
+    logSpotifyTokenEvent('stored_bundle_missing');
     throw new Error('Spotify token bundle is not configured in Vault.');
   }
+
+  logSpotifyTokenEvent('refreshing_stored_bundle', {
+    hasAccessToken: Boolean(current.accessToken),
+    hasRefreshToken: Boolean(current.refreshToken),
+    expiresAt: current.expiresAt,
+    ttlMs: getTokenTtlMs(current.expiresAt),
+    updatedAt: current.updatedAt,
+  });
 
   const refreshed = await refreshSpotifyAccessToken(current.refreshToken);
 
@@ -360,21 +394,40 @@ async function readOrRefreshStoredSpotifyAccessToken(): Promise<CachedSpotifyAcc
   }
 
   if (!current) {
+    logSpotifyTokenEvent('stored_bundle_missing');
     return null;
   }
 
   if (isTokenFresh(current) && current.accessToken && current.expiresAt) {
+    logSpotifyTokenEvent('stored_access_token_fresh', {
+      expiresAt: current.expiresAt,
+      ttlMs: getTokenTtlMs(current.expiresAt),
+      updatedAt: current.updatedAt,
+    });
+
     return {
       accessToken: current.accessToken,
       expiresAt: current.expiresAt,
     };
   }
 
+  logSpotifyTokenEvent('stored_access_token_stale', {
+    hasAccessToken: Boolean(current.accessToken),
+    hasRefreshToken: Boolean(current.refreshToken),
+    expiresAt: current.expiresAt,
+    ttlMs: getTokenTtlMs(current.expiresAt),
+    updatedAt: current.updatedAt,
+  });
+
   const refreshed = await refreshStoredSpotifyAccessToken();
   const refreshedAccessToken = refreshed.accessToken;
   const refreshedExpiresAt = refreshed.expiresAt;
 
   if (!refreshedAccessToken || !refreshedExpiresAt) {
+    logSpotifyTokenEvent('refreshed_bundle_incomplete', {
+      hasAccessToken: Boolean(refreshedAccessToken),
+      expiresAt: refreshedExpiresAt,
+    });
     return null;
   }
 

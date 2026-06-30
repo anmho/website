@@ -28,6 +28,7 @@ const DEFAULT_STATE: SpotifyNowPlaying = {
 const MIN_INITIAL_LOADING_MS = 1200;
 const NORMAL_REFRESH_INTERVAL_MS = 10000;
 const DEFAULT_RATE_LIMIT_RETRY_AFTER_SECONDS = 60;
+const NOW_PLAYING_FETCH_TIMEOUT_MS = 8000;
 
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -235,8 +236,15 @@ export default function NowPlayingCard({ className }: { className?: string }) {
     };
 
     const fetchNowPlaying = async () => {
+      const controller = new AbortController();
+      const timeoutHandle = window.setTimeout(() => {
+        controller.abort();
+      }, NOW_PLAYING_FETCH_TIMEOUT_MS);
+
       try {
-        const response = await fetch('/api/spotify/now-playing');
+        const response = await fetch('/api/spotify/now-playing', {
+          signal: controller.signal,
+        });
 
         if (!response.ok) {
           await setResolvedNowPlaying({ ...DEFAULT_STATE, state: 'error' });
@@ -267,6 +275,8 @@ export default function NowPlayingCard({ className }: { className?: string }) {
       } catch (error) {
         console.error('[hero-spotify]', error);
         await setResolvedNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+      } finally {
+        window.clearTimeout(timeoutHandle);
       }
     };
 

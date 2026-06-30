@@ -7,8 +7,17 @@ export const revalidate = SPOTIFY_NOW_PLAYING_CACHE_SECONDS;
 export const runtime = 'nodejs';
 
 export async function GET() {
+  const startedAt = Date.now();
+
   try {
     const nowPlaying = await getCachedNowPlaying();
+    console.info('[spotify-now-playing]', {
+      event: 'request_succeeded',
+      durationMs: Date.now() - startedAt,
+      state: nowPlaying.state,
+      hasTitle: Boolean(nowPlaying.title),
+      isPlaying: nowPlaying.isPlaying,
+    });
 
     return NextResponse.json(nowPlaying, {
       status: 200,
@@ -17,7 +26,11 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error('[spotify-now-playing]', error);
+    console.error('[spotify-now-playing]', {
+      event: 'request_failed',
+      durationMs: Date.now() - startedAt,
+      error,
+    });
 
     return NextResponse.json(
       {
