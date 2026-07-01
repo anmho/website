@@ -6,6 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -136,7 +137,7 @@ function MarqueeLine({
     setOverflowPx(nextOverflowPx > 1 ? nextOverflowPx : 0);
   }, [text]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     measureOverflow();
 
     const container = containerRef.current;
@@ -221,6 +222,7 @@ function NowPlayingSkeleton() {
 export default function NowPlayingCard({ className }: { className?: string }) {
   const [nowPlaying, setNowPlaying] = useState<SpotifyNowPlaying | null>(null);
   const nowPlayingRef = useRef<SpotifyNowPlaying | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     let isMounted = true;
@@ -346,9 +348,27 @@ export default function NowPlayingCard({ className }: { className?: string }) {
       )}
     >
       {isPlaying ? (
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(34,197,94,0.14),transparent_34%)]"
+        <motion.div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(34,197,94,0.14),transparent_35%)]"
           aria-hidden="true"
+          animate={
+            prefersReducedMotion
+              ? { opacity: 0.75 }
+              : {
+                  opacity: [0.64, 0.82, 0.68],
+                  scale: [1, 1.012, 1],
+                  x: [0, 2, -1, 0],
+                }
+          }
+          transition={
+            prefersReducedMotion
+              ? undefined
+              : {
+                  duration: 9,
+                  ease: 'easeInOut',
+                  repeat: Infinity,
+                }
+          }
         />
       ) : null}
 
@@ -412,12 +432,6 @@ export default function NowPlayingCard({ className }: { className?: string }) {
           >
             {nowPlaying.albumArtUrl ? (
               <span className="relative flex h-14 w-14 shrink-0 items-center justify-center">
-                {isPlaying ? (
-                  <span
-                    className="spotify-album-pulse absolute inset-0 rounded-xl border border-green-400/50"
-                    aria-hidden="true"
-                  />
-                ) : null}
                 <img
                   src={nowPlaying.albumArtUrl}
                   alt={`${nowPlaying.title} album art`}
