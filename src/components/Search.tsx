@@ -6,42 +6,8 @@ import { Command } from 'cmdk';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiSearch } from 'react-icons/fi';
 import { cn } from '@/lib/utils';
-import articlesData from '@/assets/static/json/articles.json';
-import notesData from '@/assets/static/json/notes.json';
-import resourcesData from '@/assets/static/json/resources.json';
-import learningsData from '@/assets/static/json/learnings.json';
+import { buildSearchItems, type SearchItem } from '@/lib/searchData';
 import { createPortal } from 'react-dom';
-
-interface SearchItem {
-  slug: string;
-  title: string;
-  excerpt?: string;
-  type: 'article' | 'note' | 'page' | 'bookmark' | 'learning';
-  date?: string;
-  path: string;
-  external?: boolean;
-  searchText: string;
-}
-
-interface Bookmark {
-  title: string;
-  description: string;
-  category: string;
-  format: string;
-  url: string;
-  author: string;
-  tags: string[];
-}
-
-interface Learning {
-  id: string;
-  question: string;
-  answer: string;
-  codeSnippet?: string;
-  codeLanguage?: string;
-  tags?: string[];
-  date: string;
-}
 
 interface SearchProps {
   className?: string;
@@ -55,14 +21,6 @@ let portalInstanceId = 0;
 let primaryInstanceId: number | null = null;
 let sharedOpen = false;
 const openListeners = new Set<(open: boolean) => void>();
-
-function buildSearchParam(value: string) {
-  return encodeURIComponent(value);
-}
-
-function normalizeSearchText(...values: Array<string | undefined>) {
-  return values.filter(Boolean).join(' ').toLowerCase();
-}
 
 export default function Search({
   className,
@@ -108,142 +66,7 @@ export default function Search({
     openListeners.forEach((l) => l(newOpen));
   }, []);
 
-  // Combine articles, notes, and pages into searchable items
-  const allItems: SearchItem[] = useMemo(
-    () => [
-      // Pages
-      {
-        slug: 'articles',
-        title: 'Articles',
-        excerpt: 'In-depth articles on building scalable systems',
-        type: 'page' as const,
-        path: '/articles',
-        searchText: normalizeSearchText(
-          'Articles',
-          'In-depth articles on building scalable systems'
-        ),
-      },
-      {
-        slug: 'notes',
-        title: 'Notes',
-        excerpt: 'Quick thoughts, learnings, and observations',
-        type: 'page' as const,
-        path: '/notes',
-        searchText: normalizeSearchText(
-          'Notes',
-          'Quick thoughts, learnings, and observations'
-        ),
-      },
-      {
-        slug: 'resources',
-        title: 'Bookmarks',
-        excerpt: 'Saved articles, guides, talks, and references',
-        type: 'page' as const,
-        path: '/resources',
-        searchText: normalizeSearchText(
-          'Bookmarks',
-          'Saved articles, guides, talks, and references',
-          'resources'
-        ),
-      },
-      {
-        slug: 'learnings',
-        title: 'Learnings',
-        excerpt: 'Daily tidbits and small discoveries',
-        type: 'page' as const,
-        path: '/learnings',
-        searchText: normalizeSearchText(
-          'Learnings',
-          'Daily tidbits and small discoveries'
-        ),
-      },
-      {
-        slug: 'projects',
-        title: 'Projects',
-        excerpt: 'A collection of projects showcasing my work',
-        type: 'page' as const,
-        path: '/projects',
-        searchText: normalizeSearchText(
-          'Projects',
-          'A collection of projects showcasing my work'
-        ),
-      },
-      {
-        slug: 'about',
-        title: 'About',
-        excerpt: 'Learn more about me and get in touch',
-        type: 'page' as const,
-        path: '/about',
-        searchText: normalizeSearchText(
-          'About',
-          'Learn more about me and get in touch'
-        ),
-      },
-      // Articles
-      ...articlesData.map((article) => ({
-        slug: article.slug,
-        title: article.title,
-        excerpt: article.excerpt,
-        type: 'article' as const,
-        date: article.date,
-        path: `/articles/${article.slug}`,
-        searchText: normalizeSearchText(article.title, article.excerpt),
-      })),
-      // Notes
-      ...notesData.map((note) => ({
-        slug: note.slug,
-        title: note.title,
-        excerpt: note.excerpt,
-        type: 'note' as const,
-        date: note.date,
-        path: `/notes/${note.slug}`,
-        searchText: normalizeSearchText(note.title, note.excerpt),
-      })),
-      // Bookmarks
-      ...(resourcesData as Bookmark[]).map((resource, index) => ({
-        slug: `${index}-${resource.url}`,
-        title: resource.title,
-        excerpt: [
-          resource.description,
-          resource.author,
-          resource.category,
-          resource.format,
-          ...resource.tags,
-        ].join(' '),
-        type: 'bookmark' as const,
-        path: resource.url,
-        external: true,
-        searchText: normalizeSearchText(
-          resource.title,
-          resource.description,
-          resource.author,
-          resource.category,
-          resource.format,
-          ...resource.tags
-        ),
-      })),
-      // Learnings
-      ...(learningsData as Learning[]).map((learning) => ({
-        slug: learning.id,
-        title: learning.question,
-        excerpt: [
-          learning.answer,
-          learning.codeSnippet ?? '',
-          ...(learning.tags ?? []),
-        ].join(' '),
-        type: 'learning' as const,
-        date: learning.date,
-        path: `/learnings?q=${buildSearchParam(learning.question)}#${learning.id}`,
-        searchText: normalizeSearchText(
-          learning.question,
-          learning.answer,
-          learning.codeSnippet,
-          ...(learning.tags ?? [])
-        ),
-      })),
-    ],
-    []
-  );
+  const allItems: SearchItem[] = useMemo(() => buildSearchItems(), []);
 
   // Handle blur effect delay
   useEffect(() => {
