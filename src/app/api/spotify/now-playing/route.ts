@@ -1,11 +1,31 @@
-import { getCachedNowPlaying, SPOTIFY_NOW_PLAYING_CACHE_SECONDS } from '@/lib/spotify';
-import { readLastNowPlaying } from '@/lib/spotify-playback-cache';
+import {
+  getCachedNowPlaying,
+  SPOTIFY_NOW_PLAYING_CACHE_SECONDS,
+  SPOTIFY_NOW_PLAYING_STALE_IF_ERROR_SECONDS,
+  SPOTIFY_NOW_PLAYING_STALE_SECONDS,
+} from '@/lib/spotify';
+import {
+  readLastNowPlaying,
+  SPOTIFY_NOW_PLAYING_CACHE_TAG,
+} from '@/lib/spotify-playback-cache';
 import { EMPTY_SPOTIFY_NOW_PLAYING } from '@/lib/spotify-types';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = SPOTIFY_NOW_PLAYING_CACHE_SECONDS;
 export const runtime = 'nodejs';
+
+const VERCEL_CDN_CACHE_CONTROL = [
+  `s-maxage=${SPOTIFY_NOW_PLAYING_CACHE_SECONDS}`,
+  `stale-while-revalidate=${SPOTIFY_NOW_PLAYING_STALE_SECONDS}`,
+  `stale-if-error=${SPOTIFY_NOW_PLAYING_STALE_IF_ERROR_SECONDS}`,
+].join(', ');
+
+const SPOTIFY_NOW_PLAYING_HEADERS = {
+  'Cache-Control': 'no-store',
+  'Vercel-CDN-Cache-Control': VERCEL_CDN_CACHE_CONTROL,
+  'Vercel-Cache-Tag': SPOTIFY_NOW_PLAYING_CACHE_TAG,
+};
 
 export async function GET(request: NextRequest) {
   const startedAt = Date.now();
@@ -39,9 +59,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(nowPlaying, {
       status: 200,
-      headers: {
-        'Cache-Control': `public, s-maxage=${SPOTIFY_NOW_PLAYING_CACHE_SECONDS}, stale-while-revalidate=${SPOTIFY_NOW_PLAYING_CACHE_SECONDS}`,
-      },
+      headers: SPOTIFY_NOW_PLAYING_HEADERS,
     });
   } catch (error) {
     console.error('[spotify-now-playing]', {
@@ -58,7 +76,9 @@ export async function GET(request: NextRequest) {
       {
         status: 500,
         headers: {
-          'Cache-Control': 'public, s-maxage=10, stale-while-revalidate=30',
+          'Cache-Control': 'no-store',
+          'Vercel-CDN-Cache-Control': `stale-if-error=${SPOTIFY_NOW_PLAYING_STALE_IF_ERROR_SECONDS}`,
+          'Vercel-Cache-Tag': SPOTIFY_NOW_PLAYING_CACHE_TAG,
         },
       }
     );

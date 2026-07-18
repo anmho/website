@@ -10,6 +10,7 @@ import {
 import {
   isCacheableNowPlaying,
   readLastNowPlaying,
+  SPOTIFY_NOW_PLAYING_CACHE_TAG,
   writeLastNowPlaying,
 } from '@/lib/spotify-playback-cache';
 import {
@@ -90,6 +91,8 @@ const SPOTIFY_RECENTLY_PLAYED_ENDPOINT =
   'https://api.spotify.com/v1/me/player/recently-played?limit=1';
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
 export const SPOTIFY_NOW_PLAYING_CACHE_SECONDS = 10;
+export const SPOTIFY_NOW_PLAYING_STALE_SECONDS = 50;
+export const SPOTIFY_NOW_PLAYING_STALE_IF_ERROR_SECONDS = 24 * 60 * 60;
 const LOCAL_SPOTIFY_HOST = 'localhost:3000';
 const PRODUCTION_SPOTIFY_HOSTS = new Set(['anmho.com', 'www.anmho.com']);
 
@@ -567,9 +570,9 @@ export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
 
 export const getCachedNowPlaying = unstable_cache(
   getNowPlaying,
-  ['spotify-now-playing'],
+  [SPOTIFY_NOW_PLAYING_CACHE_TAG],
   {
     revalidate: SPOTIFY_NOW_PLAYING_CACHE_SECONDS,
-    tags: ['spotify-now-playing'],
+    tags: [SPOTIFY_NOW_PLAYING_CACHE_TAG],
   }
 );
