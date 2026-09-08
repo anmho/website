@@ -54,5 +54,12 @@
     "date": "2026-09-07",
     "excerpt": "Independent trees averaged vs sequential trees correcting each other's mistakes.",
     "readTime": "5 min read"
+  },
+  {
+    "slug": "hybrid-fusion",
+    "title": "Hybrid Fusion (RRF)",
+    "date": "2026-09-07",
+    "excerpt": "Combining lexical and embedding candidate lists with reciprocal rank fusion.",
+    "readTime": "4 min read"
   }
 ]
