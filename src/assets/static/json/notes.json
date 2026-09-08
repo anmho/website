@@ -40,5 +40,12 @@
     "date": "2025-12-7",
     "excerpt": "How do nil channels behave?",
     "readTime": "6 min read"
+  },
+  {
+    "slug": "approximate-nearest-neighbor",
+    "title": "Approximate Nearest Neighbor (ANN)",
+    "date": "2026-09-07",
+    "excerpt": "HNSW, IVF, and LSH: how vector search trades recall for speed at scale.",
+    "readTime": "5 min read"
   }
 ]
