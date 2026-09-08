@@ -14,7 +14,7 @@ flowchart TD
     Q --> VEC[Embedding / ANN search]
     FTS --> |1k - 10k candidates| FUSE[Fusion: RRF across lists]
     VEC --> |1k - 10k candidates| FUSE
-    FUSE --> |top-k candidates| L1[L1 reranker: LightGBM / XGBoost]
+    FUSE --> |~1000 candidates| L1[L1 reranker: LightGBM / XGBoost]
     L1 --> |1000 to 100| L2[L2 reranker: cross-encoder]
     L2 --> |100 to 20| OUT[Final ranked list]
 ```
