@@ -32,14 +32,14 @@ The leaf contains a prediction.
 For **classification**, a tree might output a class or class probability:
 
 ```text
-Tree 1 → relevant
-Tree 2 → relevant
-Tree 3 → irrelevant
-Tree 4 → relevant
-Tree 5 → irrelevant
+Tree 1 → P(relevant) = 0.9
+Tree 2 → P(relevant) = 0.8
+Tree 3 → P(relevant) = 0.3
+Tree 4 → P(relevant) = 0.7
+Tree 5 → P(relevant) = 0.4
 ```
 
-The forest combines them, typically by majority vote or averaging probabilities:
+The forest averages the probabilities (or majority-votes the hard labels):
 
 $$
 P(\text{relevant}) = \frac{0.9+0.8+0.3+0.7+0.4}{5} = 0.62
@@ -53,9 +53,9 @@ $$
 \hat y = \frac{4.2+5.1+3.9+4.7}{4}
 $$
 
-### Why have many trees?
+### Why many trees
 
-If you trained 500 identical trees on the exact same data, they'd be largely redundant. Random forests deliberately make each tree somewhat different in two ways.
+500 identical trees on identical data would be redundant. Random forests make each tree different in two ways.
 
 First, each tree gets a **bootstrap sample** of the training data — randomly sampled rows with replacement:
 
@@ -105,6 +105,4 @@ $$
 \text{tabular features} \rightarrow \text{prediction}
 $$
 
-### Where it shows up
-
-Both are workhorses for **L1 reranking** in [a candidate retrieval system](/articles/designing-a-job-candidate-retrieval-system): cheap, fast, tree-based models that take a handful of features (BM25 score, embedding similarity, recency, popularity) and cut a candidate list from ~1000 down to ~100 before an expensive cross-encoder takes over.
+Both are workhorses for L1 reranking in a [candidate retrieval system](/articles/designing-a-job-candidate-retrieval-system): cheap tree models over a handful of features (BM25 score, embedding similarity, recency) cutting ~1000 candidates to ~100 before the expensive cross-encoder.
