@@ -132,7 +132,7 @@ flowchart LR
     SORT --> OUT["~100 candidates → L2 cross-encoder"]
 ```
 
-**Feature fetch.** For every `(query, candidate)` pair, pull a fixed feature vector — this is the step that makes L1 "cheap" relative to a cross-encoder, since it's mostly lookups and arithmetic, not a fresh model forward pass:
+**Feature fetch.** For every `(query, candidate)` pair, pull a fixed feature vector — this is the step that makes L1 "cheap" relative to a cross-encoder, since it's mostly lookups and arithmetic, not a fresh model forward pass. See [Bi-Encoder vs Cross-Encoder](/notes/bi-encoder-vs-cross-encoder) for why that L2 forward pass is expensive in the first place — it can't reuse work across candidates the way the bi-encoder similarity feature below already could:
 
 ```text
 - BM25 / full-text score            (from stage 1 retrieval)
