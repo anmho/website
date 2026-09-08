@@ -1,8 +1,6 @@
 # Approximate Nearest Neighbor (ANN)
 
-### The problem
-
-Given a query vector, find the vectors in a large collection that are closest to it (by cosine similarity, dot product, or L2 distance).
+Given a query vector, find the vectors in a large collection that are closest to it (cosine similarity, dot product, or L2 distance).
 
 Exact nearest neighbor search is a brute-force scan:
 
@@ -13,17 +11,15 @@ sort by distance
 return top k
 ```
 
-This is $O(n \cdot d)$ per query, where $n$ is the number of vectors and $d$ is the dimensionality. Fine for thousands of vectors, too slow for millions or billions.
+This is $O(n \cdot d)$ per query — fine for thousands of vectors, too slow for millions or billions.
 
-### The idea
-
-**Approximate** nearest neighbor search trades a small amount of recall for a large amount of speed. Instead of comparing the query against every vector, you build an index structure that prunes most of the search space up front.
+**Approximate** nearest neighbor search trades a small amount of recall for a large amount of speed by building an index that prunes most of the search space up front:
 
 $$
 \boxed{\text{exact, slow}} \rightarrow \boxed{\text{approximate, fast, "good enough" recall}}
 $$
 
-### Common index strategies
+### Index strategies
 
 **HNSW (Hierarchical Navigable Small World)**
 
@@ -66,6 +62,4 @@ Every ANN index exposes knobs that trade recall for speed:
 | HNSW | `M` | more graph connections per node = better recall, more memory |
 | IVF | `nprobe` | more buckets searched = better recall, slower |
 
-### Where it shows up
-
-ANN is the backbone of embedding search in RAG pipelines, semantic search, and — relevantly — [a candidate retrieval system](/articles/designing-a-job-candidate-retrieval-system), where a query embedding is matched against thousands to millions of candidate embeddings before any reranking happens.
+Backbone of embedding search in RAG pipelines, semantic search, and [candidate retrieval systems](/articles/designing-a-job-candidate-retrieval-system) — matching a query embedding against millions of candidate embeddings before any reranking happens.
