@@ -31,6 +31,7 @@
     "cmdk": "^1.1.1",
     "drizzle-orm": "^0.44.7",
     "framer-motion": "^8.0.2",
+    "mermaid": "^11.17.2",
     "next": "^14.0.0",
     "postgres": "^3.4.7",
     "posthog-js": "^1.289.0",
