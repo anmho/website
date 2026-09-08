@@ -25,7 +25,7 @@ Concrete models: `all-MiniLM-L6-v2`, `all-mpnet-base-v2` (Sentence Transformers)
 JD + CANDIDATE → Transformer (together) → relevance score
 ```
 
-Both texts go through self-attention *together*, so `"must have C++"` on the job side can directly affect how `"6 years C++"` on the candidate side gets represented, mid-computation. That's the "cross."
+Both texts go through self-attention *together*, so `"must have C++"` on the job side can directly affect how `"6 years C++"` on the candidate side gets represented, mid-computation.
 
 ```text
 ("need Kafka infrastructure engineer", "built Kafka infrastructure at Snap")
