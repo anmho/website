@@ -11,6 +11,7 @@ import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
+import Mermaid from '@/components/Mermaid';
 import {
   isValidElement,
   type HTMLAttributes,
@@ -292,6 +293,9 @@ function createArticleMarkdownComponents(
     const block = extractCodeBlockFromPre(children);
     if (!block) {
       return null;
+    }
+    if (block.className?.includes('language-mermaid')) {
+      return <Mermaid chart={block.code} />;
     }
     return <CopyCodeBlock code={block.code} className={block.className} />;
   },
