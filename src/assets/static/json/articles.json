@@ -1,5 +1,12 @@
 [
   {
+    "slug": "designing-a-job-candidate-retrieval-system",
+    "title": "Designing a Job Candidate Retrieval System",
+    "date": "2026-09-07",
+    "excerpt": "A working design for a candidate retrieval funnel: hard filters, ANN search, RRF fusion, and a two-stage LightGBM/cross-encoder rerank \u2014 iterated in the open.",
+    "readTime": "9 min read"
+  },
+  {
     "slug": "python-micro-optimizations-to-ai-infrastructure",
     "title": "Python Micro-Optimizations and the AI Infrastructure Stack",
     "date": "2026-06-26",
