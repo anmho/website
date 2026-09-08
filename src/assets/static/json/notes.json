@@ -61,5 +61,12 @@
     "date": "2026-09-07",
     "excerpt": "Combining lexical and embedding candidate lists with reciprocal rank fusion.",
     "readTime": "4 min read"
+  },
+  {
+    "slug": "bi-encoder-vs-cross-encoder",
+    "title": "Bi-Encoder vs Cross-Encoder",
+    "date": "2026-09-08",
+    "excerpt": "Why cross-encoders score better but can't be cached, and where each fits in a retrieval funnel.",
+    "readTime": "6 min read"
   }
 ]
