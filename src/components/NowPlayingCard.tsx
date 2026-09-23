@@ -26,13 +26,8 @@ const DEFAULT_STATE: SpotifyNowPlaying = {
   state: 'idle',
 };
 
-const MIN_INITIAL_LOADING_MS = 1200;
 const NORMAL_REFRESH_INTERVAL_MS = 10000;
 const DEFAULT_RATE_LIMIT_RETRY_AFTER_SECONDS = 60;
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function getPlaybackLabel(nowPlaying: SpotifyNowPlaying | null) {
   switch (nowPlaying?.state) {
@@ -226,23 +221,10 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
   useEffect(() => {
     let isMounted = true;
-    let initialLoadComplete = false;
-    const initialLoadStartedAt = Date.now();
+    let liveRequestSucceeded = false;
+    let cachedPlaybackApplied = false;
     let intervalMs = NORMAL_REFRESH_INTERVAL_MS;
     let intervalHandle: ReturnType<typeof setInterval> | null = null;
-
-    const finishInitialLoading = async () => {
-      if (initialLoadComplete) return;
-
-      const elapsedMs = Date.now() - initialLoadStartedAt;
-      const remainingMs = MIN_INITIAL_LOADING_MS - elapsedMs;
-
-      if (remainingMs > 0) {
-        await sleep(remainingMs);
-      }
-
-      initialLoadComplete = true;
-    };
 
     const applyNowPlaying = (nextState: SpotifyNowPlaying) => {
       if (!isMounted || hasSameRenderedPlayback(nowPlayingRef.current, nextState)) {
@@ -251,11 +233,6 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
       nowPlayingRef.current = nextState;
       setNowPlaying(nextState);
-    };
-
-    const setResolvedNowPlaying = async (nextState: SpotifyNowPlaying) => {
-      await finishInitialLoading();
-      applyNowPlaying(nextState);
     };
 
     const fetchCachedNowPlaying = async () => {
@@ -270,8 +247,8 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
         const payload = (await response.json()) as SpotifyNowPlaying;
 
-        if (payload.title) {
-          initialLoadComplete = true;
+        if (payload.title && !liveRequestSucceeded) {
+          cachedPlaybackApplied = true;
           applyNowPlaying(payload);
         }
       } catch (error) {
@@ -284,7 +261,9 @@ export default function NowPlayingCard({ className }: { className?: string }) {
         const response = await fetch('/api/spotify/now-playing');
 
         if (!response.ok) {
-          await setResolvedNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+          if (!cachedPlaybackApplied) {
+            applyNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+          }
           return;
         }
 
@@ -292,7 +271,8 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
         if (!isMounted) return;
 
-        await setResolvedNowPlaying(payload);
+        liveRequestSucceeded = true;
+        applyNowPlaying(payload);
 
         const nextIntervalMs =
           payload.state === 'rate_limited'
@@ -311,11 +291,14 @@ export default function NowPlayingCard({ className }: { className?: string }) {
         }
       } catch (error) {
         console.error('[hero-spotify]', error);
-        await setResolvedNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+        if (!cachedPlaybackApplied) {
+          applyNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+        }
       }
     };
 
-    void fetchCachedNowPlaying().finally(fetchNowPlaying);
+    void fetchCachedNowPlaying();
+    void fetchNowPlaying();
     intervalHandle = setInterval(fetchNowPlaying, intervalMs);
 
     return () => {
