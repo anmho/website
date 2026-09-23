@@ -1,24 +1,54 @@
-# Defining a deadlock
+# Race conditions
 
-### A deadlock can happen if the four following conditions apply. These are known as the Coffman Conditions:
+A race condition happens when concurrent code accesses shared state and at least one access is a write. The result depends on the order in which the operations happen.
 
-- Mutual Exclusion: A concurrent process holds exclusive rights to a resource at any one time.
-- Hold and Wait: A process or thread must be simultaneously waiting for a resource while holding access to a resource.
-- No Preemption: A resource held by a process/thread can only be released by that process/thread
-- Circular Wait: Suppose we have Process A and Process B. A must be waiting for B to release a resource, while B is simultaneously waiting for A to release its resource.
+### Lost updates
 
-### Creating a deadlock
-
-Fastest way to deadlock on purpose:
+`count++` is a read, an increment, and a write. Two goroutines can both read the same value before either writes it back:
 
 ```go
-package main
-import "sync"
+var count int
+var wg sync.WaitGroup
 
-func main() {
-    var mu sync.Mutex
+wg.Add(2)
+go func() {
+    defer wg.Done()
+    count++
+}()
+go func() {
+    defer wg.Done()
+    count++
+}()
 
-    mu.Lock()
-    mu.Lock()
-}
+wg.Wait()
+// count is not guaranteed to be 2
 ```
+
+The race detector can find this class of bug:
+
+```sh
+go test -race ./...
+```
+
+### Synchronize shared state
+
+Use a mutex when an operation needs to protect a larger critical section:
+
+```go
+var mu sync.Mutex
+var count int
+
+mu.Lock()
+count++
+mu.Unlock()
+```
+
+For a single counter, an atomic operation is a smaller alternative:
+
+```go
+var count atomic.Int64
+
+count.Add(1)
+```
+
+The [Go memory model](https://go.dev/ref/mem) defines which reads are guaranteed to observe writes. The practical rule is simple: every shared write needs an intentional synchronization strategy, or the program has a data race.
