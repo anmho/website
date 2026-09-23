@@ -1,5 +1,12 @@
 [
   {
+    "slug": "bagging-boosting-xgboost-for-l1-ranking",
+    "title": "From Decision Trees to XGBoost, and Why It's the L1 Ranker",
+    "date": "2026-09-07",
+    "excerpt": "The full lineage from a single decision tree through bagging/Random Forest and boosting/XGBoost, then why boosted trees fit the L1 reranking stage of a candidate retrieval system.",
+    "readTime": "11 min read"
+  },
+  {
     "slug": "designing-a-job-candidate-retrieval-system",
     "title": "Designing a Job Candidate Retrieval System",
     "date": "2026-09-07",
