@@ -42,9 +42,7 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json(cachedNowPlaying ?? EMPTY_SPOTIFY_NOW_PLAYING, {
         status: 200,
-        headers: {
-          'Cache-Control': 'no-store',
-        },
+        headers: SPOTIFY_NOW_PLAYING_HEADERS,
       });
     }
 
