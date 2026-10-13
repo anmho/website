@@ -18,7 +18,8 @@ const readMarkdown = async (relativePath) => {
   }
 };
 const sql = postgres(connectionString, { max: 1 });
-let count = 0;
+let reconciledContentCount = 0;
+let reconciledBookmarkCount = 0;
 try {
   for (const migrationFile of ['0001_content_posts.sql', '0002_bookmarks.sql']) {
     const migration = await fs.readFile(`db/migrations/${migrationFile}`, 'utf8');
@@ -41,9 +42,32 @@ try {
       await sql`
         insert into content_posts (id, content_type, slug, title, excerpt, body, date, read_time, tags, metadata)
         values (${type + ':' + slug}, ${type}, ${slug}, ${getTitle(item)}, ${excerpt}, ${body}, ${getDate(item)}, ${getReadTime(item)}, ${getTags(item)}, ${JSON.stringify(getMetadata(item))}::jsonb)
-        on conflict (content_type, slug) do nothing
+        on conflict (content_type, slug) do update set
+          title = case
+            when nullif(content_posts.title, '') is null then excluded.title
+            else content_posts.title
+          end,
+          excerpt = case
+            when nullif(content_posts.excerpt, '') is null then excluded.excerpt
+            else content_posts.excerpt
+          end,
+          body = case
+            when nullif(content_posts.body, '') is null then excluded.body
+            else content_posts.body
+          end,
+          read_time = coalesce(content_posts.read_time, excluded.read_time),
+          tags = case
+            when coalesce(cardinality(content_posts.tags), 0) = 0 then excluded.tags
+            else content_posts.tags
+          end,
+          metadata = case
+            when content_posts.metadata = '{}'::jsonb then excluded.metadata
+            else content_posts.metadata
+          end,
+          updated_at = now()
+        returning content_type, slug
       `;
-      count += 1;
+      reconciledContentCount += 1;
     }
   };
 
@@ -96,10 +120,12 @@ try {
       values (${bookmark.url}, ${bookmark.title}, ${bookmark.description}, ${bookmark.category}, ${bookmark.format}, ${bookmark.author}, ${bookmark.tags || []})
       on conflict (url) do nothing
     `;
-    count += 1;
+    reconciledBookmarkCount += 1;
   }
 
-  console.log(`seeded ${count} legacy database records (existing records were left unchanged)`);
+  console.log(
+    `reconciled ${reconciledContentCount} content records and ${reconciledBookmarkCount} bookmarks (non-empty content was preserved)`
+  );
 } finally {
   await sql.end();
 }

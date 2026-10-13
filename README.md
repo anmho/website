@@ -148,11 +148,20 @@ DATABASE_URL=postgres://...
 DATABASE_URL_UNPOOLED=postgres://... # optional, preferred for migrations
 ```
 
-Initialize the table and import the existing checked-in content once:
+Initialize the table and reconcile the checked-in content:
 
 ```bash
 npm run db:migrate
 npm run db:seed:content
+```
+
+The seed command is safe to rerun after a partial migration or when new
+checked-in content is added. It inserts missing records and fills only empty
+legacy fields, preserving non-empty content created in the editor. The explicit
+backfill alias is also available:
+
+```bash
+npm run db:backfill:content
 ```
 
 Production builds require `DATABASE_URL` so Next.js can pre-render the current
