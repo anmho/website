@@ -13,8 +13,11 @@ const NAV_LINKS = [
   { href: '/articles', label: 'Articles' },
   { href: '/notes', label: 'Notes' },
   { href: '/learnings', label: 'Learnings' },
+  { href: '/lessons', label: 'Lessons' },
+  { href: '/readings', label: 'Readings' },
   { href: '/about', label: 'About' },
   { href: '/resources', label: 'Bookmarks' },
+  { href: '/editor', label: 'Editor' },
 ];
 
 const NAV_LINKS_MOBILE = [
@@ -22,8 +25,11 @@ const NAV_LINKS_MOBILE = [
   { href: '/articles', label: 'Articles' },
   { href: '/notes', label: 'Notes' },
   { href: '/learnings', label: 'Learnings' },
+  { href: '/lessons', label: 'Lessons' },
+  { href: '/readings', label: 'Readings' },
   { href: '/about', label: 'About' },
   { href: '/resources', label: 'Bookmarks' },
+  { href: '/editor', label: 'Editor' },
 ];
 
 function Navbar() {

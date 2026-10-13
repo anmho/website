@@ -116,6 +116,24 @@ Expected stable states are `playing`, `paused`, `idle`, `unauthorized`,
 
 Use `npm run validate` for the full local validation sequence before opening a PR.
 
+## Private Editor
+
+`/editor` is guarded by GitHub OAuth. The editor and every `/api/admin/*` write
+route require a signed server session created after GitHub returns the
+allowlisted account. Configure the GitHub OAuth app callback as
+`/api/auth/github/callback` and set:
+
+```bash
+GITHUB_OAUTH_CLIENT_ID=your-github-oauth-client-id
+GITHUB_OAUTH_CLIENT_SECRET=your-github-oauth-client-secret
+ADMIN_GITHUB_LOGIN=your-github-login
+ADMIN_AUTH_SECRET=long-random-session-signing-secret
+```
+
+`ADMIN_GITHUB_ID` may be used instead of `ADMIN_GITHUB_LOGIN` when pinning the
+account by numeric GitHub user ID. The editor no longer accepts a browser-held
+API key; public content routes remain public while publishing stays owner-only.
+
 ## CLI
 
 Current status:
