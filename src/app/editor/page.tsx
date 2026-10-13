@@ -23,8 +23,9 @@ type EditorPageProps = {
   };
 };
 
-export default function EditorPage({ searchParams }: EditorPageProps) {
-  const session = getAdminSession(cookies().get(ADMIN_SESSION_COOKIE)?.value);
+export default async function EditorPage({ searchParams }: EditorPageProps) {
+  const cookieStore = await cookies();
+  const session = getAdminSession(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
   if (session) return <PostEditor />;
 
   const authMessage = searchParams?.auth === 'denied'
