@@ -10,7 +10,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 import Search from './Search';
 
-type NavGroupId = 'writing' | 'reflections' | 'library';
+type NavGroupId = 'writings' | 'library';
 
 type NavItem = {
   href: string;
@@ -25,17 +25,11 @@ type NavGroup = {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    id: 'writing',
-    label: 'Writing',
+    id: 'writings',
+    label: 'Writings',
     items: [
       { href: '/articles', label: 'Articles' },
       { href: '/notes', label: 'Notes' },
-    ],
-  },
-  {
-    id: 'reflections',
-    label: 'Reflections',
-    items: [
       { href: '/learnings', label: 'Learnings' },
       { href: '/tenets', label: 'Tenets' },
     ],
@@ -64,8 +58,7 @@ const MOBILE_NAV_ITEMS: NavItem[] = [
 ];
 
 const INITIAL_MENU_ITEM_REFS: Record<NavGroupId, Array<HTMLAnchorElement | null>> = {
-  writing: [],
-  reflections: [],
+  writings: [],
   library: [],
 };
 
@@ -86,8 +79,7 @@ function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const groupButtonRefs = useRef<Record<NavGroupId, HTMLButtonElement | null>>({
-    writing: null,
-    reflections: null,
+    writings: null,
     library: null,
   });
   const menuItemRefs = useRef<Record<NavGroupId, Array<HTMLAnchorElement | null>>>(
@@ -346,35 +338,50 @@ function Navbar() {
                       id={menuId}
                       role="menu"
                       aria-labelledby={triggerId}
-                      initial={{ opacity: 0, y: -8, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -5, scale: 0.98 }}
-                      transition={{ duration: 0.16, ease: 'easeOut' }}
+                      initial={{ opacity: 0, height: 0, y: -12 }}
+                      animate={{ opacity: 1, height: 'auto', y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -12 }}
+                      transition={{
+                        opacity: { duration: 0.5, ease: [0.59, 0.08, 0.58, 1] },
+                        height: { duration: 0.5, ease: [0.59, 0.08, 0.58, 1] },
+                        y: { duration: 0.5, ease: [0.59, 0.08, 0.58, 1] },
+                      }}
                       className={cn(
-                        'absolute left-0 top-[calc(50%+1.25rem)] flex min-w-max origin-top flex-col items-start'
+                        'absolute left-0 top-[calc(50%+0.75rem)] flex min-w-max origin-top flex-col items-start overflow-hidden'
                       )}
                     >
                       {group.items.map((item, itemIndex) => (
-                        <Link
+                        <motion.div
                           key={item.href}
-                          href={item.href}
-                          role="menuitem"
-                          ref={(node) => {
-                            menuItemRefs.current[group.id][itemIndex] = node;
+                          initial={{ opacity: 0, y: -12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{
+                            duration: 0.5,
+                            delay: itemIndex * 0.06,
+                            ease: [0.59, 0.08, 0.58, 1],
                           }}
-                          aria-current={
-                            isPathActive(pathname, item.href) ? 'page' : undefined
-                          }
-                          className={childLinkClassName(
-                            isPathActive(pathname, item.href)
-                          )}
-                          onClick={() => setOpenGroup(null)}
-                          onKeyDown={(event) =>
-                            handleMenuKeyDown(group.id, itemIndex, event)
-                          }
                         >
-                          {item.label}
-                        </Link>
+                          <Link
+                            href={item.href}
+                            role="menuitem"
+                            ref={(node) => {
+                              menuItemRefs.current[group.id][itemIndex] = node;
+                            }}
+                            aria-current={
+                              isPathActive(pathname, item.href) ? 'page' : undefined
+                            }
+                            className={childLinkClassName(
+                              isPathActive(pathname, item.href)
+                            )}
+                            onClick={() => setOpenGroup(null)}
+                            onKeyDown={(event) =>
+                              handleMenuKeyDown(group.id, itemIndex, event)
+                            }
+                          >
+                            {item.label}
+                          </Link>
+                        </motion.div>
                       ))}
                     </motion.div>
                   )}
