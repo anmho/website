@@ -22,10 +22,10 @@ function Hero() {
             }}
             className="space-y-6"
           >
-            <h1 className="text-lg sm:text-xl font-normal tracking-normal leading-relaxed text-slate-100">
+            <h1 className="text-lg sm:text-xl font-normal tracking-normal leading-relaxed text-gray-900 dark:text-slate-100">
               hey - i'm andy.
             </h1>
-            <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
               a software engineer focused on applying ai to novel areas. currently
               ml infra @ snap
             </p>
