@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { listBookmarksFromDb } from '@/lib/bookmarksDb';
+import staticResources from '@/assets/static/json/resources.json';
 
 export const runtime = 'nodejs';
 
@@ -14,14 +14,5 @@ type Bookmark = {
 };
 
 export async function GET() {
-  try {
-    return NextResponse.json({ resources: await listBookmarksFromDb() });
-  } catch (err) {
-    return NextResponse.json(
-      {
-        error: `database unavailable: ${String(err)}`,
-      },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ resources: staticResources as Bookmark[] });
 }

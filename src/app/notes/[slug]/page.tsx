@@ -2,7 +2,10 @@ import { notFound } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
+import notesData from '@/assets/static/json/notes.json';
 import Link from 'next/link';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -10,7 +13,6 @@ import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
 import { isValidElement, type HTMLAttributes, type ReactNode } from 'react';
 import { formatDate } from '@/lib/utils';
-import { getContent, listContent } from '@/lib/contentDb';
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -25,35 +27,35 @@ interface Note {
 }
 
 interface NotePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getNote(slug: string): Promise<Note | null> {
-  const record = await getContent('note', slug);
-  if (record) {
-    return {
-      slug: record.slug,
-      title: record.title,
-      date: record.date,
-      excerpt: record.excerpt,
-      readTime: record.readTime || '5 min read',
-      body: record.body,
-    };
+  const note = (notesData as Array<Omit<Note, 'body'>>).find((item) => item.slug === slug);
+  if (!note) return null;
+
+  let body = '';
+  try {
+    body = await readFile(
+      join(process.cwd(), 'src', 'assets', 'content', 'notes', `${slug}.md`),
+      'utf-8'
+    );
+  } catch {
+    // Metadata-only entries can still render their excerpt.
   }
-  return null;
+
+  return { ...note, body };
 }
 
 export async function generateStaticParams() {
-  const records = await listContent('note');
-  return records.map((record) => ({
-    slug: record.slug,
-  }));
+  return (notesData as Array<{ slug: string }>).map((note) => ({ slug: note.slug }));
 }
 
 export default async function NotePage({ params }: NotePageProps) {
-  const note = await getNote(params.slug);
+  const { slug } = await params;
+  const note = await getNote(slug);
 
   if (!note) {
     notFound();

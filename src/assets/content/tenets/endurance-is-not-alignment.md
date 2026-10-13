@@ -1,0 +1,1 @@
+Repeatedly tolerating situations that conflict with your values can dull your sense that something is wrong. You begin choosing based on what you can endure until you lose touch with your values and trust in your own judgment.

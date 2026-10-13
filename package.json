@@ -11,13 +11,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "validate": "npm run lint && npm run typecheck && npm run build",
-    "db:migrate": "node scripts/migrate-content.mjs",
-    "db:seed:content": "node scripts/seed-content.mjs",
     "deploy": "sh -c 'mkdir -p .logs && vercel --prod 2>&1 | tee .logs/deploy.log'",
     "deploy:last": "cat .logs/deploy.log",
-    "cli:build": "npm --prefix tools/websitectl-ts run build",
-    "cli:install": "npm --prefix tools/websitectl-ts run install:global",
-    "cli:publish": "npm --prefix tools/websitectl-ts run publish:npm",
     "email:test": "dotenv -e .env.local -- sh -c 'curl -s -X POST http://localhost:3000/api/email/send-test -H \"Authorization: Bearer $CRON_SECRET\" -H \"Content-Type: application/json\"' | jq"
   },
   "dependencies": {
@@ -35,7 +30,6 @@
     "framer-motion": "^12.40.0",
     "mermaid": "^11.17.2",
     "next": "^16.2.9",
-    "postgres": "^3.4.7",
     "posthog-js": "^1.289.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
@@ -45,8 +39,7 @@
     "resend": "^6.9.2",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.3.1",
-    "turndown": "^7.2.2",
-    "zod": "^3.24.1"
+    "turndown": "^7.2.2"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

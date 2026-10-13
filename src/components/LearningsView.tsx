@@ -9,7 +9,6 @@ import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { FiSearch } from 'react-icons/fi';
-import OwnerEditorLink from '@/components/OwnerEditorLink';
 
 export interface Learning {
   id: string;
@@ -99,7 +98,6 @@ export default function LearningsView({ learnings }: { learnings: Learning[] }) 
           <div className="w-full text-left py-20">
             <AnimatedTitle><h1 className="sm:text-7xl text-5xl flex-grow -tracking-wider leading-relaxed mb-8">Learnings</h1></AnimatedTitle>
             <p className="text-md sm:text-xl dark:text-gray-400 text-gray-600 -tracking-wide font-light sm:ml-4 mb-20">Daily tidbits and small discoveries.</p>
-            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="learning" label="Add learning" /></div>
             <div className="mb-12 max-w-xl">
               <div className="rounded-full border dark:border-gray-800/80 border-gray-300/80 dark:bg-transparent bg-transparent px-4 h-11 flex items-center gap-3">
                 <FiSearch size={14} className="dark:text-gray-500 text-gray-500 flex-shrink-0" />

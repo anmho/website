@@ -1,25 +1,47 @@
 import { NextResponse } from 'next/server';
-import { listAllContent } from '@/lib/contentDb';
-import { listBookmarksFromDb } from '@/lib/bookmarksDb';
-
-export const runtime = 'nodejs';
+import articlesData from '@/assets/static/json/articles.json';
+import notesData from '@/assets/static/json/notes.json';
+import learningsData from '@/assets/static/json/learnings.json';
+import tenetsData from '@/assets/static/json/tenets.json';
+import readingsData from '@/assets/static/json/readings.json';
+import watchData from '@/assets/static/json/watch.json';
+import resourcesData from '@/assets/static/json/resources.json';
 
 type SearchItem = {
   slug: string;
   title: string;
   excerpt?: string;
-  type: 'article' | 'note' | 'page' | 'bookmark' | 'learning' | 'lesson' | 'reading' | 'watch';
+  type: 'article' | 'note' | 'page' | 'bookmark' | 'learning' | 'tenet' | 'reading' | 'watch';
   date?: string;
   path: string;
   external?: boolean;
   searchText: string;
 };
 
+type PostMetadata = {
+  slug?: string;
+  id?: string;
+  title: string;
+  question?: string;
+  answer?: string;
+  excerpt?: string;
+  description?: string;
+  category?: string;
+  date?: string;
+  body?: string;
+  author?: string;
+  source?: string;
+  format?: string;
+  url?: string;
+  tags?: string[];
+  codeSnippet?: string;
+};
+
 const pages: SearchItem[] = [
   { slug: 'articles', title: 'Articles', excerpt: 'In-depth articles on building scalable systems', type: 'page', path: '/articles', searchText: 'articles in-depth articles on building scalable systems' },
   { slug: 'notes', title: 'Notes', excerpt: 'Quick thoughts, learnings, and observations', type: 'page', path: '/notes', searchText: 'notes quick thoughts learnings and observations' },
   { slug: 'learnings', title: 'Learnings', excerpt: 'Daily tidbits and small discoveries', type: 'page', path: '/learnings', searchText: 'learnings daily tidbits and small discoveries' },
-  { slug: 'lessons', title: 'Lessons', excerpt: 'A personal reminder of timeless lessons', type: 'page', path: '/lessons', searchText: 'lessons a personal reminder of timeless lessons' },
+  { slug: 'tenets', title: 'Tenets', excerpt: 'Principles worth returning to', type: 'page', path: '/tenets', searchText: 'tenets principles worth returning to' },
   { slug: 'readings', title: 'Readings', excerpt: 'Books, papers, and essays worth returning to', type: 'page', path: '/readings', searchText: 'readings books papers and essays worth returning to' },
   { slug: 'watch', title: 'Watch', excerpt: 'Movies and videos worth spending time with', type: 'page', path: '/watch', searchText: 'watch movies and videos worth spending time with' },
   { slug: 'resources', title: 'Bookmarks', excerpt: 'Saved articles, guides, talks, and references', type: 'page', path: '/resources', searchText: 'bookmarks saved articles guides talks and references resources' },
@@ -27,42 +49,58 @@ const pages: SearchItem[] = [
   { slug: 'about', title: 'About', excerpt: 'Learn more about me and get in touch', type: 'page', path: '/about', searchText: 'about learn more about me and get in touch' },
 ];
 
-function contentPath(type: SearchItem['type'], slug: string): string {
+function contentPath(type: Exclude<SearchItem['type'], 'page' | 'bookmark'>, slug: string): string {
   const route = type === 'article' ? 'articles' : type === 'note' ? 'notes' : type === 'learning' ? 'learnings' : `${type}s`;
   return `/${route}/${slug}`;
 }
 
-export async function GET() {
-  try {
-    const [records, bookmarks] = await Promise.all([
-      listAllContent(),
-      listBookmarksFromDb(),
-    ]);
+function postItem(
+  type: Exclude<SearchItem['type'], 'page' | 'bookmark'>,
+  post: PostMetadata
+): SearchItem {
+  const slug = post.slug || post.id || post.title;
+  const title = post.title || post.question || '';
+  const body = [post.body, post.answer, post.codeSnippet].filter(Boolean).join(' ');
+  const excerpt = post.excerpt || post.answer || '';
 
-    const contentItems = records.map((record): SearchItem => ({
-      slug: record.slug,
-      title: record.title,
-      excerpt: record.excerpt,
-      type: record.contentType,
-      date: record.date,
-      path: record.contentType === 'learning'
-        ? `/learnings?q=${encodeURIComponent(record.title)}#${record.slug}`
-        : contentPath(record.contentType, record.slug),
-      searchText: [record.title, record.excerpt, record.body, ...record.tags].join(' ').toLowerCase(),
-    }));
+  return {
+    slug,
+    title,
+    excerpt,
+    type,
+    date: post.date,
+    path: type === 'learning'
+      ? `/learnings?q=${encodeURIComponent(title)}#${slug}`
+      : contentPath(type, slug),
+    searchText: [title, excerpt, body, post.author, post.source, post.format, ...(post.tags || [])]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase(),
+  };
+}
 
-    const bookmarkItems = bookmarks.map((bookmark, index): SearchItem => ({
-      slug: `${index}-${bookmark.url}`,
-      title: bookmark.title,
-      excerpt: [bookmark.description, bookmark.author, bookmark.category, bookmark.format, ...bookmark.tags].join(' '),
-      type: 'bookmark',
-      path: bookmark.url,
-      external: true,
-      searchText: [bookmark.title, bookmark.description, bookmark.author, bookmark.category, bookmark.format, ...bookmark.tags].join(' ').toLowerCase(),
-    }));
+export function GET() {
+  const contentItems = [
+    ...(articlesData as PostMetadata[]).map((post) => postItem('article', post)),
+    ...(notesData as PostMetadata[]).map((post) => postItem('note', post)),
+    ...(learningsData as PostMetadata[]).map((post) => postItem('learning', post)),
+    ...(tenetsData as PostMetadata[]).map((post) => postItem('tenet', post)),
+    ...(readingsData as PostMetadata[]).map((post) => postItem('reading', post)),
+    ...(watchData as PostMetadata[]).map((post) => postItem('watch', post)),
+  ];
 
-    return NextResponse.json({ items: [...pages, ...contentItems, ...bookmarkItems] });
-  } catch (error) {
-    return NextResponse.json({ error: `database unavailable: ${String(error)}` }, { status: 500 });
-  }
+  const bookmarks = (resourcesData as PostMetadata[]).map((bookmark, index): SearchItem => ({
+    slug: `${index}-${bookmark.title}`,
+    title: bookmark.title,
+    excerpt: [bookmark.description, bookmark.author, bookmark.category, bookmark.format, ...(bookmark.tags || [])].filter(Boolean).join(' '),
+    type: 'bookmark',
+    path: bookmark.url || '',
+    external: true,
+    searchText: [bookmark.title, bookmark.description, bookmark.author, bookmark.category, bookmark.format, ...(bookmark.tags || [])]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase(),
+  }));
+
+  return NextResponse.json({ items: [...pages, ...contentItems, ...bookmarks] });
 }

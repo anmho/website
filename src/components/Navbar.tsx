@@ -1,124 +1,271 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { BsAsterisk } from 'react-icons/bs';
-import { FiSun, FiMoon, FiMenu, FiX } from 'react-icons/fi';
+import { FiChevronDown, FiMenu, FiMoon, FiSun, FiX } from 'react-icons/fi';
 import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 import Search from './Search';
-import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
-const NAV_LINKS = [
-  { href: '/articles', label: 'Articles' },
-  { href: '/notes', label: 'Notes' },
-  { href: '/learnings', label: 'Learnings' },
-  { href: '/lessons', label: 'Lessons' },
-  { href: '/readings', label: 'Readings' },
-  { href: '/watch', label: 'Watch' },
-  { href: '/about', label: 'About' },
-  { href: '/resources', label: 'Bookmarks' },
-  { href: '/editor', label: 'Editor' },
+type NavGroupId = 'writing' | 'reflections' | 'library';
+
+type NavItem = {
+  href: string;
+  label: string;
+};
+
+type NavGroup = {
+  id: NavGroupId;
+  label: string;
+  items: NavItem[];
+};
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    id: 'writing',
+    label: 'Writing',
+    items: [
+      { href: '/articles', label: 'Articles' },
+      { href: '/notes', label: 'Notes' },
+    ],
+  },
+  {
+    id: 'reflections',
+    label: 'Reflections',
+    items: [
+      { href: '/learnings', label: 'Learnings' },
+      { href: '/tenets', label: 'Tenets' },
+    ],
+  },
+  {
+    id: 'library',
+    label: 'Library',
+    items: [
+      { href: '/readings', label: 'Readings' },
+      { href: '/watch', label: 'Watch' },
+      { href: '/resources', label: 'Bookmarks' },
+    ],
+  },
 ];
 
-const NAV_LINKS_MOBILE = [
-  { href: '/', label: 'Home' },
-  { href: '/articles', label: 'Articles' },
-  { href: '/notes', label: 'Notes' },
-  { href: '/learnings', label: 'Learnings' },
-  { href: '/lessons', label: 'Lessons' },
-  { href: '/readings', label: 'Readings' },
-  { href: '/watch', label: 'Watch' },
-  { href: '/about', label: 'About' },
-  { href: '/resources', label: 'Bookmarks' },
-  { href: '/editor', label: 'Editor' },
-];
+const INITIAL_MENU_ITEM_REFS: Record<NavGroupId, Array<HTMLAnchorElement | null>> = {
+  writing: [],
+  reflections: [],
+  library: [],
+};
+
+function isPathActive(pathname: string | null, href: string) {
+  return pathname === href || pathname?.startsWith(`${href}/`) === true;
+}
+
+function groupIsActive(pathname: string | null, group: NavGroup) {
+  return group.items.some((item) => isPathActive(pathname, item.href));
+}
 
 function Navbar() {
   const { theme, toggleTheme } = useTheme();
+  const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  const links = useMemo(() => {
-    const availableLinks = isMobileMenuOpen ? NAV_LINKS_MOBILE : NAV_LINKS;
-    return isAdmin ? availableLinks : availableLinks.filter((link) => link.href !== '/editor');
-  }, [isAdmin, isMobileMenuOpen]);
-
-  useEffect(() => {
-    let alive = true;
-    fetch('/api/auth/session', { credentials: 'same-origin', cache: 'no-store' })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((data: { authenticated?: boolean } | null) => {
-        if (alive) setIsAdmin(data?.authenticated === true);
-      })
-      .catch(() => {
-        if (alive) setIsAdmin(false);
-      });
-
-    return () => {
-      alive = false;
-    };
-  }, []);
+  const [openGroup, setOpenGroup] = useState<NavGroupId | null>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
+  const groupButtonRefs = useRef<Record<NavGroupId, HTMLButtonElement | null>>({
+    writing: null,
+    reflections: null,
+    library: null,
+  });
+  const menuItemRefs = useRef<Record<NavGroupId, Array<HTMLAnchorElement | null>>>(
+    INITIAL_MENU_ITEM_REFS
+  );
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
-    // Lock body scroll when mobile menu is open
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    document.body.style.overflow = isMobileMenuOpen ? 'hidden' : '';
+
     return () => {
       document.body.style.overflow = '';
     };
   }, [isMobileMenuOpen]);
 
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setOpenGroup(null);
+  }, [pathname]);
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent) => {
+      if (
+        openGroup &&
+        navRef.current &&
+        !navRef.current.contains(event.target as Node)
+      ) {
+        setOpenGroup(null);
+      }
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [openGroup]);
+
+  useEffect(() => {
+    const handleEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+
+      if (isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+        setOpenGroup(null);
+        mobileMenuButtonRef.current?.focus();
+        return;
+      }
+
+      if (openGroup) {
+        setOpenGroup(null);
+        groupButtonRefs.current[openGroup]?.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isMobileMenuOpen, openGroup]);
+
+  const focusMenuItem = (groupId: NavGroupId, index: number) => {
+    window.requestAnimationFrame(() => {
+      menuItemRefs.current[groupId][index]?.focus();
+    });
+  };
+
+  const handleGroupKeyDown = (
+    groupId: NavGroupId,
+    event: KeyboardEvent<HTMLButtonElement>,
+    focusItems: boolean
+  ) => {
+    const group = NAV_GROUPS.find((item) => item.id === groupId);
+    if (!group) return;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      setOpenGroup(null);
+      groupButtonRefs.current[groupId]?.focus();
+      return;
+    }
+
+    if (event.key === 'Enter' || event.key === ' ' || event.key === 'ArrowDown') {
+      event.preventDefault();
+      setOpenGroup(groupId);
+      if (focusItems) focusMenuItem(groupId, 0);
+      return;
+    }
+
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setOpenGroup(groupId);
+      if (focusItems) focusMenuItem(groupId, group.items.length - 1);
+    }
+  };
+
+  const handleMenuKeyDown = (
+    groupId: NavGroupId,
+    itemIndex: number,
+    event: KeyboardEvent<HTMLAnchorElement>
+  ) => {
+    const group = NAV_GROUPS.find((item) => item.id === groupId);
+    if (!group) return;
+
+    const lastIndex = group.items.length - 1;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      focusMenuItem(groupId, itemIndex === lastIndex ? 0 : itemIndex + 1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      focusMenuItem(groupId, itemIndex === 0 ? lastIndex : itemIndex - 1);
+    } else if (event.key === 'Home') {
+      event.preventDefault();
+      focusMenuItem(groupId, 0);
+    } else if (event.key === 'End') {
+      event.preventDefault();
+      focusMenuItem(groupId, lastIndex);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setOpenGroup(null);
+      groupButtonRefs.current[groupId]?.focus();
+    }
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    setOpenGroup(null);
+  };
+
+  const linkClassName = (active: boolean) =>
+    cn(
+      'relative flex items-center gap-1 px-3 text-sm font-medium transition-colors',
+      'after:absolute after:inset-x-3 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-150',
+      'text-gray-900/75 hover:text-gray-900 after:text-gray-900',
+      'dark:text-white/80 dark:hover:text-white dark:after:text-white',
+      active && 'font-semibold text-gray-900 after:scale-x-100 dark:text-white'
+    );
+
+  const childLinkClassName = (active: boolean) =>
+    cn(
+      'block border-l border-transparent px-4 py-2.5 text-sm transition-colors',
+      'text-gray-900/70 hover:border-gray-900/30 hover:bg-black/[0.035] hover:text-gray-900',
+      'dark:text-white/70 dark:hover:border-white/50 dark:hover:bg-white/[0.04] dark:hover:text-white',
+      active &&
+        'border-gray-900 font-medium text-gray-900 dark:border-white dark:text-white'
+    );
 
   return (
     <>
       <div
+        ref={navRef}
         className={cn(
-          'w-full fixed top-0 left-0 h-24 flex justify-between align-center z-50 transition-all duration-300',
+          'fixed left-0 top-0 z-50 flex h-24 w-full items-center justify-between transition-all duration-300',
           isScrolled
-            ? 'backdrop-blur-xl dark:bg-black/50 bg-[#f4efe6]/90 border-b border-gray-200/30 dark:border-transparent'
-            : 'bg-transparent border-b border-transparent'
+            ? 'border-b border-gray-200/30 bg-[#f4efe6]/90 backdrop-blur-xl dark:border-transparent dark:bg-black/50'
+            : 'border-b border-transparent bg-transparent'
         )}
       >
-        {/* Desktop: Asterisk, Mobile: Hamburger */}
-        <div className="h-full flex items-center pl-6 sm:pl-10">
+        <div className="flex h-full items-center pl-6 sm:pl-10">
           <Link
             href="/"
-            className="hidden sm:flex h-full justify-center align-center flex-col cursor-pointer group"
+            className="group hidden h-full cursor-pointer flex-col justify-center sm:flex"
+            aria-label="Home"
           >
             <BsAsterisk
               size={20}
               className={cn(
-                'group-hover:rotate-12 transition-transform duration-200',
-                'dark:text-white text-gray-900'
+                'transition-transform duration-200 group-hover:rotate-12',
+                'text-gray-900 dark:text-white'
               )}
             />
           </Link>
           <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            ref={mobileMenuButtonRef}
+            onClick={() => {
+              setIsMobileMenuOpen((isOpen) => !isOpen);
+              setOpenGroup(null);
+            }}
             className={cn(
-              'sm:hidden p-2 rounded-lg transition-colors relative',
-              'dark:text-white text-gray-900',
-              'hover:bg-gray-100/50 dark:hover:bg-gray-800/50'
+              'relative rounded-lg p-2 transition-colors sm:hidden',
+              'text-gray-900 hover:bg-gray-100/50 dark:text-white dark:hover:bg-gray-800/50'
             )}
-            aria-label="Toggle menu"
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-navigation"
             type="button"
           >
-            <div className="relative w-6 h-6">
+            <div className="relative h-6 w-6">
               <AnimatePresence mode="wait">
                 {isMobileMenuOpen ? (
                   <motion.div
@@ -148,22 +295,93 @@ function Navbar() {
           </button>
         </div>
 
-        {/* Desktop Navigation */}
-        <div className="h-full hidden sm:flex justify-center align-center flex-row items-center gap-3 sm:gap-4 pr-6 sm:pr-10">
-          {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                'flex justify-center align-center px-3 transition-colors cursor-pointer text-sm sm:text-base font-medium',
-                link.href === '/editor'
-                  ? 'rounded-2xl bg-gray-900 px-4 py-2 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200'
-                  : 'h-full flex-col text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-gray-400'
-              )}
-            >
-              {link.label}
-            </Link>
-          ))}
+        <nav
+          aria-label="Primary navigation"
+          className="hidden h-full items-center gap-1 pr-6 sm:flex sm:gap-2 sm:pr-10"
+        >
+          {NAV_GROUPS.map((group) => {
+            const isActive = groupIsActive(pathname, group);
+            const isOpen = openGroup === group.id;
+            const triggerId = `desktop-${group.id}-trigger`;
+            const menuId = `desktop-${group.id}-menu`;
+
+            return (
+              <div key={group.id} className="relative flex h-full items-center">
+                <button
+                  ref={(node) => {
+                    groupButtonRefs.current[group.id] = node;
+                  }}
+                  id={triggerId}
+                  type="button"
+                  className={linkClassName(isActive)}
+                  aria-haspopup="menu"
+                  aria-expanded={isOpen}
+                  aria-controls={menuId}
+                  onClick={() => setOpenGroup(isOpen ? null : group.id)}
+                  onKeyDown={(event) => handleGroupKeyDown(group.id, event, true)}
+                >
+                  {group.label}
+                  <motion.span
+                    aria-hidden="true"
+                    animate={{ rotate: isOpen ? 180 : 0 }}
+                    transition={{ duration: 0.15 }}
+                  >
+                    <FiChevronDown size={14} />
+                  </motion.span>
+                </button>
+
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      id={menuId}
+                      role="menu"
+                      aria-labelledby={triggerId}
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.14, ease: 'easeOut' }}
+                      className={cn(
+                        'absolute left-1/2 top-[calc(100%-0.75rem)] min-w-44 -translate-x-1/2 border p-1 shadow-xl',
+                        'rounded-[4px] border-gray-200/80 bg-[#f4efe6]/95 backdrop-blur-xl',
+                        'dark:border-white/15 dark:bg-[#0c0c0c]/95'
+                      )}
+                    >
+                      {group.items.map((item, itemIndex) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          role="menuitem"
+                          ref={(node) => {
+                            menuItemRefs.current[group.id][itemIndex] = node;
+                          }}
+                          aria-current={
+                            isPathActive(pathname, item.href) ? 'page' : undefined
+                          }
+                          className={childLinkClassName(
+                            isPathActive(pathname, item.href)
+                          )}
+                          onClick={() => setOpenGroup(null)}
+                          onKeyDown={(event) =>
+                            handleMenuKeyDown(group.id, itemIndex, event)
+                          }
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+
+          <Link
+            href="/about"
+            className={linkClassName(isPathActive(pathname, '/about'))}
+            aria-current={isPathActive(pathname, '/about') ? 'page' : undefined}
+          >
+            About
+          </Link>
 
           <Search
             placeholder="Search"
@@ -175,19 +393,17 @@ function Navbar() {
           <button
             onClick={toggleTheme}
             className={cn(
-              'p-2 rounded-lg transition-colors',
-              'dark:text-white text-gray-900',
-              'hover:bg-gray-100 dark:hover:bg-gray-800'
+              'rounded-lg p-2 transition-colors',
+              'text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800'
             )}
             aria-label="Toggle theme"
             type="button"
           >
             {theme === 'dark' ? <FiSun size={18} /> : <FiMoon size={18} />}
           </button>
-        </div>
+        </nav>
 
-        {/* Mobile: Search and Theme */}
-        <div className="h-full sm:hidden flex items-center gap-2 pr-4">
+        <div className="flex h-full items-center gap-2 pr-4 sm:hidden">
           <Search
             placeholder="Search"
             iconOnly
@@ -197,9 +413,8 @@ function Navbar() {
           <button
             onClick={toggleTheme}
             className={cn(
-              'p-2 rounded-lg transition-colors',
-              'dark:text-white text-gray-900',
-              'hover:bg-gray-100/50 dark:hover:bg-gray-800/50'
+              'rounded-lg p-2 transition-colors',
+              'text-gray-900 hover:bg-gray-100/50 dark:text-white dark:hover:bg-gray-800/50'
             )}
             aria-label="Toggle theme"
             type="button"
@@ -209,74 +424,156 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu Fullscreen */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
+            id="mobile-navigation"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: [0.59, 0.08, 0.58, 1] }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
             className={cn(
               'fixed inset-0 z-[70] sm:hidden',
-              'backdrop-blur-xl dark:bg-black/95 bg-[#f4efe6]/95'
+              'bg-[#f4efe6]/95 backdrop-blur-xl dark:bg-black/95'
             )}
           >
-            <div className="flex flex-col h-full pt-24 px-8">
+            <div className="flex h-full flex-col px-8 pb-8 pt-24">
               <button
                 onClick={closeMobileMenu}
                 className={cn(
-                  'absolute top-6 left-6 p-2 rounded-lg transition-colors',
-                  'dark:text-white text-gray-900',
-                  'hover:bg-gray-100/50 dark:hover:bg-gray-800/50'
+                  'absolute left-6 top-6 rounded-lg p-2 transition-colors',
+                  'text-gray-900 hover:bg-gray-100/50 dark:text-white dark:hover:bg-gray-800/50'
                 )}
                 aria-label="Close menu"
                 type="button"
               >
                 <FiX size={24} />
               </button>
-              <nav className="flex-1 flex flex-col justify-center">
-                {links.map((link, index) => (
-                  <motion.div
-                    key={link.href}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{
-                      opacity: {
-                        duration: 0.6,
-                        delay: index * 0.06,
-                        ease: 'easeOut',
-                      },
-                      y: {
-                        duration: 0.6,
-                        delay: index * 0.06,
-                        ease: 'easeOut',
-                      },
-                    }}
-                  >
-                    <Link
-                      href={link.href}
-                      onClick={closeMobileMenu}
-                      className={cn(
-                        'block py-6 text-2xl font-medium transition-colors',
-                        'dark:text-white text-gray-900',
-                        link.href === '/editor'
-                          ? 'my-2 w-fit rounded-2xl bg-gray-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 hover:bg-gray-700'
-                          : 'dark:hover:text-gray-400 hover:text-gray-600'
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  </motion.div>
-                ))}
+
+              <nav aria-label="Mobile primary navigation" className="flex-1 overflow-y-auto">
+                <Link
+                  href="/"
+                  onClick={closeMobileMenu}
+                  className={cn(
+                    'block border-b border-gray-900/10 py-5 text-2xl font-medium',
+                    'text-gray-900 dark:border-white/10 dark:text-white'
+                  )}
+                >
+                  Home
+                </Link>
+
+                {NAV_GROUPS.map((group) => {
+                  const isOpen = openGroup === group.id;
+                  const isActive = groupIsActive(pathname, group);
+                  const triggerId = `mobile-${group.id}-trigger`;
+                  const menuId = `mobile-${group.id}-menu`;
+
+                  return (
+                    <div key={group.id} className="border-b border-gray-900/10 dark:border-white/10">
+                      <button
+                        ref={(node) => {
+                          groupButtonRefs.current[group.id] = node;
+                        }}
+                        id={triggerId}
+                        type="button"
+                        className={cn(
+                          'flex w-full items-center justify-between py-5 text-left text-2xl font-medium',
+                          'text-gray-900 dark:text-white',
+                          isActive && 'font-semibold'
+                        )}
+                        aria-haspopup="menu"
+                        aria-expanded={isOpen}
+                        aria-controls={menuId}
+                        onClick={() => setOpenGroup(isOpen ? null : group.id)}
+                        onKeyDown={(event) => handleGroupKeyDown(group.id, event, false)}
+                      >
+                        <span>{group.label}</span>
+                        <motion.span
+                          aria-hidden="true"
+                          animate={{ rotate: isOpen ? 180 : 0 }}
+                          transition={{ duration: 0.15 }}
+                        >
+                          <FiChevronDown size={20} />
+                        </motion.span>
+                      </button>
+
+                      <AnimatePresence initial={false}>
+                        {isOpen && (
+                          <motion.div
+                            id={menuId}
+                            role="menu"
+                            aria-labelledby={triggerId}
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.16, ease: 'easeOut' }}
+                            className="overflow-hidden pb-3 pl-2"
+                          >
+                            {group.items.map((item, itemIndex) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                role="menuitem"
+                                ref={(node) => {
+                                  menuItemRefs.current[group.id][itemIndex] = node;
+                                }}
+                                aria-current={
+                                  isPathActive(pathname, item.href) ? 'page' : undefined
+                                }
+                                className={cn(
+                                  'block py-3 text-lg transition-colors',
+                                  'text-gray-900/65 hover:text-gray-900 dark:text-white/65 dark:hover:text-white',
+                                  isPathActive(pathname, item.href) &&
+                                    'font-medium text-gray-900 dark:text-white'
+                                )}
+                                onClick={closeMobileMenu}
+                                onKeyDown={(event) =>
+                                  handleMenuKeyDown(group.id, itemIndex, event)
+                                }
+                              >
+                                {item.label}
+                              </Link>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                })}
+
+                <Link
+                  href="/about"
+                  onClick={closeMobileMenu}
+                  aria-current={isPathActive(pathname, '/about') ? 'page' : undefined}
+                  className={cn(
+                    'block py-5 text-2xl font-medium',
+                    'text-gray-900 dark:text-white',
+                    isPathActive(pathname, '/about') && 'font-semibold'
+                  )}
+                >
+                  About
+                </Link>
               </nav>
+
+              <div className="pt-4 text-xs uppercase tracking-[0.2em] text-gray-900/45 dark:text-white/45">
+                {groupIndexLabel(pathname)}
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
     </>
   );
+}
+
+function groupIndexLabel(pathname: string | null) {
+  const activeGroup = NAV_GROUPS.find((group) => groupIsActive(pathname, group));
+  if (activeGroup) return activeGroup.label;
+  if (isPathActive(pathname, '/about')) return 'About';
+  return 'Andrew Ho';
 }
 
 export default Navbar;

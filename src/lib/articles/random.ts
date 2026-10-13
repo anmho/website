@@ -1,4 +1,4 @@
-import { listBookmarksFromDb } from '@/lib/bookmarksDb';
+import resourcesData from '@/assets/static/json/resources.json';
 
 export type Article = {
   title: string;
@@ -14,8 +14,8 @@ export type Article = {
  * Returns a deterministic random article based on the current date.
  * Same date = same article, different dates = different articles.
  */
-export async function getRandomArticleForDate(date: Date = new Date()): Promise<Article> {
-  const articles = await listBookmarksFromDb();
+export function getRandomArticleForDate(date: Date = new Date()): Article {
+  const articles = resourcesData as Article[];
   if (articles.length === 0) {
     throw new Error('No bookmarks available for the daily article email');
   }
@@ -44,6 +44,6 @@ function hashString(str: string): number {
 /**
  * Get all articles.
  */
-export async function getAllArticles(): Promise<Article[]> {
-  return listBookmarksFromDb();
+export function getAllArticles(): Article[] {
+  return resourcesData as Article[];
 }

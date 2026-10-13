@@ -2,20 +2,12 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import NoteList, { type NoteListItem } from '@/components/NoteList';
-import OwnerEditorLink from '@/components/OwnerEditorLink';
-import { listContent } from '@/lib/contentDb';
+import notesData from '@/assets/static/json/notes.json';
 
 export const revalidate = 3600;
 
-export default async function Notes() {
-  const records = await listContent('note');
-  const notes: NoteListItem[] = records.map((record) => ({
-    slug: record.slug,
-    title: record.title,
-    date: record.date,
-    excerpt: record.excerpt,
-    readTime: record.readTime || '5 min read',
-  }));
+export default function Notes() {
+  const notes = notesData as NoteListItem[];
 
   return (
     <main className="w-full overflow-hidden dark:text-white text-gray-900">
@@ -29,7 +21,6 @@ export default async function Notes() {
             <p className="text-md sm:text-xl dark:text-gray-400 text-gray-600 -tracking-wide font-light sm:ml-4 mb-10">
               Quick thoughts, learnings, and observations.
             </p>
-            <div className="mb-8 sm:ml-4"><OwnerEditorLink type="note" label="Add note" /></div>
             <NoteList notes={notes} />
           </div>
         </SectionContainer>
