@@ -2,10 +2,7 @@ import { notFound } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
-import articlesData from '@/assets/static/json/articles.json';
 import Link from 'next/link';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -29,6 +26,7 @@ interface Article {
   date: string;
   excerpt: string;
   readTime: string;
+  body: string;
 }
 
 interface ArticlePageProps {
@@ -46,37 +44,16 @@ async function getArticle(slug: string): Promise<Article | null> {
       date: record.date,
       excerpt: record.excerpt,
       readTime: record.readTime || '8 min read',
+      body: record.body,
     };
   }
-  const articles = articlesData as Article[];
-  return articles.find((article) => article.slug === slug) || null;
-}
-
-async function getArticleContent(slug: string): Promise<string | null> {
-  const record = await getContent('article', slug);
-  if (record) return record.body;
-  try {
-    const contentPath = join(
-      process.cwd(),
-      'src',
-      'assets',
-      'content',
-      'articles',
-      `${slug}.md`
-    );
-    const content = await readFile(contentPath, 'utf-8');
-    return content;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 export async function generateStaticParams() {
-  const articles = articlesData as Article[];
   const records = await listContent('article');
-  const slugs = new Set([...articles.map((article) => article.slug), ...records.map((record) => record.slug)]);
-  return Array.from(slugs).map((slug) => ({
-    slug,
+  return records.map((record) => ({
+    slug: record.slug,
   }));
 }
 
@@ -408,17 +385,16 @@ function createArticleMarkdownComponents(
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const article = await getArticle(params.slug);
-  const content = await getArticleContent(params.slug);
-  const processedContent =
-    article && content ? stripDuplicateLeadingTitle(content, article.title) : content;
-  const toc = processedContent ? extractTableOfContents(processedContent) : [];
-  const markdownComponents = createArticleMarkdownComponents(
-    createHeadingIdAssigner()
-  );
 
   if (!article) {
     notFound();
   }
+
+  const processedContent = stripDuplicateLeadingTitle(article.body, article.title);
+  const toc = extractTableOfContents(processedContent);
+  const markdownComponents = createArticleMarkdownComponents(
+    createHeadingIdAssigner()
+  );
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-gray-100">
@@ -455,24 +431,12 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
               {/* Article content */}
               <article className="prose prose-lg dark:prose-invert max-w-none">
-                {processedContent ? (
-                  <ReactMarkdown
-                    components={markdownComponents}
-                    remarkPlugins={[remarkGfm]}
-                  >
-                    {processedContent}
-                  </ReactMarkdown>
-                ) : (
-                  <div className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                    <p className="mb-6 text-lg">{article.excerpt}</p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                      Content coming soon. Create a markdown file at{' '}
-                      <code className="text-gray-800 bg-gray-100 dark:text-gray-300 dark:bg-gray-900 px-1.5 py-0.5 rounded">
-                        src/assets/content/articles/{article.slug}.md
-                      </code>
-                    </p>
-                  </div>
-                )}
+                <ReactMarkdown
+                  components={markdownComponents}
+                  remarkPlugins={[remarkGfm]}
+                >
+                  {processedContent}
+                </ReactMarkdown>
               </article>
             </div>
 

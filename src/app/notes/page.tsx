@@ -2,23 +2,19 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import NoteList, { type NoteListItem } from '@/components/NoteList';
-import notesData from '@/assets/static/json/notes.json';
 import { listContent } from '@/lib/contentDb';
 
 export const revalidate = 3600;
 
 export default async function Notes() {
-  const legacyNotes = notesData as NoteListItem[];
   const records = await listContent('note');
-  const notes = records.length
-    ? records.map((record) => ({
-        slug: record.slug,
-        title: record.title,
-        date: record.date,
-        excerpt: record.excerpt,
-        readTime: record.readTime || '5 min read',
-      }))
-    : legacyNotes;
+  const notes: NoteListItem[] = records.map((record) => ({
+    slug: record.slug,
+    title: record.title,
+    date: record.date,
+    excerpt: record.excerpt,
+    readTime: record.readTime || '5 min read',
+  }));
 
   return (
     <main className="w-full overflow-hidden dark:text-white text-gray-900">

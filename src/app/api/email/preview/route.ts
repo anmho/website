@@ -15,7 +15,7 @@ export async function GET() {
     );
   }
 
-  const article = getRandomArticleForDate();
+  const article = await getRandomArticleForDate();
   const html = await render(DailyArticleEmail({ article }));
 
   return new NextResponse(html, {

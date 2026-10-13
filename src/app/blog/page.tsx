@@ -1,14 +1,9 @@
-'use client';
-
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
-import notesData from '@/assets/static/json/notes.json';
-import articlesData from '@/assets/static/json/articles.json';
 import Link from 'next/link';
-import { useRef } from 'react';
-import { useInView } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
+import { listContent } from '@/lib/contentDb';
 
 interface Post {
   slug: string;
@@ -18,9 +13,27 @@ interface Post {
   readTime: string;
 }
 
-export default function Blog() {
-  const notes = notesData as Post[];
-  const articles = articlesData as Post[];
+export const revalidate = 3600;
+
+export default async function Blog() {
+  const [articleRecords, noteRecords] = await Promise.all([
+    listContent('article'),
+    listContent('note'),
+  ]);
+  const articles: Post[] = articleRecords.map((record) => ({
+    slug: record.slug,
+    title: record.title,
+    date: record.date,
+    excerpt: record.excerpt,
+    readTime: record.readTime || '8 min read',
+  }));
+  const notes: Post[] = noteRecords.map((record) => ({
+    slug: record.slug,
+    title: record.title,
+    date: record.date,
+    excerpt: record.excerpt,
+    readTime: record.readTime || '5 min read',
+  }));
 
   return (
     <main className="w-full overflow-hidden text-white">
@@ -95,17 +108,9 @@ function PostItem({
   index: number;
   type: 'articles' | 'notes';
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
-
   return (
     <div
-      ref={ref}
       className="border-b border-gray-900 py-6 group"
-      style={{
-        opacity: isInView ? 1 : 0,
-        transition: `opacity 0.6s ease-out ${index * 0.05}s`,
-      }}
     >
       <Link href={`/${type}/${post.slug}`} className="block">
         <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-8">

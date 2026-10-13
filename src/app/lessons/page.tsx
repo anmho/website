@@ -1,11 +1,8 @@
-import { readFile } from 'fs/promises';
-import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
-import lessonsData from '@/assets/static/json/lessons.json';
 import { formatDate } from '@/lib/utils';
 import { listContent } from '@/lib/contentDb';
 
@@ -19,34 +16,18 @@ type Lesson = {
   source?: string;
 };
 
-async function getLessonContent(id: string): Promise<string | null> {
-  try {
-    return await readFile(
-      join(process.cwd(), 'src', 'assets', 'content', 'lessons', `${id}.md`),
-      'utf-8'
-    );
-  } catch {
-    return null;
-  }
-}
-
 export default async function LessonsPage() {
-  const legacyLessons = lessonsData as Lesson[];
   const records = await listContent('lesson');
-  const content = records.length
-    ? records.map((record) => ({
-        lesson: {
-          id: record.slug,
-          title: record.title,
-          date: record.date,
-          excerpt: record.excerpt,
-          source: typeof record.metadata.source === 'string' ? record.metadata.source : undefined,
-        },
-        body: record.body,
-      }))
-    : await Promise.all(
-        legacyLessons.map(async (lesson) => ({ lesson, body: await getLessonContent(lesson.id) }))
-      );
+  const content = records.map((record) => ({
+    lesson: {
+      id: record.slug,
+      title: record.title,
+      date: record.date,
+      excerpt: record.excerpt,
+      source: typeof record.metadata.source === 'string' ? record.metadata.source : undefined,
+    },
+    body: record.body,
+  }));
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
