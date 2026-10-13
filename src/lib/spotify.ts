@@ -8,6 +8,12 @@ import {
   type SpotifyNowPlaying,
 } from '@/lib/spotify-types';
 import {
+  isCacheableNowPlaying,
+  readLastNowPlaying,
+  SPOTIFY_NOW_PLAYING_CACHE_TAG,
+  writeLastNowPlaying,
+} from '@/lib/spotify-playback-cache';
+import {
   readSpotifyOAuthConfig,
   readSpotifyTokenBundle,
   type SpotifyTokenBundle,
@@ -85,6 +91,8 @@ const SPOTIFY_RECENTLY_PLAYED_ENDPOINT =
   'https://api.spotify.com/v1/me/player/recently-played?limit=1';
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000;
 export const SPOTIFY_NOW_PLAYING_CACHE_SECONDS = 10;
+export const SPOTIFY_NOW_PLAYING_STALE_SECONDS = 50;
+export const SPOTIFY_NOW_PLAYING_STALE_IF_ERROR_SECONDS = 24 * 60 * 60;
 const LOCAL_SPOTIFY_HOST = 'localhost:3000';
 const PRODUCTION_SPOTIFY_HOSTS = new Set(['anmho.com', 'www.anmho.com']);
 
@@ -96,6 +104,7 @@ type CachedSpotifyAccessToken = {
 const globalForSpotify = globalThis as typeof globalThis & {
   __spotifyStoredAccessTokenCache?: CachedSpotifyAccessToken | null;
   __spotifyStoredAccessTokenPromise?: Promise<string | null> | null;
+  __spotifyLastNowPlayingKey?: string | null;
 };
 
 export class UnsupportedSpotifyOAuthOriginError extends Error {
@@ -244,12 +253,52 @@ function getExpiresAt(expiresInSeconds: number) {
   return new Date(Date.now() + expiresInSeconds * 1000).toISOString();
 }
 
+function getTokenTtlMs(expiresAt: string | null) {
+  return expiresAt ? Date.parse(expiresAt) - Date.now() : null;
+}
+
+function logSpotifyTokenEvent(
+  event: string,
+  metadata: Record<string, string | number | boolean | null | undefined> = {}
+) {
+  console.info('[spotify-token]', {
+    event,
+    ...metadata,
+  });
+}
+
 function isTokenFresh(bundle: SpotifyTokenBundle) {
   if (!bundle.accessToken || !bundle.expiresAt) {
     return false;
   }
 
   return Date.parse(bundle.expiresAt) - TOKEN_REFRESH_BUFFER_MS > Date.now();
+}
+
+function getNowPlayingCacheKey(nowPlaying: SpotifyNowPlaying) {
+  return [
+    nowPlaying.type,
+    nowPlaying.title,
+    nowPlaying.artists.join('\u001f'),
+    nowPlaying.album,
+    nowPlaying.albumArtUrl,
+    nowPlaying.songUrl,
+  ].join('\u001e');
+}
+
+async function persistLastNowPlaying(nowPlaying: SpotifyNowPlaying) {
+  if (!isCacheableNowPlaying(nowPlaying)) {
+    return;
+  }
+
+  const cacheKey = getNowPlayingCacheKey(nowPlaying);
+
+  if (globalForSpotify.__spotifyLastNowPlayingKey === cacheKey) {
+    return;
+  }
+
+  await writeLastNowPlaying(nowPlaying);
+  globalForSpotify.__spotifyLastNowPlayingKey = cacheKey;
 }
 
 export async function storeSpotifyTokensFromCode(code: string, requestUrl: string) {
@@ -271,6 +320,7 @@ export async function storeSpotifyTokensFromCode(code: string, requestUrl: strin
 
 export async function refreshSpotifyAccessToken(refreshToken: string) {
   const { clientId, clientSecret } = await getSpotifyOAuthConfig();
+  const startedAt = Date.now();
 
   const response = await fetch(SPOTIFY_TOKEN_ENDPOINT, {
     method: 'POST',
@@ -287,10 +337,20 @@ export async function refreshSpotifyAccessToken(refreshToken: string) {
 
   if (!response.ok) {
     const message = await parseSpotifyError(response);
+    logSpotifyTokenEvent('refresh_failed', {
+      status: response.status,
+      durationMs: Date.now() - startedAt,
+      message,
+    });
     throw new Error(`Failed to refresh Spotify token: ${message}`);
   }
 
   const payload = (await response.json()) as SpotifyAccessTokenResponse;
+  logSpotifyTokenEvent('refresh_succeeded', {
+    durationMs: Date.now() - startedAt,
+    expiresIn: payload.expires_in,
+    receivedRefreshToken: Boolean(payload.refresh_token),
+  });
 
   return {
     accessToken: payload.access_token,
@@ -305,8 +365,17 @@ export async function refreshStoredSpotifyAccessToken() {
   const current = await readSpotifyTokenBundle();
 
   if (!current) {
+    logSpotifyTokenEvent('stored_bundle_missing');
     throw new Error('Spotify token bundle is not configured in Vault.');
   }
+
+  logSpotifyTokenEvent('refreshing_stored_bundle', {
+    hasAccessToken: Boolean(current.accessToken),
+    hasRefreshToken: Boolean(current.refreshToken),
+    expiresAt: current.expiresAt,
+    ttlMs: getTokenTtlMs(current.expiresAt),
+    updatedAt: current.updatedAt,
+  });
 
   const refreshed = await refreshSpotifyAccessToken(current.refreshToken);
 
@@ -360,21 +429,40 @@ async function readOrRefreshStoredSpotifyAccessToken(): Promise<CachedSpotifyAcc
   }
 
   if (!current) {
+    logSpotifyTokenEvent('stored_bundle_missing');
     return null;
   }
 
   if (isTokenFresh(current) && current.accessToken && current.expiresAt) {
+    logSpotifyTokenEvent('stored_access_token_fresh', {
+      expiresAt: current.expiresAt,
+      ttlMs: getTokenTtlMs(current.expiresAt),
+      updatedAt: current.updatedAt,
+    });
+
     return {
       accessToken: current.accessToken,
       expiresAt: current.expiresAt,
     };
   }
 
+  logSpotifyTokenEvent('stored_access_token_stale', {
+    hasAccessToken: Boolean(current.accessToken),
+    hasRefreshToken: Boolean(current.refreshToken),
+    expiresAt: current.expiresAt,
+    ttlMs: getTokenTtlMs(current.expiresAt),
+    updatedAt: current.updatedAt,
+  });
+
   const refreshed = await refreshStoredSpotifyAccessToken();
   const refreshedAccessToken = refreshed.accessToken;
   const refreshedExpiresAt = refreshed.expiresAt;
 
   if (!refreshedAccessToken || !refreshedExpiresAt) {
+    logSpotifyTokenEvent('refreshed_bundle_incomplete', {
+      hasAccessToken: Boolean(refreshedAccessToken),
+      expiresAt: refreshedExpiresAt,
+    });
     return null;
   }
 
@@ -410,7 +498,7 @@ export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
   const accessToken = await getStoredSpotifyAccessToken();
 
   if (!accessToken) {
-    return {
+    return (await readLastNowPlaying()) ?? {
       ...EMPTY_SPOTIFY_NOW_PLAYING,
       state: 'unauthorized',
     };
@@ -424,11 +512,18 @@ export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
   });
 
   if (response.status === 204) {
-    return (await getRecentlyPlayed(accessToken)) ?? EMPTY_SPOTIFY_NOW_PLAYING;
+    const recentlyPlayed = await getRecentlyPlayed(accessToken);
+
+    if (recentlyPlayed) {
+      await persistLastNowPlaying(recentlyPlayed);
+      return recentlyPlayed;
+    }
+
+    return (await readLastNowPlaying()) ?? EMPTY_SPOTIFY_NOW_PLAYING;
   }
 
   if (response.status === 401 || response.status === 403) {
-    return {
+    return (await readLastNowPlaying()) ?? {
       ...EMPTY_SPOTIFY_NOW_PLAYING,
       state: 'unauthorized',
     };
@@ -437,7 +532,7 @@ export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
   if (response.status === 429) {
     const retryAfter = Number(response.headers.get('retry-after') ?? '60');
 
-    return {
+    return (await readLastNowPlaying()) ?? {
       ...EMPTY_SPOTIFY_NOW_PLAYING,
       state: 'rate_limited',
       retryAfterSeconds: Number.isNaN(retryAfter) ? 60 : retryAfter,
@@ -445,7 +540,7 @@ export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
   }
 
   if (!response.ok) {
-    return {
+    return (await readLastNowPlaying()) ?? {
       ...EMPTY_SPOTIFY_NOW_PLAYING,
       state: 'error',
     };
@@ -454,26 +549,30 @@ export async function getNowPlaying(): Promise<SpotifyNowPlaying> {
   const payload = (await response.json()) as SpotifyCurrentlyPlayingResponse;
 
   if (!payload.item) {
-    return {
+    return (await readLastNowPlaying()) ?? {
       ...EMPTY_SPOTIFY_NOW_PLAYING,
       timestamp: payload.timestamp ?? null,
     };
   }
 
-  return normalizeItem(
+  const nowPlaying = normalizeItem(
     payload.item,
     payload.is_playing ? 'playing' : 'paused',
     payload.is_playing,
     payload.progress_ms,
     payload.timestamp
   );
+
+  await persistLastNowPlaying(nowPlaying);
+
+  return nowPlaying;
 }
 
 export const getCachedNowPlaying = unstable_cache(
   getNowPlaying,
-  ['spotify-now-playing'],
+  [SPOTIFY_NOW_PLAYING_CACHE_TAG],
   {
     revalidate: SPOTIFY_NOW_PLAYING_CACHE_SECONDS,
-    tags: ['spotify-now-playing'],
+    tags: [SPOTIFY_NOW_PLAYING_CACHE_TAG],
   }
 );

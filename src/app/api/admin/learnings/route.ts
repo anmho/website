@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAuthError } from '@/lib/controlPlaneAuth';
-import { isISODate, readLearnings, slugify, writeLearnings } from '@/lib/controlPlaneStore';
+import { createContent, isContentConflict } from '@/lib/contentDb';
+import { isISODate, slugify } from '@/lib/controlPlaneStore';
 import { createLearningRequestSchema } from '../../../../../packages/contracts/src/admin';
 
 export const runtime = 'nodejs';
@@ -34,25 +36,38 @@ export async function POST(req: NextRequest) {
   if (!isISODate(date)) return NextResponse.json({ error: 'invalid date' }, { status: 400 });
 
   const id = `${date}-${slugify(question)}`;
-  const learnings = await readLearnings();
-  if (learnings.some((x) => x.id === id)) {
-    return NextResponse.json({ error: `learning id already exists: ${id}` }, { status: 409 });
+  try {
+    const learning = await createContent({
+      id: `learning:${id}`,
+      contentType: 'learning',
+      slug: id,
+      title: question,
+      excerpt: '',
+      body: answer,
+      date,
+      readTime: null,
+      tags,
+      metadata: {
+        ...(parsed.data.codeSnippet?.trim() ? { codeSnippet: parsed.data.codeSnippet } : {}),
+        ...(parsed.data.codeLanguage?.trim() ? { codeLanguage: parsed.data.codeLanguage.trim() } : {}),
+      },
+    });
+    const response = {
+      id: learning.slug,
+      question: learning.title,
+      answer: learning.body,
+      tags: learning.tags,
+      date: learning.date,
+      ...(typeof learning.metadata.codeSnippet === 'string' ? { codeSnippet: learning.metadata.codeSnippet } : {}),
+      ...(typeof learning.metadata.codeLanguage === 'string' ? { codeLanguage: learning.metadata.codeLanguage } : {}),
+    };
+    revalidatePath('/learnings');
+    return NextResponse.json({ learning: response }, { status: 201 });
+  } catch (error) {
+    if (isContentConflict(error)) {
+      return NextResponse.json({ error: `learning id already exists: ${id}` }, { status: 409 });
+    }
+    console.error('Failed to create learning', error);
+    return NextResponse.json({ error: 'failed to save learning' }, { status: 500 });
   }
-
-  const learning = {
-    id,
-    question,
-    answer,
-    tags,
-    date,
-    ...(parsed.data.codeSnippet?.trim()
-      ? { codeSnippet: parsed.data.codeSnippet }
-      : {}),
-    ...(parsed.data.codeLanguage?.trim()
-      ? { codeLanguage: parsed.data.codeLanguage.trim() }
-      : {}),
-  };
-
-  await writeLearnings([learning, ...learnings]);
-  return NextResponse.json({ learning }, { status: 201 });
 }

@@ -116,6 +116,47 @@ Expected stable states are `playing`, `paused`, `idle`, `unauthorized`,
 
 Use `npm run validate` for the full local validation sequence before opening a PR.
 
+## Private Editor
+
+`/editor` is guarded by GitHub OAuth. The editor and every `/api/admin/*` write
+route require a signed server session created after GitHub returns the
+allowlisted account. Configure the GitHub OAuth app callback as
+`/api/auth/github/callback` and set:
+
+```bash
+GITHUB_OAUTH_CLIENT_ID=your-github-oauth-client-id
+GITHUB_OAUTH_CLIENT_SECRET=your-github-oauth-client-secret
+ADMIN_GITHUB_LOGIN=your-github-login
+ADMIN_AUTH_SECRET=long-random-session-signing-secret
+```
+
+`ADMIN_GITHUB_ID` may be used instead of `ADMIN_GITHUB_LOGIN` when pinning the
+account by numeric GitHub user ID. The editor no longer accepts a browser-held
+API key; public content routes remain public while publishing stays owner-only.
+
+### Content database
+
+Published articles, notes, learnings, lessons, readings, and watch items are
+stored in Postgres. Set `DATABASE_URL` for the application and, when using a
+pooled Neon connection, set `DATABASE_URL_UNPOOLED` for migrations:
+
+```bash
+DATABASE_URL=postgres://...
+DATABASE_URL_UNPOOLED=postgres://... # optional, preferred for migrations
+```
+
+Initialize the table and import the existing checked-in content once:
+
+```bash
+npm run db:migrate
+npm run db:seed:content
+```
+
+The public content pages use Next.js Incremental Static Regeneration with a
+one-hour revalidation window. They are pre-rendered HTML, and each authenticated
+editor save invalidates the affected route so the next request receives the
+fresh version without creating a pull request or editing repository files.
+
 ## CLI
 
 Current status:

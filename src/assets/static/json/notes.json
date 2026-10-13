@@ -40,5 +40,33 @@
     "date": "2025-12-7",
     "excerpt": "How do nil channels behave?",
     "readTime": "6 min read"
+  },
+  {
+    "slug": "approximate-nearest-neighbor",
+    "title": "Approximate Nearest Neighbor (ANN)",
+    "date": "2026-09-07",
+    "excerpt": "HNSW, IVF, and LSH: how vector search trades recall for speed at scale.",
+    "readTime": "5 min read"
+  },
+  {
+    "slug": "random-forest-vs-xgboost",
+    "title": "Random Forest vs XGBoost",
+    "date": "2026-09-07",
+    "excerpt": "Independent trees averaged vs sequential trees correcting each other's mistakes.",
+    "readTime": "5 min read"
+  },
+  {
+    "slug": "hybrid-fusion",
+    "title": "Hybrid Fusion (RRF)",
+    "date": "2026-09-07",
+    "excerpt": "Combining lexical and embedding candidate lists with reciprocal rank fusion.",
+    "readTime": "4 min read"
+  },
+  {
+    "slug": "bi-encoder-vs-cross-encoder",
+    "title": "Bi-Encoder vs Cross-Encoder",
+    "date": "2026-09-08",
+    "excerpt": "Why cross-encoders score better but can't be cached, and where each fits in a retrieval funnel.",
+    "readTime": "6 min read"
   }
 ]

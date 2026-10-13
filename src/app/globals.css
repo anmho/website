@@ -85,10 +85,6 @@ select {
   animation-delay: -0.26s;
 }
 
-.spotify-album-pulse {
-  animation: spotify-album-pulse 1.9s ease-out infinite;
-}
-
 .spotify-skeleton-wave {
   position: relative;
   overflow: hidden;
@@ -134,18 +130,6 @@ html.light .spotify-skeleton-wave::after {
   }
 }
 
-@keyframes spotify-album-pulse {
-  0% {
-    opacity: 0.75;
-    transform: scale(1);
-  }
-
-  100% {
-    opacity: 0;
-    transform: scale(1.22);
-  }
-}
-
 @keyframes spotify-skeleton-wave {
   100% {
     transform: translateX(100%);
@@ -154,7 +138,6 @@ html.light .spotify-skeleton-wave::after {
 
 @media (prefers-reduced-motion: reduce) {
   .spotify-equalizer-bar,
-  .spotify-album-pulse,
   .spotify-skeleton-wave::after {
     animation: none;
   }
