@@ -51,6 +51,18 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ];
 
+const MOBILE_NAV_ITEMS: NavItem[] = [
+  { href: '/', label: 'Home' },
+  { href: '/articles', label: 'Articles' },
+  { href: '/notes', label: 'Notes' },
+  { href: '/learnings', label: 'Learnings' },
+  { href: '/tenets', label: 'Tenets' },
+  { href: '/readings', label: 'Readings' },
+  { href: '/watch', label: 'Watch' },
+  { href: '/resources', label: 'Bookmarks' },
+  { href: '/about', label: 'About' },
+];
+
 const INITIAL_MENU_ITEM_REFS: Record<NavGroupId, Array<HTMLAnchorElement | null>> = {
   writing: [],
   reflections: [],
@@ -452,126 +464,43 @@ function Navbar() {
                 <FiX size={24} />
               </button>
 
-              <nav aria-label="Mobile primary navigation" className="flex flex-1 flex-col justify-center overflow-y-auto">
-                <motion.div
-                  initial={{ opacity: 0, y: -16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                >
-                  <Link
-                    href="/"
-                    onClick={closeMobileMenu}
-                    className={cn(
-                      'block py-6 text-2xl font-medium transition-colors',
-                      'text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-gray-400'
-                    )}
+              <nav
+                aria-label="Mobile primary navigation"
+                className="flex flex-1 flex-col justify-center overflow-y-auto"
+              >
+                {MOBILE_NAV_ITEMS.map((item, index) => (
+                  <motion.div
+                    key={item.href}
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{
+                      opacity: {
+                        duration: 0.6,
+                        delay: index * 0.06,
+                        ease: 'easeOut',
+                      },
+                      y: {
+                        duration: 0.6,
+                        delay: index * 0.06,
+                        ease: 'easeOut',
+                      },
+                    }}
                   >
-                    Home
-                  </Link>
-                </motion.div>
-
-                {NAV_GROUPS.map((group, groupIndex) => {
-                  const isOpen = openGroup === group.id;
-                  const isActive = groupIsActive(pathname, group);
-                  const triggerId = `mobile-${group.id}-trigger`;
-                  const menuId = `mobile-${group.id}-menu`;
-
-                  return (
-                    <motion.div
-                      key={group.id}
-                      initial={{ opacity: 0, y: -16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: (groupIndex + 1) * 0.06, ease: 'easeOut' }}
+                    <Link
+                      href={item.href}
+                      onClick={closeMobileMenu}
+                      aria-current={isPathActive(pathname, item.href) ? 'page' : undefined}
+                      className={cn(
+                        'block py-6 text-2xl font-medium transition-colors',
+                        'text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-gray-400',
+                        isPathActive(pathname, item.href) && 'font-semibold'
+                      )}
                     >
-                      <button
-                        ref={(node) => {
-                          groupButtonRefs.current[group.id] = node;
-                        }}
-                        id={triggerId}
-                        type="button"
-                        className={cn(
-                          'flex w-full items-center justify-between py-5 text-left text-2xl font-medium',
-                          'text-gray-900 dark:text-white',
-                          isActive && 'font-semibold'
-                        )}
-                        aria-haspopup="menu"
-                        aria-expanded={isOpen}
-                        aria-controls={menuId}
-                        onClick={() => setOpenGroup(isOpen ? null : group.id)}
-                        onKeyDown={(event) => handleGroupKeyDown(group.id, event, false)}
-                      >
-                        <span>{group.label}</span>
-                        <motion.span
-                          aria-hidden="true"
-                          animate={{ rotate: isOpen ? 180 : 0 }}
-                          transition={{ duration: 0.15 }}
-                        >
-                          <FiChevronDown size={20} />
-                        </motion.span>
-                      </button>
-
-                      <AnimatePresence initial={false}>
-                        {isOpen && (
-                          <motion.div
-                            id={menuId}
-                            role="menu"
-                            aria-labelledby={triggerId}
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.2, ease: 'easeOut' }}
-                            className="overflow-hidden pl-3"
-                          >
-                            {group.items.map((item, itemIndex) => (
-                              <Link
-                                key={item.href}
-                                href={item.href}
-                                role="menuitem"
-                                ref={(node) => {
-                                  menuItemRefs.current[group.id][itemIndex] = node;
-                                }}
-                                aria-current={
-                                  isPathActive(pathname, item.href) ? 'page' : undefined
-                                }
-                                className={cn(
-                                  'block py-3 text-lg transition-colors',
-                                  'text-gray-900/65 hover:text-gray-900 dark:text-white/65 dark:hover:text-white',
-                                  isPathActive(pathname, item.href) &&
-                                    'font-medium text-gray-900 dark:text-white'
-                                )}
-                                onClick={closeMobileMenu}
-                                onKeyDown={(event) =>
-                                  handleMenuKeyDown(group.id, itemIndex, event)
-                                }
-                              >
-                                {item.label}
-                              </Link>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  );
-                })}
-
-                <motion.div
-                  initial={{ opacity: 0, y: -16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: (NAV_GROUPS.length + 1) * 0.06, ease: 'easeOut' }}
-                >
-                  <Link
-                    href="/about"
-                    onClick={closeMobileMenu}
-                    aria-current={isPathActive(pathname, '/about') ? 'page' : undefined}
-                    className={cn(
-                      'block py-6 text-2xl font-medium transition-colors',
-                      'text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-gray-400',
-                      isPathActive(pathname, '/about') && 'font-semibold'
-                    )}
-                  >
-                    About
-                  </Link>
-                </motion.div>
+                      {item.label}
+                    </Link>
+                  </motion.div>
+                ))}
               </nav>
             </div>
           </motion.div>
