@@ -229,11 +229,10 @@ function Navbar() {
 
   const childLinkClassName = (active: boolean) =>
     cn(
-      'block px-5 py-4 text-lg transition-colors',
-      'text-gray-900/70 hover:bg-black/[0.035] hover:text-gray-900',
-      'dark:text-white/70 dark:hover:bg-white/[0.04] dark:hover:text-white',
-      active &&
-        'bg-black/[0.04] font-medium text-gray-900 dark:bg-white/[0.06] dark:text-white'
+      'block px-3 py-2 text-sm font-medium transition-colors',
+      'text-gray-900/70 hover:text-gray-900',
+      'dark:text-white/70 dark:hover:text-white',
+      active && 'font-semibold text-gray-900 dark:text-white'
     );
 
   return (
@@ -347,14 +346,12 @@ function Navbar() {
                       id={menuId}
                       role="menu"
                       aria-labelledby={triggerId}
-                      initial={{ opacity: 0, y: -6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -4 }}
-                      transition={{ duration: 0.14, ease: 'easeOut' }}
+                      initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -5, scale: 0.98 }}
+                      transition={{ duration: 0.16, ease: 'easeOut' }}
                       className={cn(
-                        'absolute left-1/2 top-[calc(100%-0.75rem)] min-w-56 -translate-x-1/2 overflow-hidden border shadow-none',
-                        'rounded-[4px] border-gray-200/80 bg-[#f4efe6]/95 backdrop-blur-xl',
-                        'dark:border-white/15 dark:bg-[#0c0c0c]/95'
+                        'absolute left-0 top-[calc(50%+1.25rem)] flex min-w-max origin-top flex-col items-start'
                       )}
                     >
                       {group.items.map((item, itemIndex) => (

@@ -866,7 +866,7 @@
   },
   {
     "title": "Anthony Fu's Personal Site",
-    "description": "Minimal text-forward portfolio by the creator of Vitest, Slidev, and VueUse. No hero animation, no decoration — credibility through output density.",
+    "description": "Minimal text-forward portfolio by the creator of Vitest, Slidev, and VueUse. No hero animation or decoration; credibility comes through output density.",
     "category": "antfu.me",
     "format": "Portfolio",
     "url": "https://antfu.me",
@@ -881,7 +881,7 @@
   },
   {
     "title": "Lee Robinson's Site",
-    "description": "Pure content-hierarchy personal site by Vercel's VP of Product. System fonts, generous whitespace, no animations — the restraint is the signal.",
+    "description": "Pure content-hierarchy personal site by Vercel's VP of Product. System fonts, generous whitespace, no animations; the restraint is the signal.",
     "category": "leerob.com",
     "format": "Portfolio",
     "url": "https://leerob.com",
@@ -940,7 +940,7 @@
     ]
   },
   {
-    "title": "Train Your Judgement — Emil Kowalski",
+    "title": "Train Your Judgement: Emil Kowalski",
     "description": "Interactive article teaching animation quality through A/B comparisons. Centered column, generous whitespace, serif inline elements. A model for content-first technical writing.",
     "category": "emilkowal.ski",
     "format": "Article",
@@ -985,7 +985,7 @@
     ]
   },
   {
-    "title": "Godly — Web Design Inspiration",
+    "title": "Godly: Web Design Inspiration",
     "description": "Curated gallery of astronomically good web design. Best reference for contemporary portfolio and creative site aesthetics.",
     "category": "godly.website",
     "format": "Gallery",
@@ -1000,7 +1000,7 @@
   },
   {
     "title": "Josh W. Comeau's Site",
-    "description": "React and CSS educator. Animated SVG illustrations and layered section transitions — the most visually decorated of the minimalist-adjacent personal sites, justified by his joy-of-coding brand.",
+    "description": "React and CSS educator. Animated SVG illustrations and layered section transitions make this the most visually decorated of the minimalist-adjacent personal sites, justified by his joy-of-coding brand.",
     "category": "joshwcomeau.com",
     "format": "Portfolio",
     "url": "https://www.joshwcomeau.com",

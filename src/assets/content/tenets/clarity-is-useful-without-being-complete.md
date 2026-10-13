@@ -1,1 +1,1 @@
-A narrow—even incorrect—worldview can make action easier by concentrating motivation and muting competing aims. Nuance can reveal more of the truth but create internal conflict, so seek enough clarity to act without mistaking a useful story for a complete one.
+A narrow, even incorrect, worldview can make action easier by concentrating motivation and muting competing aims. Nuance can reveal more of the truth but create internal conflict, so seek enough clarity to act without mistaking a useful story for a complete one.

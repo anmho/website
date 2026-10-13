@@ -57,7 +57,7 @@ $$
 
 500 identical trees on identical data would be redundant. Random forests make each tree different in two ways.
 
-First, each tree gets a **bootstrap sample** of the training data — randomly sampled rows with replacement:
+First, each tree gets a **bootstrap sample** of the training data, randomly sampled rows with replacement:
 
 ```text
 Original:        A B C D E
