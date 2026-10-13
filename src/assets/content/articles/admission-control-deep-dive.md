@@ -1,6 +1,6 @@
 # Admission Control: Client, Service, and Proxy Layers
 
-When a system is overloaded, the first instinct is to scale up. But scaling takes time, and traffic spikes can be instantaneous. **Admission control** is the discipline of deciding upfront whether to accept a unit of work at all — before you pay the cost of doing it. Done well, it protects SLOs under overload. Done poorly, it drops healthy traffic or lets the system spiral.
+When a system is overloaded, the first instinct is to scale up. But scaling takes time, and traffic spikes can be instantaneous. **Admission control** is the discipline of deciding upfront whether to accept a unit of work at all, before you pay the cost of doing it. Done well, it protects SLOs under overload. Done poorly, it drops healthy traffic or lets the system spiral.
 
 This article covers the three canonical layers where admission control lives, compares them with the adjacent patterns of load shedding, backpressure, throttling, and rate limiting, and shows idiomatic Go implementations at each layer.
 
@@ -26,12 +26,12 @@ A complete system uses all of them, at different layers.
 
 ## Layer 1: Client-Side Admission Control
 
-The client decides whether to even attempt a call. This prevents the server from ever seeing requests it cannot handle, and it makes retries safe — because a well-behaved client will back off before retrying.
+The client decides whether to even attempt a call. This prevents the server from ever seeing requests it cannot handle, and it makes retries safe because a well-behaved client will back off before retrying.
 
 ### When to use it
 
 - Batch jobs, crawlers, or background workers that can afford to slow down.
-- Any client that issues retries — you want the retry logic to be congestion-aware.
+- Any client that issues retries: you want the retry logic to be congestion-aware.
 - Mobile / edge clients that must stay within quotas.
 
 ### The classic approach: concurrency limiting
@@ -141,7 +141,7 @@ conn, err := grpc.Dial(addr,
 
 **Pros:**
 - Prevents useless work from even leaving the client.
-- Makes retry storms impossible — a congestion-aware client stops retrying when overloaded.
+- Makes retry storms impossible because a congestion-aware client stops retrying when overloaded.
 - No round-trip cost; the decision is local.
 
 **Cons:**
@@ -211,7 +211,7 @@ func (wq *WorkQueue) Submit(job func()) bool {
 }
 ```
 
-If `Submit` returns false, respond with 503. The `default` case makes the channel non-blocking — critical for not blocking the accept loop.
+If `Submit` returns false, respond with 503. The `default` case makes the channel non-blocking, which is critical for not blocking the accept loop.
 
 ### CPU / latency gradient: adaptive admission
 
@@ -298,7 +298,7 @@ Google's production systems use priority levels extensively. The SRE book descri
 
 ### Real-world example: Go's `golang.org/x/net/netutil`
 
-Go's standard library includes `netutil.LimitListener`, which caps the number of open connections at the TCP accept level — before any HTTP parsing happens. This is admission control at the OS boundary.
+Go's standard library includes `netutil.LimitListener`, which caps the number of open connections at the TCP accept level, before any HTTP parsing happens. This is admission control at the OS boundary.
 
 ```go
 import "golang.org/x/net/netutil"
@@ -331,7 +331,7 @@ A sidecar proxy like Envoy sits between caller and callee. It sees all traffic a
 **1. Circuit breaking (upstream cluster config)**
 
 ```yaml
-# envoy.yaml — upstream cluster with circuit breaker thresholds
+# envoy.yaml: upstream cluster with circuit breaker thresholds
 clusters:
   - name: my_service
     connect_timeout: 0.25s
@@ -355,7 +355,7 @@ clusters:
                     port_value: 8080
 ```
 
-When `max_requests` is exceeded, Envoy immediately returns 503 (with `x-envoy-overloaded: true`) without forwarding. This is **proxy-side admission control** — the upstream never sees the request.
+When `max_requests` is exceeded, Envoy immediately returns 503 (with `x-envoy-overloaded: true`) without forwarding. This is **proxy-side admission control**; the upstream never sees the request.
 
 **2. Global rate limiting via rate limit service**
 
@@ -517,17 +517,17 @@ Request arrives
 
 ### When each is the right tool
 
-**Rate limiting** — when you want to enforce a budget per caller identity (user ID, API key, IP). Best at the edge/gateway. Does not adapt to server health.
+**Rate limiting**: use it when you want to enforce a budget per caller identity (user ID, API key, IP). It works best at the edge/gateway and does not adapt to server health.
 
-**Throttling** — when you want the *client* to self-police. Add jitter and exponential backoff. Critical for retry safety. Most effective as a client-library concern.
+**Throttling**: use it when you want the *client* to self-police. Add jitter and exponential backoff. It is critical for retry safety and most effective as a client-library concern.
 
-**Admission control (service-side)** — when you want to protect a specific server from being overwhelmed regardless of who is calling. Use in-flight count + latency gradient for adaptive behaviour.
+**Admission control (service-side)**: use it when you want to protect a specific server from being overwhelmed regardless of who is calling. Use in-flight count + latency gradient for adaptive behaviour.
 
-**Admission control (proxy-side)** — when you have a heterogeneous fleet and want consistent policy without touching application code. Best combined with service mesh observability.
+**Admission control (proxy-side)**: use it when you have a heterogeneous fleet and want consistent policy without touching application code. It works best with service mesh observability.
 
-**Load shedding** — when you have already accepted a request but the queue is so deep that it will miss its deadline anyway. Drop it early to reclaim resources. Effective for background work deprioritisation.
+**Load shedding**: use it when you have already accepted a request but the queue is so deep that it will miss its deadline anyway. Drop it early to reclaim resources. It is effective for background work deprioritisation.
 
-**Backpressure** — when you want to slow callers rather than drop requests. Natural fit for streaming or pipeline architectures where the caller *can* slow down. Less useful when callers are external (you can't force them to slow down).
+**Backpressure**: use it when you want to slow callers rather than drop requests. It is a natural fit for streaming or pipeline architectures where the caller *can* slow down. It is less useful when callers are external because you can't force them to slow down.
 
 ---
 
@@ -624,7 +624,7 @@ http.ListenAndServe(":8080", handler)
 
 ## Summary
 
-Admission control is not one thing — it is a family of decisions made at three different layers, each with a different vantage point and cost model:
+Admission control is not one thing; it is a family of decisions made at three different layers, each with a different vantage point and cost model:
 
 1. **Client-side**: prevent useless work from leaving the process. Best implemented with concurrency limits + AIMD. Makes retries safe.
 2. **Service-side**: protect the server regardless of caller behaviour. Best implemented with in-flight count + latency gradient. Supports priority classes.
@@ -643,5 +643,5 @@ The combination is defence-in-depth for overload. No single layer is sufficient 
 - [Envoy Proxy: Circuit breaking](https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/circuit_breaking)
 - [Envoy Proxy: Adaptive concurrency filter](https://www.envoyproxy.io/docs/envoy/latest/configuration/http/http_filters/adaptive_concurrency_filter)
 - [Netflix: Performance Under Load](https://netflixtechblog.medium.com/performance-under-load-3e6fa9a60581)
-- [Istio: Traffic Management — Destination Rules](https://istio.io/latest/docs/reference/config/networking/destination-rule/)
+- [Istio: Traffic Management: Destination Rules](https://istio.io/latest/docs/reference/config/networking/destination-rule/)
 - [gRPC: Flow Control](https://grpc.io/docs/guides/flow-control/)

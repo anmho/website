@@ -61,7 +61,7 @@ Key differences:
 
 ## References
 
-- Livegrep README (architecture, index size, RE2) — https://github.com/livegrep/livegrep
-- GitHub Code Search feature page — https://github.com/features/code-search
-- Google Code Search (CLI) — https://github.com/google/codesearch
-- grep.app — https://grep.app/
+- Livegrep README (architecture, index size, RE2): https://github.com/livegrep/livegrep
+- GitHub Code Search feature page: https://github.com/features/code-search
+- Google Code Search (CLI): https://github.com/google/codesearch
+- grep.app: https://grep.app/

@@ -94,7 +94,7 @@ Note: Due to the GIL, `to_thread` is not a general CPU-parallelism solution, but
 
 ## References
 
-- [threading — Python docs](https://docs.python.org/3.12/library/threading.html)
-- [queue — Python docs](https://docs.python.org/3/library/queue.html)
-- [asyncio.Queue — Python docs](https://docs.python.org/3/library/asyncio-queue.html)
-- [asyncio.to_thread — Python docs](https://docs.python.org/3.9/library/asyncio-task.html)
+- [threading: Python docs](https://docs.python.org/3.12/library/threading.html)
+- [queue: Python docs](https://docs.python.org/3/library/queue.html)
+- [asyncio.Queue: Python docs](https://docs.python.org/3/library/asyncio-queue.html)
+- [asyncio.to_thread: Python docs](https://docs.python.org/3.9/library/asyncio-task.html)

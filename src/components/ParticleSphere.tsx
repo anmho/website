@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 
-// ASCII donut — Andy Sloane's donut.c algorithm, rendered to canvas.
+// ASCII donut: Andy Sloane's donut.c algorithm, rendered to canvas.
 // Torus with major radius R2=2, minor radius R1=1, rotated by angles A and B.
 const R1 = 1;
 const R2 = 2;

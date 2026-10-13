@@ -10,6 +10,10 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
+## Authored Copy
+
+Use commas, colons, semicolons, parentheses, or separate sentences instead of em dashes in site copy, documentation, and UI text.
+
 ## Email Templates
 
 Email templates use **React Email with Tailwind CSS** for consistency with the main site styling.
@@ -100,6 +104,8 @@ await resend.emails.send({ html, ... });
 - 2026-10-13: Initially tried to remove temporary browser-test artifacts with `rm`, which the command guard correctly rejected. This happened because the generated artifacts were treated as disposable instead of following the repository edit constraints. Guardrail: delete text artifacts with `apply_patch` and move generated binary artifacts to a `mktemp` directory when they must be removed from the worktree.
 - 2026-10-13: Initially retried commits after resolving a multi-commit cherry-pick conflict, unaware that `git cherry-pick --continue` had already applied the queued remaining commits. This happened because the original cherry-pick sequencer state was not rechecked before issuing a second cherry-pick command. Guardrail: after resolving a multi-commit cherry-pick, inspect `git log --oneline` and `git status --short` before applying any remaining commits manually.
 - 2026-10-13: Initially passed the create-only `--no-interactive` option to `linear issue update`, so the CLI rejected the ticket update before any write occurred. This happened because create and update commands were treated as having interchangeable flags. Guardrail: inspect the specific Linear subcommand help before a mutation and use only the flags it documents.
+- 2026-10-13: Initially verified the desktop navigation with a Playwright menu locator that assumed an accessible name the menu did not expose, so the check timed out. This happened because the menu's visual trigger label was confused with the menu's computed accessible name. Guardrail: use stable component ids for menu containers when their accessible names are not explicitly defined.
+- 2026-10-13: Initially tested the development server through `127.0.0.1`, which blocked Next development assets as cross-origin and left the navigation unhydrated. This happened because the local test URL did not match the development server's allowed origin. Guardrail: verify client interaction with a production server or use its canonical local origin when development assets need to hydrate.
 
 ## Source-Backed Claims
 1. When adding factual claims, back them up with a credible source and cite it explicitly.

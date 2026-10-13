@@ -26,8 +26,7 @@ function Hero() {
               hey, i'm andy.
             </h1>
             <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-              a software engineer focused on applying ai to novel areas. currently
-              ml infra @ snap
+              interested in applied ai and ai safety. currently ml infra @ snap
             </p>
           </motion.div>
 

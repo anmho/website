@@ -11,7 +11,7 @@ Key sources:
 
 ## What “Jailbreaking” Means
 
-**Jailbreaking** generally refers to user inputs that cause a model to violate intended safety or policy boundaries. In practice, this is closely related to **prompt injection**—where untrusted inputs attempt to override the system’s intended instructions or behavior. OWASP lists prompt injection as the top risk in the LLM security landscape. ([OWASP Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/))
+**Jailbreaking** generally refers to user inputs that cause a model to violate intended safety or policy boundaries. In practice, this is closely related to **prompt injection**, where untrusted inputs attempt to override the system’s intended instructions or behavior. OWASP lists prompt injection as the top risk in the LLM security landscape. ([OWASP Top 10](https://owasp.org/www-project-top-10-for-large-language-model-applications/))
 
 ## Why Jailbreaks Work
 
@@ -20,7 +20,7 @@ Most jailbreaks exploit the fact that LLMs:
 2. **Follow statistical patterns** that can be steered by carefully crafted inputs.
 3. **Lack perfect separation** between trusted instructions and untrusted data.
 
-OWASP describes this as a “semantic gap” between instructions and data, which makes prompt injection and jailbreaks hard to eliminate. The key point is that this is not “one bug” to patch—it's a structural weakness of instruction-following systems. ([OWASP Prompt Injection](https://owasp.org/www-community/attacks/PromptInjection)) ([LLM Security & Privacy Survey](https://arxiv.org/abs/2312.02003))
+OWASP describes this as a “semantic gap” between instructions and data, which makes prompt injection and jailbreaks hard to eliminate. The key point is that this is not “one bug” to patch; it's a structural weakness of instruction-following systems. ([OWASP Prompt Injection](https://owasp.org/www-community/attacks/PromptInjection)) ([LLM Security & Privacy Survey](https://arxiv.org/abs/2312.02003))
 
 ## Jailbreaking vs Prompt Injection
 

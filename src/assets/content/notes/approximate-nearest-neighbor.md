@@ -11,7 +11,7 @@ sort by distance
 return top k
 ```
 
-This is $O(n \cdot d)$ per query — fine for thousands of vectors, too slow for millions or billions.
+This is $O(n \cdot d)$ per query: fine for thousands of vectors, too slow for millions or billions.
 
 **Approximate** nearest neighbor search trades a small amount of recall for a large amount of speed by building an index that prunes most of the search space up front:
 
@@ -50,7 +50,7 @@ Often paired with **product quantization (PQ)** to compress vectors and shrink m
 
 **LSH (Locality-Sensitive Hashing)**
 
-Hash vectors such that similar vectors land in the same bucket with high probability. Less common now — generally dominated by HNSW/IVF in recall-per-latency.
+Hash vectors such that similar vectors land in the same bucket with high probability. This is less common now and generally dominated by HNSW/IVF in recall-per-latency.
 
 ### Tuning the tradeoff
 
@@ -62,4 +62,4 @@ Every ANN index exposes knobs that trade recall for speed:
 | HNSW | `M` | more graph connections per node = better recall, more memory |
 | IVF | `nprobe` | more buckets searched = better recall, slower |
 
-Backbone of embedding search in RAG pipelines, semantic search, and [candidate retrieval systems](/articles/designing-a-job-candidate-retrieval-system) — matching a query embedding against millions of candidate embeddings before any reranking happens.
+Backbone of embedding search in RAG pipelines, semantic search, and [candidate retrieval systems](/articles/designing-a-job-candidate-retrieval-system), matching a query embedding against millions of candidate embeddings before any reranking happens.
