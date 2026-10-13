@@ -37,7 +37,7 @@ export default async function LessonsPage() {
   const content = records.length
     ? records.map((record) => ({
         lesson: {
-          id: record.id,
+          id: record.slug,
           title: record.title,
           date: record.date,
           excerpt: record.excerpt,

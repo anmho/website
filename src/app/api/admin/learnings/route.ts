@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
   const id = `${date}-${slugify(question)}`;
   try {
     const learning = await createContent({
-      id,
+      id: `learning:${id}`,
       contentType: 'learning',
       slug: id,
       title: question,
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       },
     });
     const response = {
-      id: learning.id,
+      id: learning.slug,
       question: learning.title,
       answer: learning.body,
       tags: learning.tags,

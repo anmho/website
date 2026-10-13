@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const lesson = await createContent({
-      id,
+      id: `lesson:${id}`,
       contentType: 'lesson',
       slug: id,
       title,
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
       metadata: parsed.data.source?.trim() ? { source: parsed.data.source.trim() } : {},
     });
     revalidatePath('/lessons');
-    return NextResponse.json({ lesson: { id: lesson.id, title: lesson.title, date: lesson.date, excerpt: lesson.excerpt, ...(typeof lesson.metadata.source === 'string' ? { source: lesson.metadata.source } : {}) } }, { status: 201 });
+    return NextResponse.json({ lesson: { id: lesson.slug, title: lesson.title, date: lesson.date, excerpt: lesson.excerpt, ...(typeof lesson.metadata.source === 'string' ? { source: lesson.metadata.source } : {}) } }, { status: 201 });
   } catch (error) {
     if (isContentConflict(error)) {
       return NextResponse.json({ error: `lesson already exists: ${id}` }, { status: 409 });

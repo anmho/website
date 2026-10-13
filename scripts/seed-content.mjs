@@ -33,7 +33,7 @@ try {
   for (const article of articles) {
     await sql`
       insert into content_posts (id, content_type, slug, title, excerpt, body, date, read_time, tags, metadata)
-      values (${article.slug}, 'article', ${article.slug}, ${article.title}, ${article.excerpt}, ${await readMarkdown(`src/assets/content/articles/${article.slug}.md`)}, ${article.date}, ${article.readTime}, ${[]}, ${JSON.stringify({})}::jsonb)
+      values (${'article:' + article.slug}, 'article', ${article.slug}, ${article.title}, ${article.excerpt}, ${await readMarkdown(`src/assets/content/articles/${article.slug}.md`)}, ${article.date}, ${article.readTime}, ${[]}, ${JSON.stringify({})}::jsonb)
       on conflict (content_type, slug) do nothing
     `;
     count += 1;
@@ -42,7 +42,7 @@ try {
   for (const note of notes) {
     await sql`
       insert into content_posts (id, content_type, slug, title, excerpt, body, date, read_time, tags, metadata)
-      values (${note.slug}, 'note', ${note.slug}, ${note.title}, ${note.excerpt}, ${await readMarkdown(`src/assets/content/notes/${note.slug}.md`)}, ${note.date}, ${note.readTime}, ${[]}, ${JSON.stringify({})}::jsonb)
+      values (${'note:' + note.slug}, 'note', ${note.slug}, ${note.title}, ${note.excerpt}, ${await readMarkdown(`src/assets/content/notes/${note.slug}.md`)}, ${note.date}, ${note.readTime}, ${[]}, ${JSON.stringify({})}::jsonb)
       on conflict (content_type, slug) do nothing
     `;
     count += 1;
@@ -55,7 +55,7 @@ try {
     };
     await sql`
       insert into content_posts (id, content_type, slug, title, excerpt, body, date, read_time, tags, metadata)
-      values (${learning.id}, 'learning', ${learning.id}, ${learning.question}, '', ${learning.answer}, ${learning.date}, ${null}, ${learning.tags || []}, ${JSON.stringify(metadata)}::jsonb)
+      values (${'learning:' + learning.id}, 'learning', ${learning.id}, ${learning.question}, '', ${learning.answer}, ${learning.date}, ${null}, ${learning.tags || []}, ${JSON.stringify(metadata)}::jsonb)
       on conflict (content_type, slug) do nothing
     `;
     count += 1;

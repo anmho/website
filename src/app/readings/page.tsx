@@ -37,7 +37,7 @@ export default async function ReadingsPage() {
   const content = records.length
     ? records.map((record) => ({
         reading: {
-          id: record.id,
+          id: record.slug,
           title: record.title,
           date: record.date,
           excerpt: record.excerpt,

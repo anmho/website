@@ -9,7 +9,7 @@ export default async function LearningsPage() {
   const records = await listContent('learning');
   const learnings = records.length
     ? records.map((record) => ({
-        id: record.id,
+        id: record.slug,
         question: record.title,
         answer: record.body,
         date: record.date,

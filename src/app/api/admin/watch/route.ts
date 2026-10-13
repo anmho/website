@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const watch = await createContent({
-      id,
+      id: `watch:${id}`,
       contentType: 'watch',
       slug: id,
       title,
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       metadata: { format },
     });
     revalidatePath('/watch');
-    return NextResponse.json({ watch: { id: watch.id, title: watch.title, date: watch.date, excerpt: watch.excerpt, format: typeof watch.metadata.format === 'string' ? watch.metadata.format : format } }, { status: 201 });
+    return NextResponse.json({ watch: { id: watch.slug, title: watch.title, date: watch.date, excerpt: watch.excerpt, format: typeof watch.metadata.format === 'string' ? watch.metadata.format : format } }, { status: 201 });
   } catch (error) {
     if (isContentConflict(error)) {
       return NextResponse.json({ error: `watch item already exists: ${id}` }, { status: 409 });

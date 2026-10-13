@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const article = await createContent({
-      id: slug,
+      id: `article:${slug}`,
       contentType: 'article',
       slug,
       title,

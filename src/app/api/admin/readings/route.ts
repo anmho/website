@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const reading = await createContent({
-      id,
+      id: `reading:${id}`,
       contentType: 'reading',
       slug: id,
       title,
@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       metadata: { author },
     });
     revalidatePath('/readings');
-    return NextResponse.json({ reading: { id: reading.id, title: reading.title, date: reading.date, excerpt: reading.excerpt, author: typeof reading.metadata.author === 'string' ? reading.metadata.author : author } }, { status: 201 });
+    return NextResponse.json({ reading: { id: reading.slug, title: reading.title, date: reading.date, excerpt: reading.excerpt, author: typeof reading.metadata.author === 'string' ? reading.metadata.author : author } }, { status: 201 });
   } catch (error) {
     if (isContentConflict(error)) {
       return NextResponse.json({ error: `reading already exists: ${id}` }, { status: 409 });
