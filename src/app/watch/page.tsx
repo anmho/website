@@ -3,14 +3,23 @@ import remarkGfm from 'remark-gfm';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
-import OwnerEditorLink from '@/components/OwnerEditorLink';
 import { formatDate } from '@/lib/utils';
-import { listContent } from '@/lib/contentDb';
+import watchData from '@/assets/static/json/watch.json';
+import { readStaticMarkdown } from '@/lib/staticContent';
 
 export const revalidate = 3600;
 
 export default async function WatchPage() {
-  const records = await listContent('watch');
+  const records = await Promise.all((watchData as Array<{
+    id: string;
+    title: string;
+    date: string;
+    excerpt: string;
+    format?: string;
+  }>).map(async (record) => ({
+    ...record,
+    body: await readStaticMarkdown('watch', record.id),
+  })));
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
@@ -24,8 +33,6 @@ export default async function WatchPage() {
             <p className="mb-20 max-w-xl text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:ml-4 sm:text-xl">
               Movies and videos worth spending time with.
             </p>
-            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="watch" label="Add watch item" /></div>
-
             {records.length > 0 ? (
               <div className="space-y-1">
                 {records.map((record) => (
@@ -36,7 +43,7 @@ export default async function WatchPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-gray-400 dark:text-gray-600">
-                          {typeof record.metadata.format === 'string' ? record.metadata.format : 'Video'}
+                          {record.format || 'Video'}
                         </p>
                         <h2 className="mb-2 text-xl font-medium tracking-tight text-gray-900 transition-colors group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-300 sm:text-2xl">
                           {record.title}

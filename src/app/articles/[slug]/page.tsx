@@ -2,7 +2,10 @@ import { notFound } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
+import articlesData from '@/assets/static/json/articles.json';
 import Link from 'next/link';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -15,7 +18,6 @@ import {
   type ReactNode,
 } from 'react';
 import { formatDate } from '@/lib/utils';
-import { getContent, listContent } from '@/lib/contentDb';
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -30,31 +32,30 @@ interface Article {
 }
 
 interface ArticlePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getArticle(slug: string): Promise<Article | null> {
-  const record = await getContent('article', slug);
-  if (record) {
-    return {
-      slug: record.slug,
-      title: record.title,
-      date: record.date,
-      excerpt: record.excerpt,
-      readTime: record.readTime || '8 min read',
-      body: record.body,
-    };
+  const article = (articlesData as Array<Omit<Article, 'body'>>).find((item) => item.slug === slug);
+  if (!article) return null;
+
+  let body = '';
+  try {
+    body = await readFile(
+      join(process.cwd(), 'src', 'assets', 'content', 'articles', `${slug}.md`),
+      'utf-8'
+    );
+  } catch {
+    // Metadata-only entries can still render their excerpt.
   }
-  return null;
+
+  return { ...article, body };
 }
 
 export async function generateStaticParams() {
-  const records = await listContent('article');
-  return records.map((record) => ({
-    slug: record.slug,
-  }));
+  return (articlesData as Array<{ slug: string }>).map((article) => ({ slug: article.slug }));
 }
 
 type MarkdownCodeProps = HTMLAttributes<HTMLElement> & {
@@ -384,7 +385,8 @@ function createArticleMarkdownComponents(
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
-  const article = await getArticle(params.slug);
+  const { slug } = await params;
+  const article = await getArticle(slug);
 
   if (!article) {
     notFound();

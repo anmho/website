@@ -3,9 +3,9 @@ import remarkGfm from 'remark-gfm';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
-import OwnerEditorLink from '@/components/OwnerEditorLink';
 import { formatDate } from '@/lib/utils';
-import { listContent } from '@/lib/contentDb';
+import lessonsData from '@/assets/static/json/lessons.json';
+import { readStaticMarkdown } from '@/lib/staticContent';
 
 export const revalidate = 3600;
 
@@ -18,17 +18,12 @@ type Lesson = {
 };
 
 export default async function LessonsPage() {
-  const records = await listContent('lesson');
-  const content = records.map((record) => ({
-    lesson: {
-      id: record.slug,
-      title: record.title,
-      date: record.date,
-      excerpt: record.excerpt,
-      source: typeof record.metadata.source === 'string' ? record.metadata.source : undefined,
-    },
-    body: record.body,
-  }));
+  const content = await Promise.all(
+    (lessonsData as Lesson[]).map(async (lesson) => ({
+      lesson,
+      body: await readStaticMarkdown('lessons', lesson.id),
+    }))
+  );
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
@@ -42,8 +37,6 @@ export default async function LessonsPage() {
             <p className="mb-20 max-w-xl text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:ml-4 sm:text-xl">
               A personal reminder of timeless lessons.
             </p>
-            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="lesson" label="Add lesson" /></div>
-
             {content.length > 0 ? (
               <div className="space-y-1">
                 {content.map(({ lesson, body }) => (

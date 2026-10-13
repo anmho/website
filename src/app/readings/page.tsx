@@ -1,11 +1,12 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
-import OwnerEditorLink from '@/components/OwnerEditorLink';
 import { formatDate } from '@/lib/utils';
-import { listContent } from '@/lib/contentDb';
+import readingsData from '@/assets/static/json/readings.json';
+import { readStaticMarkdown } from '@/lib/staticContent';
 
 export const revalidate = 3600;
 
@@ -18,17 +19,12 @@ type Reading = {
 };
 
 export default async function ReadingsPage() {
-  const records = await listContent('reading');
-  const content = records.map((record) => ({
-    reading: {
-      id: record.slug,
-      title: record.title,
-      date: record.date,
-      excerpt: record.excerpt,
-      author: typeof record.metadata.author === 'string' ? record.metadata.author : 'Unknown author',
-    },
-    body: record.body,
-  }));
+  const content = await Promise.all(
+    (readingsData as Reading[]).map(async (reading) => ({
+      reading,
+      body: await readStaticMarkdown('readings', reading.id),
+    }))
+  );
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
@@ -42,7 +38,16 @@ export default async function ReadingsPage() {
             <p className="mb-20 max-w-xl text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:ml-4 sm:text-xl">
               Books, papers, and essays worth returning to.
             </p>
-            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="reading" label="Add reading" /></div>
+            <div className="mb-10 flex flex-wrap items-center gap-5 sm:ml-4">
+              <Link
+                href="https://www.goodreads.com/user/show/184401794-andrew-ho"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-500 underline decoration-gray-300 underline-offset-4 transition-colors hover:text-gray-950 dark:text-gray-400 dark:decoration-gray-700 dark:hover:text-white"
+              >
+                A full list of my readings ↗
+              </Link>
+            </div>
 
             {content.length > 0 ? (
               <div className="space-y-1">

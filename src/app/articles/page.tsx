@@ -2,20 +2,12 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import ArticleList, { type ArticleListItem } from '@/components/ArticleList';
-import OwnerEditorLink from '@/components/OwnerEditorLink';
-import { listContent } from '@/lib/contentDb';
+import articlesData from '@/assets/static/json/articles.json';
 
 export const revalidate = 3600;
 
-export default async function Articles() {
-  const records = await listContent('article');
-  const articles: ArticleListItem[] = records.map((record) => ({
-    slug: record.slug,
-    title: record.title,
-    date: record.date,
-    excerpt: record.excerpt,
-    readTime: record.readTime || '8 min read',
-  }));
+export default function Articles() {
+  const articles = articlesData as ArticleListItem[];
 
   return (
     <main className="w-full overflow-hidden dark:text-white text-gray-900">
@@ -29,7 +21,6 @@ export default async function Articles() {
             <p className="text-md sm:text-xl dark:text-gray-400 text-gray-600 -tracking-wide font-light sm:ml-4 mb-20">
               In-depth articles on building scalable systems and backend engineering.
             </p>
-            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="article" label="Add article" /></div>
             <ArticleList articles={articles} />
           </div>
         </SectionContainer>

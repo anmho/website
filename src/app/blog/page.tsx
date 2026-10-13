@@ -3,7 +3,8 @@ import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
-import { listContent } from '@/lib/contentDb';
+import notesData from '@/assets/static/json/notes.json';
+import articlesData from '@/assets/static/json/articles.json';
 
 interface Post {
   slug: string;
@@ -15,25 +16,9 @@ interface Post {
 
 export const revalidate = 3600;
 
-export default async function Blog() {
-  const [articleRecords, noteRecords] = await Promise.all([
-    listContent('article'),
-    listContent('note'),
-  ]);
-  const articles: Post[] = articleRecords.map((record) => ({
-    slug: record.slug,
-    title: record.title,
-    date: record.date,
-    excerpt: record.excerpt,
-    readTime: record.readTime || '8 min read',
-  }));
-  const notes: Post[] = noteRecords.map((record) => ({
-    slug: record.slug,
-    title: record.title,
-    date: record.date,
-    excerpt: record.excerpt,
-    readTime: record.readTime || '5 min read',
-  }));
+export default function Blog() {
+  const articles = articlesData as Post[];
+  const notes = notesData as Post[];
 
   return (
     <main className="w-full overflow-hidden text-white">

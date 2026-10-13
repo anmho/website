@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
-import { listAllContent } from '@/lib/contentDb';
-import { listBookmarksFromDb } from '@/lib/bookmarksDb';
-
-export const runtime = 'nodejs';
+import articlesData from '@/assets/static/json/articles.json';
+import notesData from '@/assets/static/json/notes.json';
+import learningsData from '@/assets/static/json/learnings.json';
+import lessonsData from '@/assets/static/json/lessons.json';
+import readingsData from '@/assets/static/json/readings.json';
+import watchData from '@/assets/static/json/watch.json';
+import resourcesData from '@/assets/static/json/resources.json';
 
 type SearchItem = {
   slug: string;
@@ -13,6 +16,25 @@ type SearchItem = {
   path: string;
   external?: boolean;
   searchText: string;
+};
+
+type PostMetadata = {
+  slug?: string;
+  id?: string;
+  title: string;
+  question?: string;
+  answer?: string;
+  excerpt?: string;
+  description?: string;
+  category?: string;
+  date?: string;
+  body?: string;
+  author?: string;
+  source?: string;
+  format?: string;
+  url?: string;
+  tags?: string[];
+  codeSnippet?: string;
 };
 
 const pages: SearchItem[] = [
@@ -27,42 +49,58 @@ const pages: SearchItem[] = [
   { slug: 'about', title: 'About', excerpt: 'Learn more about me and get in touch', type: 'page', path: '/about', searchText: 'about learn more about me and get in touch' },
 ];
 
-function contentPath(type: SearchItem['type'], slug: string): string {
+function contentPath(type: Exclude<SearchItem['type'], 'page' | 'bookmark'>, slug: string): string {
   const route = type === 'article' ? 'articles' : type === 'note' ? 'notes' : type === 'learning' ? 'learnings' : `${type}s`;
   return `/${route}/${slug}`;
 }
 
-export async function GET() {
-  try {
-    const [records, bookmarks] = await Promise.all([
-      listAllContent(),
-      listBookmarksFromDb(),
-    ]);
+function postItem(
+  type: Exclude<SearchItem['type'], 'page' | 'bookmark'>,
+  post: PostMetadata
+): SearchItem {
+  const slug = post.slug || post.id || post.title;
+  const title = post.title || post.question || '';
+  const body = [post.body, post.answer, post.codeSnippet].filter(Boolean).join(' ');
+  const excerpt = post.excerpt || post.answer || '';
 
-    const contentItems = records.map((record): SearchItem => ({
-      slug: record.slug,
-      title: record.title,
-      excerpt: record.excerpt,
-      type: record.contentType,
-      date: record.date,
-      path: record.contentType === 'learning'
-        ? `/learnings?q=${encodeURIComponent(record.title)}#${record.slug}`
-        : contentPath(record.contentType, record.slug),
-      searchText: [record.title, record.excerpt, record.body, ...record.tags].join(' ').toLowerCase(),
-    }));
+  return {
+    slug,
+    title,
+    excerpt,
+    type,
+    date: post.date,
+    path: type === 'learning'
+      ? `/learnings?q=${encodeURIComponent(title)}#${slug}`
+      : contentPath(type, slug),
+    searchText: [title, excerpt, body, post.author, post.source, post.format, ...(post.tags || [])]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase(),
+  };
+}
 
-    const bookmarkItems = bookmarks.map((bookmark, index): SearchItem => ({
-      slug: `${index}-${bookmark.url}`,
-      title: bookmark.title,
-      excerpt: [bookmark.description, bookmark.author, bookmark.category, bookmark.format, ...bookmark.tags].join(' '),
-      type: 'bookmark',
-      path: bookmark.url,
-      external: true,
-      searchText: [bookmark.title, bookmark.description, bookmark.author, bookmark.category, bookmark.format, ...bookmark.tags].join(' ').toLowerCase(),
-    }));
+export function GET() {
+  const contentItems = [
+    ...(articlesData as PostMetadata[]).map((post) => postItem('article', post)),
+    ...(notesData as PostMetadata[]).map((post) => postItem('note', post)),
+    ...(learningsData as PostMetadata[]).map((post) => postItem('learning', post)),
+    ...(lessonsData as PostMetadata[]).map((post) => postItem('lesson', post)),
+    ...(readingsData as PostMetadata[]).map((post) => postItem('reading', post)),
+    ...(watchData as PostMetadata[]).map((post) => postItem('watch', post)),
+  ];
 
-    return NextResponse.json({ items: [...pages, ...contentItems, ...bookmarkItems] });
-  } catch (error) {
-    return NextResponse.json({ error: `database unavailable: ${String(error)}` }, { status: 500 });
-  }
+  const bookmarks = (resourcesData as PostMetadata[]).map((bookmark, index): SearchItem => ({
+    slug: `${index}-${bookmark.title}`,
+    title: bookmark.title,
+    excerpt: [bookmark.description, bookmark.author, bookmark.category, bookmark.format, ...(bookmark.tags || [])].filter(Boolean).join(' '),
+    type: 'bookmark',
+    path: bookmark.url || '',
+    external: true,
+    searchText: [bookmark.title, bookmark.description, bookmark.author, bookmark.category, bookmark.format, ...(bookmark.tags || [])]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase(),
+  }));
+
+  return NextResponse.json({ items: [...pages, ...contentItems, ...bookmarks] });
 }

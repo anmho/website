@@ -2,12 +2,22 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import { FiExternalLink } from 'react-icons/fi';
-import { listBookmarksFromDb } from '@/lib/bookmarksDb';
+import resourcesData from '@/assets/static/json/resources.json';
 
 export const revalidate = 3600;
 
-export default async function BookmarksPage() {
-  const resources = await listBookmarksFromDb();
+type Bookmark = {
+  title: string;
+  description: string;
+  category: string;
+  format: string;
+  url: string;
+  author: string;
+  tags: string[];
+};
+
+export default function BookmarksPage() {
+  const resources = resourcesData as Bookmark[];
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
