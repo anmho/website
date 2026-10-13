@@ -10,7 +10,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { cn } from '@/lib/utils';
 import Search from './Search';
 
-type NavGroupId = 'writing' | 'reflections' | 'library';
+type NavGroupId = 'writings' | 'library';
 
 type NavItem = {
   href: string;
@@ -25,17 +25,11 @@ type NavGroup = {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    id: 'writing',
-    label: 'Writing',
+    id: 'writings',
+    label: 'Writings',
     items: [
       { href: '/articles', label: 'Articles' },
       { href: '/notes', label: 'Notes' },
-    ],
-  },
-  {
-    id: 'reflections',
-    label: 'Reflections',
-    items: [
       { href: '/learnings', label: 'Learnings' },
       { href: '/tenets', label: 'Tenets' },
     ],
@@ -64,8 +58,7 @@ const MOBILE_NAV_ITEMS: NavItem[] = [
 ];
 
 const INITIAL_MENU_ITEM_REFS: Record<NavGroupId, Array<HTMLAnchorElement | null>> = {
-  writing: [],
-  reflections: [],
+  writings: [],
   library: [],
 };
 
@@ -86,8 +79,7 @@ function Navbar() {
   const navRef = useRef<HTMLDivElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const groupButtonRefs = useRef<Record<NavGroupId, HTMLButtonElement | null>>({
-    writing: null,
-    reflections: null,
+    writings: null,
     library: null,
   });
   const menuItemRefs = useRef<Record<NavGroupId, Array<HTMLAnchorElement | null>>>(
