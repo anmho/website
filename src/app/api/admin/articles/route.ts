@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAuthError } from '@/lib/controlPlaneAuth';
-import {
-  isISODate,
-  readArticlesMeta,
-  slugify,
-  writeArticleMarkdown,
-  writeArticlesMeta,
-} from '@/lib/controlPlaneStore';
+import { createContent, isContentConflict } from '@/lib/contentDb';
+import { isISODate, slugify } from '@/lib/controlPlaneStore';
 import { createArticleRequestSchema } from '../../../../../packages/contracts/src/admin';
 
 export const runtime = 'nodejs';
@@ -37,13 +33,27 @@ export async function POST(req: NextRequest) {
 
   if (!isISODate(date)) return NextResponse.json({ error: 'invalid date' }, { status: 400 });
 
-  const articles = await readArticlesMeta();
-  if (articles.some((a) => a.slug === slug)) {
-    return NextResponse.json({ error: `article slug already exists: ${slug}` }, { status: 409 });
+  try {
+    const article = await createContent({
+      id: `article:${slug}`,
+      contentType: 'article',
+      slug,
+      title,
+      date,
+      excerpt,
+      body: parsed.data.markdownBody?.trim() || `# ${title}\n`,
+      readTime,
+      tags: [],
+      metadata: {},
+    });
+    revalidatePath('/articles');
+    revalidatePath(`/articles/${slug}`);
+    return NextResponse.json({ article: { slug: article.slug, title: article.title, date: article.date, excerpt: article.excerpt, readTime: article.readTime || readTime } }, { status: 201 });
+  } catch (error) {
+    if (isContentConflict(error)) {
+      return NextResponse.json({ error: `article slug already exists: ${slug}` }, { status: 409 });
+    }
+    console.error('Failed to create article', error);
+    return NextResponse.json({ error: 'failed to save article' }, { status: 500 });
   }
-
-  const article = { slug, title, date, excerpt, readTime };
-  await writeArticlesMeta([article, ...articles]);
-  await writeArticleMarkdown(slug, title, parsed.data.markdownBody);
-  return NextResponse.json({ article }, { status: 201 });
 }

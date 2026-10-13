@@ -154,7 +154,6 @@ html.light .spotify-skeleton-wave::after {
 
 @media (prefers-reduced-motion: reduce) {
   .spotify-equalizer-bar,
-  .spotify-album-pulse,
   .spotify-skeleton-wave::after {
     animation: none;
   }

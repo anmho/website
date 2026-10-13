@@ -9,7 +9,15 @@ const ARTICLES_PATH = path.join(
   process.cwd(),
   'src/assets/static/json/articles.json'
 );
+const NOTES_PATH = path.join(process.cwd(), 'src/assets/static/json/notes.json');
 const ARTICLE_DIR = path.join(process.cwd(), 'src/assets/content/articles');
+const NOTE_DIR = path.join(process.cwd(), 'src/assets/content/notes');
+const WATCH_PATH = path.join(process.cwd(), 'src/assets/static/json/watch.json');
+const READINGS_PATH = path.join(process.cwd(), 'src/assets/static/json/readings.json');
+const WATCH_DIR = path.join(process.cwd(), 'src/assets/content/watch');
+const READINGS_DIR = path.join(process.cwd(), 'src/assets/content/readings');
+const LESSONS_PATH = path.join(process.cwd(), 'src/assets/static/json/lessons.json');
+const LESSONS_DIR = path.join(process.cwd(), 'src/assets/content/lessons');
 
 export type Learning = {
   id: string;
@@ -27,6 +35,32 @@ export type ArticleMeta = {
   date: string;
   excerpt: string;
   readTime: string;
+};
+
+export type NoteMeta = ArticleMeta;
+
+export type WatchMeta = {
+  id: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  format: string;
+};
+
+export type ReadingMeta = {
+  id: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  author: string;
+};
+
+export type LessonMeta = {
+  id: string;
+  title: string;
+  date: string;
+  excerpt: string;
+  source?: string;
 };
 
 export type ValidationIssue = { scope: 'learnings' | 'articles'; message: string };
@@ -61,6 +95,42 @@ export async function writeArticlesMeta(articles: ArticleMeta[]): Promise<void> 
   await fs.writeFile(ARTICLES_PATH, `${JSON.stringify(articles, null, 2)}\n`);
 }
 
+export async function readNotesMeta(): Promise<NoteMeta[]> {
+  const raw = await fs.readFile(NOTES_PATH, 'utf-8');
+  return JSON.parse(raw) as NoteMeta[];
+}
+
+export async function writeNotesMeta(notes: NoteMeta[]): Promise<void> {
+  await fs.writeFile(NOTES_PATH, `${JSON.stringify(notes, null, 2)}\n`);
+}
+
+export async function readWatch(): Promise<WatchMeta[]> {
+  const raw = await fs.readFile(WATCH_PATH, 'utf-8');
+  return JSON.parse(raw) as WatchMeta[];
+}
+
+export async function writeWatch(items: WatchMeta[]): Promise<void> {
+  await fs.writeFile(WATCH_PATH, `${JSON.stringify(items, null, 2)}\n`);
+}
+
+export async function readReadings(): Promise<ReadingMeta[]> {
+  const raw = await fs.readFile(READINGS_PATH, 'utf-8');
+  return JSON.parse(raw) as ReadingMeta[];
+}
+
+export async function writeReadings(items: ReadingMeta[]): Promise<void> {
+  await fs.writeFile(READINGS_PATH, `${JSON.stringify(items, null, 2)}\n`);
+}
+
+export async function readLessons(): Promise<LessonMeta[]> {
+  const raw = await fs.readFile(LESSONS_PATH, 'utf-8');
+  return JSON.parse(raw) as LessonMeta[];
+}
+
+export async function writeLessons(items: LessonMeta[]): Promise<void> {
+  await fs.writeFile(LESSONS_PATH, `${JSON.stringify(items, null, 2)}\n`);
+}
+
 export async function articleMarkdownExists(slug: string): Promise<boolean> {
   const full = path.join(ARTICLE_DIR, `${slug}.md`);
   try {
@@ -80,6 +150,50 @@ export async function writeArticleMarkdown(
   const text =
     body?.trim() ||
     `---\ntitle: ${title}\n---\n\n# ${title}\n\nWrite your article here.\n`;
+  await fs.writeFile(full, text.endsWith('\n') ? text : `${text}\n`);
+  return full;
+}
+
+export async function writeNoteMarkdown(
+  slug: string,
+  title: string,
+  body?: string
+): Promise<string> {
+  const full = path.join(NOTE_DIR, `${slug}.md`);
+  const text = body?.trim() || `# ${title}\n\nWrite your note here.\n`;
+  await fs.writeFile(full, text.endsWith('\n') ? text : `${text}\n`);
+  return full;
+}
+
+export async function writeWatchMarkdown(
+  id: string,
+  title: string,
+  body?: string
+): Promise<string> {
+  const full = path.join(WATCH_DIR, `${id}.md`);
+  const text = body?.trim() || `# ${title}\n\nWrite your watch note here.\n`;
+  await fs.writeFile(full, text.endsWith('\n') ? text : `${text}\n`);
+  return full;
+}
+
+export async function writeReadingMarkdown(
+  id: string,
+  title: string,
+  body?: string
+): Promise<string> {
+  const full = path.join(READINGS_DIR, `${id}.md`);
+  const text = body?.trim() || `# ${title}\n\nWrite your reading note here.\n`;
+  await fs.writeFile(full, text.endsWith('\n') ? text : `${text}\n`);
+  return full;
+}
+
+export async function writeLessonMarkdown(
+  id: string,
+  title: string,
+  body?: string
+): Promise<string> {
+  const full = path.join(LESSONS_DIR, `${id}.md`);
+  const text = body?.trim() || `# ${title}\n\nWrite your lesson here.\n`;
   await fs.writeFile(full, text.endsWith('\n') ? text : `${text}\n`);
   return full;
 }

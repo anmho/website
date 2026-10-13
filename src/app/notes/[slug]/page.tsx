@@ -13,6 +13,10 @@ import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
 import { isValidElement, type HTMLAttributes, type ReactNode } from 'react';
 import { formatDate } from '@/lib/utils';
+import { getContent, listContent } from '@/lib/contentDb';
+
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 interface Note {
   slug: string;
@@ -29,11 +33,23 @@ interface NotePageProps {
 }
 
 async function getNote(slug: string): Promise<Note | null> {
+  const record = await getContent('note', slug);
+  if (record) {
+    return {
+      slug: record.slug,
+      title: record.title,
+      date: record.date,
+      excerpt: record.excerpt,
+      readTime: record.readTime || '5 min read',
+    };
+  }
   const notes = notesData as Note[];
   return notes.find((note) => note.slug === slug) || null;
 }
 
 async function getNoteContent(slug: string): Promise<string | null> {
+  const record = await getContent('note', slug);
+  if (record) return record.body;
   try {
     const contentPath = join(
       process.cwd(),
@@ -52,8 +68,10 @@ async function getNoteContent(slug: string): Promise<string | null> {
 
 export async function generateStaticParams() {
   const notes = notesData as Note[];
-  return notes.map((note) => ({
-    slug: note.slug,
+  const records = await listContent('note');
+  const slugs = new Set([...notes.map((note) => note.slug), ...records.map((record) => record.slug)]);
+  return Array.from(slugs).map((slug) => ({
+    slug,
   }));
 }
 

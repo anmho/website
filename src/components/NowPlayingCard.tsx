@@ -2,10 +2,11 @@
 
 import { cn } from '@/lib/utils';
 import type { SpotifyNowPlaying } from '@/lib/spotify-types';
-import { motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react';
@@ -25,13 +26,8 @@ const DEFAULT_STATE: SpotifyNowPlaying = {
   state: 'idle',
 };
 
-const MIN_INITIAL_LOADING_MS = 1200;
 const NORMAL_REFRESH_INTERVAL_MS = 10000;
 const DEFAULT_RATE_LIMIT_RETRY_AFTER_SECONDS = 60;
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function getPlaybackLabel(nowPlaying: SpotifyNowPlaying | null) {
   switch (nowPlaying?.state) {
@@ -93,6 +89,25 @@ function hasSameRenderedPlayback(
   );
 }
 
+function getPlaybackRenderKey(nowPlaying: SpotifyNowPlaying | null) {
+  if (!nowPlaying) {
+    return 'loading';
+  }
+
+  return [
+    nowPlaying.state,
+    nowPlaying.title,
+    nowPlaying.artists.join('\u001f'),
+    nowPlaying.album,
+    nowPlaying.albumArtUrl,
+    nowPlaying.songUrl,
+  ].join('\u001e');
+}
+
+function getHeaderRenderKey(nowPlaying: SpotifyNowPlaying | null) {
+  return nowPlaying ? `title:${nowPlaying.state}:${getCardTitle(nowPlaying)}` : 'title:loading';
+}
+
 function MarqueeLine({
   text,
   className,
@@ -117,7 +132,7 @@ function MarqueeLine({
     setOverflowPx(nextOverflowPx > 1 ? nextOverflowPx : 0);
   }, [text]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     measureOverflow();
 
     const container = containerRef.current;
@@ -202,30 +217,16 @@ function NowPlayingSkeleton() {
 export default function NowPlayingCard({ className }: { className?: string }) {
   const [nowPlaying, setNowPlaying] = useState<SpotifyNowPlaying | null>(null);
   const nowPlayingRef = useRef<SpotifyNowPlaying | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
     let isMounted = true;
-    let initialLoadComplete = false;
-    const initialLoadStartedAt = Date.now();
+    let liveRequestSucceeded = false;
+    let cachedPlaybackApplied = false;
     let intervalMs = NORMAL_REFRESH_INTERVAL_MS;
     let intervalHandle: ReturnType<typeof setInterval> | null = null;
 
-    const finishInitialLoading = async () => {
-      if (initialLoadComplete) return;
-
-      const elapsedMs = Date.now() - initialLoadStartedAt;
-      const remainingMs = MIN_INITIAL_LOADING_MS - elapsedMs;
-
-      if (remainingMs > 0) {
-        await sleep(remainingMs);
-      }
-
-      initialLoadComplete = true;
-    };
-
-    const setResolvedNowPlaying = async (nextState: SpotifyNowPlaying) => {
-      await finishInitialLoading();
-
+    const applyNowPlaying = (nextState: SpotifyNowPlaying) => {
       if (!isMounted || hasSameRenderedPlayback(nowPlayingRef.current, nextState)) {
         return;
       }
@@ -234,12 +235,35 @@ export default function NowPlayingCard({ className }: { className?: string }) {
       setNowPlaying(nextState);
     };
 
+    const fetchCachedNowPlaying = async () => {
+      try {
+        const response = await fetch('/api/spotify/now-playing?cached=1', {
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const payload = (await response.json()) as SpotifyNowPlaying;
+
+        if (payload.title && !liveRequestSucceeded) {
+          cachedPlaybackApplied = true;
+          applyNowPlaying(payload);
+        }
+      } catch (error) {
+        console.error('[hero-spotify-cache]', error);
+      }
+    };
+
     const fetchNowPlaying = async () => {
       try {
         const response = await fetch('/api/spotify/now-playing');
 
         if (!response.ok) {
-          await setResolvedNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+          if (!cachedPlaybackApplied) {
+            applyNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+          }
           return;
         }
 
@@ -247,7 +271,8 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
         if (!isMounted) return;
 
-        await setResolvedNowPlaying(payload);
+        liveRequestSucceeded = true;
+        applyNowPlaying(payload);
 
         const nextIntervalMs =
           payload.state === 'rate_limited'
@@ -266,10 +291,13 @@ export default function NowPlayingCard({ className }: { className?: string }) {
         }
       } catch (error) {
         console.error('[hero-spotify]', error);
-        await setResolvedNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+        if (!cachedPlaybackApplied) {
+          applyNowPlaying({ ...DEFAULT_STATE, state: 'error' });
+        }
       }
     };
 
+    void fetchCachedNowPlaying();
     void fetchNowPlaying();
     intervalHandle = setInterval(fetchNowPlaying, intervalMs);
 
@@ -286,6 +314,8 @@ export default function NowPlayingCard({ className }: { className?: string }) {
   const isPlaying = nowPlaying?.state === 'playing';
   const isPaused = nowPlaying?.state === 'paused';
   const isLoading = nowPlaying === null;
+  const playbackRenderKey = getPlaybackRenderKey(nowPlaying);
+  const headerRenderKey = getHeaderRenderKey(nowPlaying);
   const songDetailLine = nowPlaying?.title
     ? nowPlaying.artists.join(', ') || nowPlaying.album || 'Spotify'
     : '';
@@ -301,9 +331,27 @@ export default function NowPlayingCard({ className }: { className?: string }) {
       )}
     >
       {isPlaying ? (
-        <div
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(34,197,94,0.14),transparent_34%)]"
+        <motion.div
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_30%,rgba(34,197,94,0.14),transparent_35%)]"
           aria-hidden="true"
+          animate={
+            prefersReducedMotion
+              ? { opacity: 0.75 }
+              : {
+                  opacity: [0.64, 0.82, 0.68],
+                  scale: [1, 1.012, 1],
+                  x: [0, 2, -1, 0],
+                }
+          }
+          transition={
+            prefersReducedMotion
+              ? undefined
+              : {
+                  duration: 9,
+                  ease: 'easeInOut',
+                  repeat: Infinity,
+                }
+          }
         />
       ) : null}
 
@@ -315,68 +363,108 @@ export default function NowPlayingCard({ className }: { className?: string }) {
             !isPlaying && !isLoading && 'opacity-80'
           )}
         />
-        {isLoading ? (
-          <span className="spotify-skeleton-wave h-3 w-36 rounded-full" aria-hidden="true" />
-        ) : (
-          <span>{cardTitle}</span>
-        )}
+        <AnimatePresence mode="wait" initial={false}>
+          {isLoading ? (
+            <motion.span
+              key={headerRenderKey}
+              className="spotify-skeleton-wave h-3 w-36 rounded-full"
+              aria-hidden="true"
+              initial={{ opacity: 0, y: 3 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -3 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+            />
+          ) : (
+            <motion.span
+              key={headerRenderKey}
+              initial={{ opacity: 0, y: 3 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -3 }}
+              transition={{ duration: 0.18, ease: 'easeOut' }}
+            >
+              {cardTitle}
+            </motion.span>
+          )}
+        </AnimatePresence>
         {isPlaying ? <PlaybackEqualizer /> : null}
         {isPaused ? <FaPause className="text-[10px] text-gray-500 dark:text-gray-500" /> : null}
       </div>
 
-      {isLoading ? (
-        <NowPlayingSkeleton />
-      ) : nowPlaying?.title ? (
-        <a
-          href={nowPlaying.songUrl || 'https://open.spotify.com'}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="relative flex min-w-0 items-center gap-3 overflow-hidden transition-opacity hover:opacity-80"
-        >
-          {nowPlaying.albumArtUrl ? (
-            <span className="relative flex h-14 w-14 shrink-0 items-center justify-center">
-              {isPlaying ? (
-                <span
-                  className="spotify-album-pulse absolute inset-0 rounded-xl border border-green-400/25"
-                  aria-hidden="true"
+      <AnimatePresence mode="wait" initial={false}>
+        {isLoading ? (
+          <motion.div
+            key={playbackRenderKey}
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+          >
+            <NowPlayingSkeleton />
+          </motion.div>
+        ) : nowPlaying?.title ? (
+          <motion.a
+            key={playbackRenderKey}
+            href={nowPlaying.songUrl || 'https://open.spotify.com'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative flex min-w-0 items-center gap-3 overflow-hidden transition-opacity hover:opacity-80"
+            initial={{ opacity: 0, y: 5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ duration: 0.24, ease: 'easeOut' }}
+          >
+            {nowPlaying.albumArtUrl ? (
+              <span className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+                {isPlaying ? (
+                  <span
+                    className="spotify-album-pulse absolute inset-0 rounded-xl border border-green-400/25"
+                    aria-hidden="true"
+                  />
+                ) : null}
+                <img
+                  src={nowPlaying.albumArtUrl}
+                  alt={`${nowPlaying.title} album art`}
+                  className="relative h-14 w-14 rounded-xl object-cover"
                 />
-              ) : null}
-              <img
-                src={nowPlaying.albumArtUrl}
-                alt={`${nowPlaying.title} album art`}
-                className="relative h-14 w-14 rounded-xl object-cover"
-              />
-            </span>
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-500/10 text-green-600 dark:bg-green-500/15 dark:text-green-400">
-              <FaSpotify size={22} />
+              </span>
+            ) : (
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-500/10 text-green-600 dark:bg-green-500/15 dark:text-green-400">
+                <FaSpotify size={22} />
+              </div>
+            )}
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <MarqueeLine key={nowPlaying.title} text={nowPlaying.title} />
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                <MarqueeLine key={songDetailLine} text={songDetailLine} />
+              </p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
+                {playbackLabel}
+              </p>
             </div>
-          )}
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-              <MarqueeLine key={nowPlaying.title} text={nowPlaying.title} />
-            </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              <MarqueeLine key={songDetailLine} text={songDetailLine} />
-            </p>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-500">
-              {playbackLabel}
-            </p>
-          </div>
-        </a>
-      ) : (
-        <div className="space-y-3">
-          <p className="text-sm text-gray-500 dark:text-gray-400">{playbackLabel}</p>
-          {nowPlaying?.state === 'unauthorized' ? (
-            <a
-              href="/spotify/auth"
-              className="inline-flex rounded-xl border border-green-500/30 px-3 py-1.5 text-sm font-medium text-green-600 transition hover:border-green-500/60 hover:bg-green-500/10 dark:text-green-400"
-            >
-              Connect Spotify
-            </a>
-          ) : null}
-        </div>
-      )}
+          </motion.a>
+        ) : (
+          <motion.div
+            key={playbackRenderKey}
+            className="space-y-3"
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+          >
+            <p className="text-sm text-gray-500 dark:text-gray-400">{playbackLabel}</p>
+            {nowPlaying?.state === 'unauthorized' ? (
+              <a
+                href="/spotify/auth"
+                className="inline-flex rounded-xl border border-green-500/30 px-3 py-1.5 text-sm font-medium text-green-600 transition hover:border-green-500/60 hover:bg-green-500/10 dark:text-green-400"
+              >
+                Connect Spotify
+              </a>
+            ) : null}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
