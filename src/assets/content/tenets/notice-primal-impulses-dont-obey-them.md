@@ -1,1 +1,1 @@
-Primal impulses must be addressed, but that does not mean they should control you. Evolutionary psychology can help explain status, sex, cars, houses, and material desire without telling you what is worth wanting.
+Primal impulses must be addressed, but that does not mean they should control you. Evolutionary psychology can help explain status, sex, cars, houses, and material desire without telling you what is worth wanting; if every decision is justified by satisfying those desires, you have turned yourself into an ape.
