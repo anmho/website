@@ -210,10 +210,9 @@ function Navbar() {
   const linkClassName = (active: boolean) =>
     cn(
       'relative flex items-center gap-1 px-3 text-sm font-medium transition-colors',
-      'after:absolute after:inset-x-3 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-150',
-      'text-gray-900/75 hover:text-gray-900 after:text-gray-900',
-      'dark:text-white/80 dark:hover:text-white dark:after:text-white',
-      active && 'font-semibold text-gray-900 after:scale-x-100 dark:text-white'
+      'text-gray-900/75 hover:text-gray-900',
+      'dark:text-white/80 dark:hover:text-white',
+      active && 'font-semibold text-gray-900 dark:text-white'
     );
 
   const childLinkClassName = (active: boolean) =>
