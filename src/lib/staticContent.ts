@@ -4,7 +4,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 export async function readStaticMarkdown(
-  directory: 'articles' | 'notes' | 'lessons' | 'readings' | 'watch',
+  directory: 'articles' | 'notes' | 'tenets' | 'readings' | 'watch',
   slug: string
 ): Promise<string> {
   try {

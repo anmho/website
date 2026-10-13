@@ -120,7 +120,7 @@ Use `npm run validate` for the full local validation sequence before opening a P
 
 Published content is checked into the repository. Articles and notes use JSON
 metadata in `src/assets/static/json/` and Markdown bodies in
-`src/assets/content/articles/` and `src/assets/content/notes/`. Lessons,
+`src/assets/content/articles/` and `src/assets/content/notes/`. Tenets,
 readings, and watch entries follow the same pattern in their respective
 directories. Edit those files directly and deploy the resulting commit; Next.js
 pre-renders the public pages from the checked-in content.

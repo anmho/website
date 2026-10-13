@@ -37,7 +37,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Reflections',
     items: [
       { href: '/learnings', label: 'Learnings' },
-      { href: '/lessons', label: 'Lessons' },
+      { href: '/tenets', label: 'Tenets' },
     ],
   },
   {
