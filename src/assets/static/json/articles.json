@@ -1,5 +1,12 @@
 [
   {
+    "slug": "stateful-service-traffic-spike-playbook",
+    "title": "Unexpected Traffic Spikes on Stateful Services",
+    "date": "2026-06-27",
+    "excerpt": "A practical incident playbook for Valkey and Redis-style stateful services under traffic spikes: CPU bands, load shedding, resharding, MOVED and CROSSSLOT errors, hot keys, brownouts, and thundering-herd control.",
+    "readTime": "12 min read"
+  },
+  {
     "slug": "python-micro-optimizations-to-ai-infrastructure",
     "title": "Python Micro-Optimizations and the AI Infrastructure Stack",
     "date": "2026-06-26",
