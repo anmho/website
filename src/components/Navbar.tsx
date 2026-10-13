@@ -155,12 +155,8 @@ function Navbar() {
               className={cn(
                 'flex justify-center align-center px-3 transition-colors cursor-pointer text-sm sm:text-base font-medium',
                 link.href === '/editor'
-                  ? 'h-10 rounded-full border border-gray-300 dark:border-gray-700'
-                  : 'h-full flex-col',
-                'dark:text-white text-gray-900',
-                link.href === '/editor'
-                  ? 'dark:hover:border-gray-500 hover:border-gray-500'
-                  : 'dark:hover:text-gray-400 hover:text-gray-600'
+                  ? 'h-10 rounded-2xl bg-gray-900 px-4 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200'
+                  : 'h-full flex-col text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-gray-400'
               )}
             >
               {link.label}
@@ -263,7 +259,9 @@ function Navbar() {
                       className={cn(
                         'block py-6 text-2xl font-medium transition-colors',
                         'dark:text-white text-gray-900',
-                        'dark:hover:text-gray-400 hover:text-gray-600'
+                        link.href === '/editor'
+                          ? 'my-2 w-fit rounded-2xl bg-gray-900 px-4 py-3 text-white dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 hover:bg-gray-700'
+                          : 'dark:hover:text-gray-400 hover:text-gray-600'
                       )}
                     >
                       {link.label}
