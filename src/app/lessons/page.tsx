@@ -3,6 +3,7 @@ import remarkGfm from 'remark-gfm';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
+import OwnerEditorLink from '@/components/OwnerEditorLink';
 import { formatDate } from '@/lib/utils';
 import { listContent } from '@/lib/contentDb';
 
@@ -41,6 +42,7 @@ export default async function LessonsPage() {
             <p className="mb-20 max-w-xl text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:ml-4 sm:text-xl">
               A personal reminder of timeless lessons.
             </p>
+            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="lesson" label="Add lesson" /></div>
 
             {content.length > 0 ? (
               <div className="space-y-1">

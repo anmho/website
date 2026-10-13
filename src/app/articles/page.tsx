@@ -2,6 +2,7 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import ArticleList, { type ArticleListItem } from '@/components/ArticleList';
+import OwnerEditorLink from '@/components/OwnerEditorLink';
 import { listContent } from '@/lib/contentDb';
 
 export const revalidate = 3600;
@@ -28,6 +29,7 @@ export default async function Articles() {
             <p className="text-md sm:text-xl dark:text-gray-400 text-gray-600 -tracking-wide font-light sm:ml-4 mb-20">
               In-depth articles on building scalable systems and backend engineering.
             </p>
+            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="article" label="Add article" /></div>
             <ArticleList articles={articles} />
           </div>
         </SectionContainer>
