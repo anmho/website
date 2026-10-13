@@ -163,7 +163,6 @@ backfill alias is also available:
 ```bash
 npm run db:backfill:content
 ```
-
 Production builds require `DATABASE_URL` so Next.js can pre-render the current
 database content into static pages. New editor saves invalidate the affected
 route and are rendered through ISR on the next request.
