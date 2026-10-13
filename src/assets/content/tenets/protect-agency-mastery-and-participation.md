@@ -1,1 +1,3 @@
 Activities like cooking, climbing a mountain, or running a marathon can have pragmatic benefits, but those benefits are rarely the reason to do them. A treadmill may deliver exercise, but it does not satisfy the same desire for difficulty, agency, and direct participation as scaling the mountain; pragmatic reasoning is not always applicable.
+
+Building a business, or joining one early, can be similar. Beyond financial gain, its competitive difficulty may have intrinsic value, but if you do not value that challenge, the risks and sacrifices may outweigh the benefits. When your values are broad, be clear about which take priority in this phase of life and whether you are willing to make the trade-offs.
