@@ -1,1 +1,1 @@
-Some activities have little practical payoff but fulfill a need for agency, mastery, and direct participation in life.
+Activities like cooking, climbing a mountain, or running a marathon can have pragmatic benefits, but those benefits are rarely the reason to do them. A treadmill may deliver exercise, but it does not satisfy the same desire for difficulty, agency, and direct participation as scaling the mountain; pragmatic reasoning is not always applicable.
