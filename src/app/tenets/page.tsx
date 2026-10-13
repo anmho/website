@@ -1,11 +1,11 @@
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import { formatDate } from '@/lib/utils';
 import tenetsData from '@/assets/static/json/tenets.json';
 import { readStaticMarkdown } from '@/lib/staticContent';
+import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 
 export const revalidate = 3600;
 
@@ -56,7 +56,7 @@ export default async function TenetsPage() {
                         </h2>
                         {body ? (
                           <div className="prose prose-sm max-w-2xl dark:prose-invert">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+                            <ReactMarkdown remarkPlugins={markdownRemarkPlugins} rehypePlugins={markdownRehypePlugins}>{body}</ReactMarkdown>
                           </div>
                         ) : (
                           <p className="mb-4 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
