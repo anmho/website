@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
@@ -42,7 +43,17 @@ export default async function ReadingsPage() {
             <p className="mb-20 max-w-xl text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:ml-4 sm:text-xl">
               Books, papers, and essays worth returning to.
             </p>
-            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="reading" label="Add reading" /></div>
+            <div className="mb-10 flex flex-wrap items-center gap-5 sm:ml-4">
+              <Link
+                href="https://www.goodreads.com/user/show/184401794-andrew-ho"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-gray-500 underline decoration-gray-300 underline-offset-4 transition-colors hover:text-gray-950 dark:text-gray-400 dark:decoration-gray-700 dark:hover:text-white"
+              >
+                A full list of my readings ↗
+              </Link>
+              <OwnerEditorLink type="reading" label="Add reading" />
+            </div>
 
             {content.length > 0 ? (
               <div className="space-y-1">
