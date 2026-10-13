@@ -1,1 +1,1 @@
-Evolutionary psychology is useful for understanding the world, but dangerous as a complete decision rule. Status, sex, cars, houses, and material belongings can satisfy primal desires without telling you what is worth wanting.
+Primal impulses must be addressed, but that does not mean they should control you. Evolutionary psychology can help explain status, sex, cars, houses, and material desire without telling you what is worth wanting.
