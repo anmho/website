@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     let invalidatedNowPlaying = true;
 
     try {
-      revalidateTag(SPOTIFY_NOW_PLAYING_CACHE_TAG);
+      revalidateTag(SPOTIFY_NOW_PLAYING_CACHE_TAG, 'max');
       await invalidateByTag(SPOTIFY_NOW_PLAYING_CACHE_TAG);
     } catch (error) {
       invalidatedNowPlaying = false;

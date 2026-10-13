@@ -53,7 +53,7 @@ export default function AsciiDonut() {
       const H = canvas.height;
       if (!W || !H) return;
 
-      const isDark = document.documentElement.classList.contains('dark');
+      const isDark = canvas.closest('.dark') !== null;
 
       const FONT_SIZE = Math.max(10, Math.round(Math.min(W, H) / 38));
       const CW = FONT_SIZE * 0.56;
