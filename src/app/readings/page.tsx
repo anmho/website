@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
@@ -54,7 +53,7 @@ export default async function ReadingsPage() {
       <Navbar />
       <div className="flex flex-col items-center pt-32">
         <SectionContainer>
-          <div className="w-full py-20">
+          <div className="w-full py-20 text-left">
             <AnimatedTitle>
               <h1 className="mb-8 text-5xl leading-relaxed tracking-[-0.06em] sm:text-7xl">Readings</h1>
             </AnimatedTitle>
@@ -63,35 +62,36 @@ export default async function ReadingsPage() {
             </p>
 
             {content.length > 0 ? (
-              <div className="space-y-10">
+              <div className="space-y-1">
                 {content.map(({ reading, body }) => (
-                  <article key={reading.id} className="border-y border-gray-200 py-7 dark:border-gray-800">
-                    <div className="mb-4 flex flex-wrap items-center gap-3 text-[11px] font-mono uppercase tracking-[0.18em] text-gray-500">
-                      <time dateTime={reading.date}>{formatDate(reading.date)}</time>
-                      <span>· {reading.author}</span>
-                    </div>
-                    <h2 className="mb-3 text-2xl font-medium tracking-tight text-gray-950 dark:text-gray-100">
-                      {reading.title}
-                    </h2>
-                    <p className="mb-5 max-w-2xl leading-relaxed text-gray-600 dark:text-gray-400">{reading.excerpt}</p>
-                    {body ? (
-                      <div className="prose prose-sm max-w-2xl dark:prose-invert">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+                  <article key={reading.id} className="group border-b border-gray-200 py-6 dark:border-gray-900">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-8">
+                      <div className="min-w-[140px] pt-1 text-sm font-mono text-gray-500 dark:text-gray-500">
+                        <time dateTime={reading.date}>{formatDate(reading.date)}</time>
                       </div>
-                    ) : null}
+                      <div className="min-w-0 flex-1">
+                        <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-gray-400 dark:text-gray-600">
+                          {reading.author}
+                        </p>
+                        <h2 className="mb-2 text-xl font-medium tracking-tight text-gray-900 transition-colors group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-300 sm:text-2xl">
+                          {reading.title}
+                        </h2>
+                        <p className="mb-4 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
+                          {reading.excerpt}
+                        </p>
+                        {body ? (
+                          <div className="prose prose-sm max-w-2xl dark:prose-invert">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
                   </article>
                 ))}
               </div>
             ) : (
-              <div className="rounded-2xl border border-dashed border-gray-300 px-6 py-10 text-center dark:border-gray-800">
-                <p className="text-lg text-gray-700 dark:text-gray-300">No readings yet.</p>
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-500">
-                  Add the first one from the{' '}
-                  <Link href="/editor" className="underline underline-offset-4 transition-colors hover:text-gray-950 dark:hover:text-white">
-                    editor
-                  </Link>
-                  .
-                </p>
+              <div className="border-t border-gray-200 py-12 dark:border-gray-900">
+                <p className="text-sm text-gray-600 dark:text-gray-400">No readings yet.</p>
               </div>
             )}
           </div>

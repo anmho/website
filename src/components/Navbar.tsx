@@ -36,10 +36,28 @@ function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const links = useMemo(() => {
-    return isMobileMenuOpen ? NAV_LINKS_MOBILE : NAV_LINKS;
-  }, [isMobileMenuOpen]);
+    const availableLinks = isMobileMenuOpen ? NAV_LINKS_MOBILE : NAV_LINKS;
+    return isAdmin ? availableLinks : availableLinks.filter((link) => link.href !== '/editor');
+  }, [isAdmin, isMobileMenuOpen]);
+
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/auth/session', { credentials: 'same-origin', cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { authenticated?: boolean } | null) => {
+        if (alive) setIsAdmin(data?.authenticated === true);
+      })
+      .catch(() => {
+        if (alive) setIsAdmin(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -135,9 +153,14 @@ function Navbar() {
               key={link.href}
               href={link.href}
               className={cn(
-                'h-full flex justify-center align-center flex-col px-3 transition-colors cursor-pointer text-sm sm:text-base font-medium',
+                'flex justify-center align-center px-3 transition-colors cursor-pointer text-sm sm:text-base font-medium',
+                link.href === '/editor'
+                  ? 'h-10 rounded-full border border-gray-300 dark:border-gray-700'
+                  : 'h-full flex-col',
                 'dark:text-white text-gray-900',
-                'dark:hover:text-gray-400 hover:text-gray-600'
+                link.href === '/editor'
+                  ? 'dark:hover:border-gray-500 hover:border-gray-500'
+                  : 'dark:hover:text-gray-400 hover:text-gray-600'
               )}
             >
               {link.label}
@@ -215,7 +238,7 @@ function Navbar() {
                 <FiX size={24} />
               </button>
               <nav className="flex-1 flex flex-col justify-center">
-                {NAV_LINKS.map((link, index) => (
+                {links.map((link, index) => (
                   <motion.div
                     key={link.href}
                     initial={{ opacity: 0, y: 24 }}
