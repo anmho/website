@@ -8,10 +8,10 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
 import Mermaid from '@/components/Mermaid';
+import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 import {
   isValidElement,
   type HTMLAttributes,
@@ -435,7 +435,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               <article className="prose prose-lg dark:prose-invert max-w-none">
                 <ReactMarkdown
                   components={markdownComponents}
-                  remarkPlugins={[remarkGfm]}
+                  remarkPlugins={markdownRemarkPlugins}
+                  rehypePlugins={markdownRehypePlugins}
                 >
                   {processedContent}
                 </ReactMarkdown>
