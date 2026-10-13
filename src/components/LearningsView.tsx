@@ -7,8 +7,8 @@ import { useEffect, useMemo, useState, memo } from 'react';
 import { formatDate } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import { FiSearch } from 'react-icons/fi';
+import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 
 export interface Learning {
   id: string;
@@ -43,7 +43,7 @@ function CachedMarkdown({ id, content }: { id: string; content: string }) {
   const normalized = normalizeEscapedNewlines(content);
   const cacheKey = `${id}:${normalized}`;
   if (!markdownCache.has(cacheKey)) {
-    markdownCache.set(cacheKey, <ReactMarkdown remarkPlugins={[remarkGfm]} components={learningMarkdownComponents}>{normalized}</ReactMarkdown>);
+    markdownCache.set(cacheKey, <ReactMarkdown remarkPlugins={markdownRemarkPlugins} rehypePlugins={markdownRehypePlugins} components={learningMarkdownComponents}>{normalized}</ReactMarkdown>);
   }
   return <>{markdownCache.get(cacheKey)}</>;
 }

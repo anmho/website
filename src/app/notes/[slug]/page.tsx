@@ -8,9 +8,9 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import clsx from 'clsx';
 import CopyCodeBlock from '@/components/CopyCodeBlock';
+import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 import { isValidElement, type HTMLAttributes, type ReactNode } from 'react';
 import { formatDate } from '@/lib/utils';
 
@@ -295,7 +295,8 @@ export default async function NotePage({ params }: NotePageProps) {
             <article className="prose dark:prose-invert max-w-none">
               <ReactMarkdown
                 components={noteMarkdownComponents}
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={markdownRemarkPlugins}
+                rehypePlugins={markdownRehypePlugins}
               >
                 {note.body}
               </ReactMarkdown>

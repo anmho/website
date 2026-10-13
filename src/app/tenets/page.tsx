@@ -1,11 +1,13 @@
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
+import type { Components } from 'react-markdown';
+import { isValidElement, type ReactNode } from 'react';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import { formatDate } from '@/lib/utils';
 import tenetsData from '@/assets/static/json/tenets.json';
 import { readStaticMarkdown } from '@/lib/staticContent';
+import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 
 export const revalidate = 3600;
 
@@ -15,6 +17,41 @@ type Tenet = {
   date: string;
   excerpt: string;
   source?: string;
+};
+
+function markdownText(node: ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+  if (!node) {
+    return '';
+  }
+  if (Array.isArray(node)) {
+    return node.map(markdownText).join('');
+  }
+  if (isValidElement<{ children?: ReactNode }>(node)) {
+    return markdownText(node.props.children);
+  }
+  return '';
+}
+
+const tenetMarkdownComponents: Components = {
+  p: ({ node, children, ...props }) => {
+    const isCitation = markdownText(children).trimStart().startsWith('Source:');
+
+    return (
+      <p
+        className={
+          isCitation
+            ? 'mt-4 text-sm italic leading-relaxed text-gray-500 dark:text-gray-400 [&_a]:font-normal [&_a]:text-inherit [&_a]:decoration-current/50 [&_a]:underline-offset-4 hover:[&_a]:text-gray-900 dark:hover:[&_a]:text-white'
+            : undefined
+        }
+        {...props}
+      >
+        {children}
+      </p>
+    );
+  },
 };
 
 export default async function TenetsPage() {
@@ -56,7 +93,13 @@ export default async function TenetsPage() {
                         </h2>
                         {body ? (
                           <div className="prose prose-sm max-w-2xl dark:prose-invert">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+                            <ReactMarkdown
+                              components={tenetMarkdownComponents}
+                              remarkPlugins={markdownRemarkPlugins}
+                              rehypePlugins={markdownRehypePlugins}
+                            >
+                              {body}
+                            </ReactMarkdown>
                           </div>
                         ) : (
                           <p className="mb-4 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">

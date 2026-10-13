@@ -1,11 +1,11 @@
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import { formatDate } from '@/lib/utils';
 import watchData from '@/assets/static/json/watch.json';
 import { readStaticMarkdown } from '@/lib/staticContent';
+import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 
 export const revalidate = 3600;
 
@@ -52,7 +52,7 @@ export default async function WatchPage() {
                           {record.excerpt}
                         </p>
                         <div className="prose prose-sm max-w-2xl dark:prose-invert">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]}>{record.body}</ReactMarkdown>
+                          <ReactMarkdown remarkPlugins={markdownRemarkPlugins} rehypePlugins={markdownRehypePlugins}>{record.body}</ReactMarkdown>
                         </div>
                       </div>
                     </div>

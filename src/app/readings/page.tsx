@@ -1,5 +1,4 @@
 import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
@@ -7,6 +6,7 @@ import AnimatedTitle from '@/components/AnimatedTitle';
 import { formatDate } from '@/lib/utils';
 import readingsData from '@/assets/static/json/readings.json';
 import { readStaticMarkdown } from '@/lib/staticContent';
+import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 
 export const revalidate = 3600;
 
@@ -69,7 +69,7 @@ export default async function ReadingsPage() {
                         </p>
                         {body ? (
                           <div className="prose prose-sm max-w-2xl dark:prose-invert">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+                            <ReactMarkdown remarkPlugins={markdownRemarkPlugins} rehypePlugins={markdownRehypePlugins}>{body}</ReactMarkdown>
                           </div>
                         ) : null}
                       </div>

@@ -1,3 +1,3 @@
-Objective measures can compare your options, but they cannot fully describe how it will feel to live as the person each choice makes you. Values are what make a hard choice more than a ranking exercise.
+Many decisions are not information-limited; they are values-limited. When your values are clear and prioritized, hard decisions often stop being so hard: objective measures can compare options, but they cannot tell you which life you want to inhabit.
 
 Source: [Ruth Chang, “How to make hard choices”](https://youtu.be/8GQZuzIdeQQ)
