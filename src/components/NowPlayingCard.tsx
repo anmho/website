@@ -415,6 +415,12 @@ export default function NowPlayingCard({ className }: { className?: string }) {
           >
             {nowPlaying.albumArtUrl ? (
               <span className="relative flex h-14 w-14 shrink-0 items-center justify-center">
+                {isPlaying ? (
+                  <span
+                    className="spotify-album-pulse absolute inset-0 rounded-xl border border-green-400/25"
+                    aria-hidden="true"
+                  />
+                ) : null}
                 <img
                   src={nowPlaying.albumArtUrl}
                   alt={`${nowPlaying.title} album art`}
