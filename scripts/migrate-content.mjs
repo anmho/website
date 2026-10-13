@@ -8,9 +8,11 @@ if (!connectionString) {
 
 const sql = postgres(connectionString, { max: 1 });
 try {
-  const migration = await fs.readFile('db/migrations/0001_content_posts.sql', 'utf8');
-  await sql.unsafe(migration);
-  console.log('content_posts table is ready');
+  for (const migrationFile of ['0001_content_posts.sql', '0002_bookmarks.sql']) {
+    const migration = await fs.readFile(`db/migrations/${migrationFile}`, 'utf8');
+    await sql.unsafe(migration);
+  }
+  console.log('content_posts and bookmarks tables are ready');
 } finally {
   await sql.end();
 }

@@ -137,7 +137,10 @@ API key; public content routes remain public while publishing stays owner-only.
 ### Content database
 
 Published articles, notes, learnings, lessons, readings, and watch items are
-stored in Postgres. Set `DATABASE_URL` for the application and, when using a
+stored in Postgres. Bookmarks are stored in the same database as well. The
+database is the runtime source of truth; the checked-in JSON and Markdown files
+are migration inputs only and are never used as a public-content fallback.
+Set `DATABASE_URL` for the application and, when using a
 pooled Neon connection, set `DATABASE_URL_UNPOOLED` for migrations:
 
 ```bash
@@ -151,6 +154,10 @@ Initialize the table and import the existing checked-in content once:
 npm run db:migrate
 npm run db:seed:content
 ```
+
+Production builds require `DATABASE_URL` so Next.js can pre-render the current
+database content into static pages. New editor saves invalidate the affected
+route and are rendered through ISR on the next request.
 
 The public content pages use Next.js Incremental Static Regeneration with a
 one-hour revalidation window. They are pre-rendered HTML, and each authenticated

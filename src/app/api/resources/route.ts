@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import staticResources from '@/assets/static/json/resources.json';
 import { listBookmarksFromDb } from '@/lib/bookmarksDb';
 
 export const runtime = 'nodejs';
@@ -16,25 +15,13 @@ type Bookmark = {
 
 export async function GET() {
   try {
-    const dbRows = await listBookmarksFromDb();
-    const staticRows = staticResources as Bookmark[];
-    const merged = [...dbRows, ...staticRows];
-
-    const seen = new Set<string>();
-    const deduped = merged.filter((b) => {
-      if (seen.has(b.url)) return false;
-      seen.add(b.url);
-      return true;
-    });
-
-    return NextResponse.json({ resources: deduped });
+    return NextResponse.json({ resources: await listBookmarksFromDb() });
   } catch (err) {
     return NextResponse.json(
       {
-        resources: staticResources,
-        warning: `db unavailable, serving static resources: ${String(err)}`,
+        error: `database unavailable: ${String(err)}`,
       },
-      { status: 200 }
+      { status: 500 }
     );
   }
 }

@@ -92,8 +92,6 @@ function mapRow(row: {
 }
 
 export async function listContent(contentType: ContentType): Promise<ContentRecord[]> {
-  if (!connectionString) return [];
-
   const sql = getClient();
   try {
     await ensureContentTable(sql);
@@ -109,12 +107,25 @@ export async function listContent(contentType: ContentType): Promise<ContentReco
   }
 }
 
+export async function listAllContent(): Promise<ContentRecord[]> {
+  const sql = getClient();
+  try {
+    await ensureContentTable(sql);
+    const rows = await sql`
+      select id, content_type, slug, title, excerpt, body, date, read_time, tags, metadata
+      from content_posts
+      order by date desc, created_at desc
+    `;
+    return rows.map((row) => mapRow(row as never));
+  } finally {
+    await sql.end();
+  }
+}
+
 export async function getContent(
   contentType: ContentType,
   slug: string
 ): Promise<ContentRecord | null> {
-  if (!connectionString) return null;
-
   const sql = getClient();
   try {
     await ensureContentTable(sql);
@@ -128,6 +139,34 @@ export async function getContent(
   } finally {
     await sql.end();
   }
+}
+
+export type ContentValidationIssue = {
+  scope: ContentType;
+  message: string;
+};
+
+export async function validateContentDb(): Promise<ContentValidationIssue[]> {
+  const records = await listAllContent();
+  const issues: ContentValidationIssue[] = [];
+  const keys = new Set<string>();
+
+  for (const record of records) {
+    const key = `${record.contentType}:${record.slug}`;
+    if (keys.has(key)) {
+      issues.push({ scope: record.contentType, message: `duplicate slug: ${record.slug}` });
+    }
+    keys.add(key);
+
+    if (!record.slug.trim()) issues.push({ scope: record.contentType, message: 'missing slug' });
+    if (!record.title.trim()) issues.push({ scope: record.contentType, message: `${record.slug}: missing title` });
+    if (!record.body.trim()) issues.push({ scope: record.contentType, message: `${record.slug}: missing body` });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(record.date)) {
+      issues.push({ scope: record.contentType, message: `${record.slug}: invalid date` });
+    }
+  }
+
+  return issues;
 }
 
 export async function createContent(record: ContentInsert): Promise<ContentRecord> {

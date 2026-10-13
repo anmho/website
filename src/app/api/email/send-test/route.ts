@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const article = getRandomArticleForDate();
+    const article = await getRandomArticleForDate();
     const html = await render(DailyArticleEmail({ article }));
 
     const { data, error } = await getResend().emails.send({

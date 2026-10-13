@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthError } from '@/lib/controlPlaneAuth';
-import { validateContent } from '@/lib/controlPlaneStore';
+import { validateContentDb } from '@/lib/contentDb';
 
 export const runtime = 'nodejs';
 
@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const issues = await validateContent();
+  const issues = await validateContentDb();
   return NextResponse.json({
     ok: issues.length === 0,
     issueCount: issues.length,

@@ -155,7 +155,7 @@ export const validateResponseSchema = z.object({
   issueCount: z.number().int().nonnegative(),
   issues: z.array(
     z.object({
-      scope: z.enum(['learnings', 'articles']),
+      scope: z.enum(['article', 'note', 'learning', 'lesson', 'reading', 'watch']),
       message: z.string(),
     })
   ),

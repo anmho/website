@@ -2,10 +2,7 @@ import { notFound } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
-import notesData from '@/assets/static/json/notes.json';
 import Link from 'next/link';
-import { readFile } from 'fs/promises';
-import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -24,6 +21,7 @@ interface Note {
   date: string;
   excerpt: string;
   readTime: string;
+  body: string;
 }
 
 interface NotePageProps {
@@ -41,43 +39,21 @@ async function getNote(slug: string): Promise<Note | null> {
       date: record.date,
       excerpt: record.excerpt,
       readTime: record.readTime || '5 min read',
+      body: record.body,
     };
   }
-  const notes = notesData as Note[];
-  return notes.find((note) => note.slug === slug) || null;
-}
-
-async function getNoteContent(slug: string): Promise<string | null> {
-  const record = await getContent('note', slug);
-  if (record) return record.body;
-  try {
-    const contentPath = join(
-      process.cwd(),
-      'src',
-      'assets',
-      'content',
-      'notes',
-      `${slug}.md`
-    );
-    const content = await readFile(contentPath, 'utf-8');
-    return content;
-  } catch {
-    return null;
-  }
+  return null;
 }
 
 export async function generateStaticParams() {
-  const notes = notesData as Note[];
   const records = await listContent('note');
-  const slugs = new Set([...notes.map((note) => note.slug), ...records.map((record) => record.slug)]);
-  return Array.from(slugs).map((slug) => ({
-    slug,
+  return records.map((record) => ({
+    slug: record.slug,
   }));
 }
 
 export default async function NotePage({ params }: NotePageProps) {
   const note = await getNote(params.slug);
-  const content = await getNoteContent(params.slug);
 
   if (!note) {
     notFound();
@@ -315,24 +291,12 @@ export default async function NotePage({ params }: NotePageProps) {
 
             {/* Note content */}
             <article className="prose dark:prose-invert max-w-none">
-              {content ? (
-                <ReactMarkdown
-                  components={noteMarkdownComponents}
-                  remarkPlugins={[remarkGfm]}
-                >
-                  {content}
-                </ReactMarkdown>
-              ) : (
-                <div className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  <p className="mb-4">{note.excerpt}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-                    Content coming soon. Create a markdown file at{' '}
-                    <code className="text-gray-800 dark:text-gray-300">
-                      src/assets/content/notes/{note.slug}.md
-                    </code>
-                  </p>
-                </div>
-              )}
+              <ReactMarkdown
+                components={noteMarkdownComponents}
+                remarkPlugins={[remarkGfm]}
+              >
+                {note.body}
+              </ReactMarkdown>
             </article>
           </div>
         </SectionContainer>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { getAuthError } from '@/lib/controlPlaneAuth';
 import { createContent, isContentConflict } from '@/lib/contentDb';
-import { isISODate, slugify } from '@/lib/controlPlaneStore';
+import { isISODate, slugify } from '@/lib/contentUtils';
 import { createArticleRequestSchema } from '../../../../../packages/contracts/src/admin';
 
 export const runtime = 'nodejs';

@@ -14,12 +14,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const savedTheme = cookies().get('theme')?.value;
+  const savedTheme = (await cookies()).get('theme')?.value;
   const initialTheme: Theme = savedTheme === 'light' ? 'light' : 'dark';
 
   return (

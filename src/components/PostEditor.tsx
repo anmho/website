@@ -25,7 +25,11 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import { cn } from '@/lib/utils';
 
-type PostType = 'article' | 'note' | 'learning' | 'watch' | 'reading' | 'lesson';
+export type PostType = 'article' | 'note' | 'learning' | 'watch' | 'reading' | 'lesson';
+
+export function isPostType(value: string | undefined): value is PostType {
+  return value === 'article' || value === 'note' || value === 'learning' || value === 'watch' || value === 'reading' || value === 'lesson';
+}
 
 type Draft = {
   title: string;
@@ -340,8 +344,8 @@ function Field({
   );
 }
 
-export default function PostEditor() {
-  const [type, setType] = useState<PostType | null>(null);
+export default function PostEditor({ initialType }: { initialType?: PostType }) {
+  const [type, setType] = useState<PostType | null>(initialType ?? null);
   const [draft, setDraft] = useState<Draft>(DEFAULT_DRAFTS.article);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<{ kind: 'success' | 'error'; message: string } | null>(null);

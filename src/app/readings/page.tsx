@@ -1,11 +1,9 @@
-import { readFile } from 'fs/promises';
-import { join } from 'path';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
-import readingsData from '@/assets/static/json/readings.json';
+import OwnerEditorLink from '@/components/OwnerEditorLink';
 import { formatDate } from '@/lib/utils';
 import { listContent } from '@/lib/contentDb';
 
@@ -19,34 +17,18 @@ type Reading = {
   author: string;
 };
 
-async function getReadingContent(id: string): Promise<string | null> {
-  try {
-    return await readFile(
-      join(process.cwd(), 'src', 'assets', 'content', 'readings', `${id}.md`),
-      'utf-8'
-    );
-  } catch {
-    return null;
-  }
-}
-
 export default async function ReadingsPage() {
-  const legacyReadings = readingsData as Reading[];
   const records = await listContent('reading');
-  const content = records.length
-    ? records.map((record) => ({
-        reading: {
-          id: record.slug,
-          title: record.title,
-          date: record.date,
-          excerpt: record.excerpt,
-          author: typeof record.metadata.author === 'string' ? record.metadata.author : 'Unknown author',
-        },
-        body: record.body,
-      }))
-    : await Promise.all(
-        legacyReadings.map(async (reading) => ({ reading, body: await getReadingContent(reading.id) }))
-      );
+  const content = records.map((record) => ({
+    reading: {
+      id: record.slug,
+      title: record.title,
+      date: record.date,
+      excerpt: record.excerpt,
+      author: typeof record.metadata.author === 'string' ? record.metadata.author : 'Unknown author',
+    },
+    body: record.body,
+  }));
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
@@ -60,6 +42,7 @@ export default async function ReadingsPage() {
             <p className="mb-20 max-w-xl text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:ml-4 sm:text-xl">
               Books, papers, and essays worth returning to.
             </p>
+            <div className="mb-10 sm:ml-4"><OwnerEditorLink type="reading" label="Add reading" /></div>
 
             {content.length > 0 ? (
               <div className="space-y-1">

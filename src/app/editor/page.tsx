@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
-import PostEditor from '@/components/PostEditor';
+import PostEditor, { isPostType } from '@/components/PostEditor';
 import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import {
@@ -20,13 +20,14 @@ export const dynamic = 'force-dynamic';
 type EditorPageProps = {
   searchParams?: {
     auth?: string;
+    type?: string;
   };
 };
 
 export default async function EditorPage({ searchParams }: EditorPageProps) {
   const cookieStore = await cookies();
   const session = getAdminSession(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
-  if (session) return <PostEditor />;
+  if (session) return <PostEditor initialType={isPostType(searchParams?.type) ? searchParams?.type : undefined} />;
 
   const authMessage = searchParams?.auth === 'denied'
     ? 'That GitHub account is not on the private editor allowlist.'
