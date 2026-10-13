@@ -1,12 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAuthError } from '@/lib/controlPlaneAuth';
-import {
-  isISODate,
-  readNotesMeta,
-  slugify,
-  writeNoteMarkdown,
-  writeNotesMeta,
-} from '@/lib/controlPlaneStore';
+import { createContent, isContentConflict } from '@/lib/contentDb';
+import { isISODate, slugify } from '@/lib/controlPlaneStore';
 import { createNoteRequestSchema } from '../../../../../packages/contracts/src/admin';
 
 export const runtime = 'nodejs';
@@ -37,13 +33,27 @@ export async function POST(req: NextRequest) {
 
   if (!isISODate(date)) return NextResponse.json({ error: 'invalid date' }, { status: 400 });
 
-  const notes = await readNotesMeta();
-  if (notes.some((note) => note.slug === slug)) {
-    return NextResponse.json({ error: `note slug already exists: ${slug}` }, { status: 409 });
+  try {
+    const note = await createContent({
+      id: slug,
+      contentType: 'note',
+      slug,
+      title,
+      date,
+      excerpt,
+      body: parsed.data.markdownBody?.trim() || `# ${title}\n`,
+      readTime,
+      tags: [],
+      metadata: {},
+    });
+    revalidatePath('/notes');
+    revalidatePath(`/notes/${slug}`);
+    return NextResponse.json({ note: { slug: note.slug, title: note.title, date: note.date, excerpt: note.excerpt, readTime: note.readTime || readTime } }, { status: 201 });
+  } catch (error) {
+    if (isContentConflict(error)) {
+      return NextResponse.json({ error: `note slug already exists: ${slug}` }, { status: 409 });
+    }
+    console.error('Failed to create note', error);
+    return NextResponse.json({ error: 'failed to save note' }, { status: 500 });
   }
-
-  const note = { slug, title, date, excerpt, readTime };
-  await writeNotesMeta([note, ...notes]);
-  await writeNoteMarkdown(slug, title, parsed.data.markdownBody);
-  return NextResponse.json({ note }, { status: 201 });
 }

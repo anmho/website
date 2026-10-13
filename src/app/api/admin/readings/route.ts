@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAuthError } from '@/lib/controlPlaneAuth';
-import { isISODate, readReadings, slugify, writeReadingMarkdown, writeReadings } from '@/lib/controlPlaneStore';
+import { createContent, isContentConflict } from '@/lib/contentDb';
+import { isISODate, slugify } from '@/lib/controlPlaneStore';
 import { createReadingRequestSchema } from '../../../../../packages/contracts/src/admin';
 
 export const runtime = 'nodejs';
@@ -22,11 +24,26 @@ export async function POST(req: NextRequest) {
   const author = parsed.data.author?.trim() || 'Unknown author';
   if (!isISODate(date)) return NextResponse.json({ error: 'invalid date' }, { status: 400 });
 
-  const items = await readReadings();
-  if (items.some((item) => item.id === id)) return NextResponse.json({ error: `reading already exists: ${id}` }, { status: 409 });
-
-  const reading = { id, title, date, excerpt: parsed.data.excerpt.trim(), author };
-  await writeReadings([reading, ...items]);
-  await writeReadingMarkdown(id, title, parsed.data.markdownBody);
-  return NextResponse.json({ reading }, { status: 201 });
+  try {
+    const reading = await createContent({
+      id,
+      contentType: 'reading',
+      slug: id,
+      title,
+      date,
+      excerpt: parsed.data.excerpt.trim(),
+      body: parsed.data.markdownBody?.trim() || `# ${title}\n`,
+      readTime: null,
+      tags: [],
+      metadata: { author },
+    });
+    revalidatePath('/readings');
+    return NextResponse.json({ reading: { id: reading.id, title: reading.title, date: reading.date, excerpt: reading.excerpt, author: typeof reading.metadata.author === 'string' ? reading.metadata.author : author } }, { status: 201 });
+  } catch (error) {
+    if (isContentConflict(error)) {
+      return NextResponse.json({ error: `reading already exists: ${id}` }, { status: 409 });
+    }
+    console.error('Failed to create reading', error);
+    return NextResponse.json({ error: 'failed to save reading' }, { status: 500 });
+  }
 }

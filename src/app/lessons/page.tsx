@@ -8,8 +8,9 @@ import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import lessonsData from '@/assets/static/json/lessons.json';
 import { formatDate } from '@/lib/utils';
+import { listContent } from '@/lib/contentDb';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 type Lesson = {
   id: string;
@@ -31,10 +32,22 @@ async function getLessonContent(id: string): Promise<string | null> {
 }
 
 export default async function LessonsPage() {
-  const lessons = lessonsData as Lesson[];
-  const content = await Promise.all(
-    lessons.map(async (lesson) => ({ lesson, body: await getLessonContent(lesson.id) }))
-  );
+  const legacyLessons = lessonsData as Lesson[];
+  const records = await listContent('lesson');
+  const content = records.length
+    ? records.map((record) => ({
+        lesson: {
+          id: record.id,
+          title: record.title,
+          date: record.date,
+          excerpt: record.excerpt,
+          source: typeof record.metadata.source === 'string' ? record.metadata.source : undefined,
+        },
+        body: record.body,
+      }))
+    : await Promise.all(
+        legacyLessons.map(async (lesson) => ({ lesson, body: await getLessonContent(lesson.id) }))
+      );
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">

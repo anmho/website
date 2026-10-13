@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAuthError } from '@/lib/controlPlaneAuth';
-import { isISODate, readWatch, slugify, writeWatch, writeWatchMarkdown } from '@/lib/controlPlaneStore';
+import { createContent, isContentConflict } from '@/lib/contentDb';
+import { isISODate, slugify } from '@/lib/controlPlaneStore';
 import { createWatchRequestSchema } from '../../../../../packages/contracts/src/admin';
 
 export const runtime = 'nodejs';
@@ -22,11 +24,26 @@ export async function POST(req: NextRequest) {
   const format = parsed.data.format?.trim() || 'video';
   if (!isISODate(date)) return NextResponse.json({ error: 'invalid date' }, { status: 400 });
 
-  const items = await readWatch();
-  if (items.some((item) => item.id === id)) return NextResponse.json({ error: `watch item already exists: ${id}` }, { status: 409 });
-
-  const watch = { id, title, date, excerpt: parsed.data.excerpt.trim(), format };
-  await writeWatch([watch, ...items]);
-  await writeWatchMarkdown(id, title, parsed.data.markdownBody);
-  return NextResponse.json({ watch }, { status: 201 });
+  try {
+    const watch = await createContent({
+      id,
+      contentType: 'watch',
+      slug: id,
+      title,
+      date,
+      excerpt: parsed.data.excerpt.trim(),
+      body: parsed.data.markdownBody?.trim() || `# ${title}\n`,
+      readTime: null,
+      tags: [],
+      metadata: { format },
+    });
+    revalidatePath('/watch');
+    return NextResponse.json({ watch: { id: watch.id, title: watch.title, date: watch.date, excerpt: watch.excerpt, format: typeof watch.metadata.format === 'string' ? watch.metadata.format : format } }, { status: 201 });
+  } catch (error) {
+    if (isContentConflict(error)) {
+      return NextResponse.json({ error: `watch item already exists: ${id}` }, { status: 409 });
+    }
+    console.error('Failed to create watch item', error);
+    return NextResponse.json({ error: 'failed to save watch item' }, { status: 500 });
+  }
 }

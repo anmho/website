@@ -8,8 +8,9 @@ import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import readingsData from '@/assets/static/json/readings.json';
 import { formatDate } from '@/lib/utils';
+import { listContent } from '@/lib/contentDb';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
 
 type Reading = {
   id: string;
@@ -31,10 +32,22 @@ async function getReadingContent(id: string): Promise<string | null> {
 }
 
 export default async function ReadingsPage() {
-  const readings = readingsData as Reading[];
-  const content = await Promise.all(
-    readings.map(async (reading) => ({ reading, body: await getReadingContent(reading.id) }))
-  );
+  const legacyReadings = readingsData as Reading[];
+  const records = await listContent('reading');
+  const content = records.length
+    ? records.map((record) => ({
+        reading: {
+          id: record.id,
+          title: record.title,
+          date: record.date,
+          excerpt: record.excerpt,
+          author: typeof record.metadata.author === 'string' ? record.metadata.author : 'Unknown author',
+        },
+        body: record.body,
+      }))
+    : await Promise.all(
+        legacyReadings.map(async (reading) => ({ reading, body: await getReadingContent(reading.id) }))
+      );
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">

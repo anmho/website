@@ -134,6 +134,29 @@ ADMIN_AUTH_SECRET=long-random-session-signing-secret
 account by numeric GitHub user ID. The editor no longer accepts a browser-held
 API key; public content routes remain public while publishing stays owner-only.
 
+### Content database
+
+Published articles, notes, learnings, lessons, readings, and watch items are
+stored in Postgres. Set `DATABASE_URL` for the application and, when using a
+pooled Neon connection, set `DATABASE_URL_UNPOOLED` for migrations:
+
+```bash
+DATABASE_URL=postgres://...
+DATABASE_URL_UNPOOLED=postgres://... # optional, preferred for migrations
+```
+
+Initialize the table and import the existing checked-in content once:
+
+```bash
+npm run db:migrate
+npm run db:seed:content
+```
+
+The public content pages use Next.js Incremental Static Regeneration with a
+one-hour revalidation window. They are pre-rendered HTML, and each authenticated
+editor save invalidates the affected route so the next request receives the
+fresh version without creating a pull request or editing repository files.
+
 ## CLI
 
 Current status:
