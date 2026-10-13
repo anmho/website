@@ -13,8 +13,11 @@ const NAV_LINKS = [
   { href: '/articles', label: 'Articles' },
   { href: '/notes', label: 'Notes' },
   { href: '/learnings', label: 'Learnings' },
+  { href: '/lessons', label: 'Lessons' },
+  { href: '/readings', label: 'Readings' },
   { href: '/about', label: 'About' },
   { href: '/resources', label: 'Bookmarks' },
+  { href: '/editor', label: 'Editor' },
 ];
 
 const NAV_LINKS_MOBILE = [
@@ -22,18 +25,39 @@ const NAV_LINKS_MOBILE = [
   { href: '/articles', label: 'Articles' },
   { href: '/notes', label: 'Notes' },
   { href: '/learnings', label: 'Learnings' },
+  { href: '/lessons', label: 'Lessons' },
+  { href: '/readings', label: 'Readings' },
   { href: '/about', label: 'About' },
   { href: '/resources', label: 'Bookmarks' },
+  { href: '/editor', label: 'Editor' },
 ];
 
 function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const links = useMemo(() => {
-    return isMobileMenuOpen ? NAV_LINKS_MOBILE : NAV_LINKS;
-  }, [isMobileMenuOpen]);
+    const availableLinks = isMobileMenuOpen ? NAV_LINKS_MOBILE : NAV_LINKS;
+    return isAdmin ? availableLinks : availableLinks.filter((link) => link.href !== '/editor');
+  }, [isAdmin, isMobileMenuOpen]);
+
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/auth/session', { credentials: 'same-origin', cache: 'no-store' })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data: { authenticated?: boolean } | null) => {
+        if (alive) setIsAdmin(data?.authenticated === true);
+      })
+      .catch(() => {
+        if (alive) setIsAdmin(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -129,9 +153,10 @@ function Navbar() {
               key={link.href}
               href={link.href}
               className={cn(
-                'h-full flex justify-center align-center flex-col px-3 transition-colors cursor-pointer text-sm sm:text-base font-medium',
-                'dark:text-white text-gray-900',
-                'dark:hover:text-gray-400 hover:text-gray-600'
+                'flex justify-center align-center px-3 transition-colors cursor-pointer text-sm sm:text-base font-medium',
+                link.href === '/editor'
+                  ? 'rounded-2xl bg-gray-900 px-4 py-2 text-white hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200'
+                  : 'h-full flex-col text-gray-900 hover:text-gray-600 dark:text-white dark:hover:text-gray-400'
               )}
             >
               {link.label}
@@ -209,7 +234,7 @@ function Navbar() {
                 <FiX size={24} />
               </button>
               <nav className="flex-1 flex flex-col justify-center">
-                {NAV_LINKS.map((link, index) => (
+                {links.map((link, index) => (
                   <motion.div
                     key={link.href}
                     initial={{ opacity: 0, y: 24 }}
@@ -234,7 +259,9 @@ function Navbar() {
                       className={cn(
                         'block py-6 text-2xl font-medium transition-colors',
                         'dark:text-white text-gray-900',
-                        'dark:hover:text-gray-400 hover:text-gray-600'
+                        link.href === '/editor'
+                          ? 'my-2 w-fit rounded-2xl bg-gray-900 px-4 py-2 text-sm font-medium text-white dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200 hover:bg-gray-700'
+                          : 'dark:hover:text-gray-400 hover:text-gray-600'
                       )}
                     >
                       {link.label}

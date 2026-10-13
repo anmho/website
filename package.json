@@ -11,6 +11,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "validate": "npm run lint && npm run typecheck && npm run build",
+    "db:migrate": "node scripts/migrate-content.mjs",
+    "db:seed:content": "node scripts/seed-content.mjs",
     "deploy": "sh -c 'mkdir -p .logs && vercel --prod 2>&1 | tee .logs/deploy.log'",
     "deploy:last": "cat .logs/deploy.log",
     "cli:build": "npm --prefix tools/websitectl-ts run build",

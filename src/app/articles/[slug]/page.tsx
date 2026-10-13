@@ -18,6 +18,10 @@ import {
   type ReactNode,
 } from 'react';
 import { formatDate } from '@/lib/utils';
+import { getContent, listContent } from '@/lib/contentDb';
+
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 interface Article {
   slug: string;
@@ -34,11 +38,23 @@ interface ArticlePageProps {
 }
 
 async function getArticle(slug: string): Promise<Article | null> {
+  const record = await getContent('article', slug);
+  if (record) {
+    return {
+      slug: record.slug,
+      title: record.title,
+      date: record.date,
+      excerpt: record.excerpt,
+      readTime: record.readTime || '8 min read',
+    };
+  }
   const articles = articlesData as Article[];
   return articles.find((article) => article.slug === slug) || null;
 }
 
 async function getArticleContent(slug: string): Promise<string | null> {
+  const record = await getContent('article', slug);
+  if (record) return record.body;
   try {
     const contentPath = join(
       process.cwd(),
@@ -57,8 +73,10 @@ async function getArticleContent(slug: string): Promise<string | null> {
 
 export async function generateStaticParams() {
   const articles = articlesData as Article[];
-  return articles.map((article) => ({
-    slug: article.slug,
+  const records = await listContent('article');
+  const slugs = new Set([...articles.map((article) => article.slug), ...records.map((record) => record.slug)]);
+  return Array.from(slugs).map((slug) => ({
+    slug,
   }));
 }
 
