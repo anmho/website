@@ -1,0 +1,1 @@
+Self-knowledge tells you what you can genuinely sustain, what you care about, and which trade-offs you have found worth making. But a decision should not only reflect who you are today; it is also a commitment to the person you want to become. Let the present self keep the future self honest, and let the future self give the present self direction.
