@@ -1,5 +1,12 @@
 [
   {
+    "id": "do-not-use-risk-to-regain-control-during-crisis",
+    "title": "Do not use risk to regain control during crisis",
+    "date": "2026-10-14",
+    "excerpt": "Do not engage in impulsive or risky activity as a way to regain control over your life during times of crisis.",
+    "tags": ["private"]
+  },
+  {
     "id": "choose-the-life-not-just-the-metric",
     "title": "Making hard decisions is impossible without knowing your values",
     "date": "2026-10-13",
@@ -35,13 +42,15 @@
     "id": "endurance-is-not-alignment",
     "title": "Endurance is not alignment",
     "date": "2026-10-13",
-    "excerpt": "Repeatedly tolerating a misaligned relationship or job can dull your sense that something is wrong until you lose trust in your own judgment."
+    "excerpt": "Repeatedly tolerating a misaligned relationship or job can dull your sense that something is wrong until you lose trust in your own judgment.",
+    "tags": ["private"]
   },
   {
     "id": "notice-primal-impulses-dont-obey-them",
     "title": "Address primal impulses without being controlled by them",
     "date": "2026-10-13",
-    "excerpt": "Primal impulses must be addressed, but they should not control you. Evolutionary psychology can explain desire without telling you what is worth wanting; if every decision is justified by satisfying those desires, you have turned yourself into an ape."
+    "excerpt": "Primal impulses must be addressed, but they should not control you. Evolutionary psychology can explain desire without telling you what is worth wanting; if every decision is justified by satisfying those desires, you have turned yourself into an ape.",
+    "tags": ["private"]
   },
   {
     "id": "choose-values-before-others-choose-them",

@@ -8,6 +8,7 @@ import { formatDate } from '@/lib/utils';
 import tenetsData from '@/assets/static/json/tenets.json';
 import { readStaticMarkdown } from '@/lib/staticContent';
 import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
+import { isPrivateContent } from '@/lib/contentVisibility';
 
 export const revalidate = 3600;
 
@@ -17,6 +18,7 @@ type Tenet = {
   date: string;
   excerpt: string;
   source?: string;
+  tags?: string[];
 };
 
 function markdownText(node: ReactNode): string {
@@ -56,10 +58,12 @@ const tenetMarkdownComponents: Components = {
 
 export default async function TenetsPage() {
   const content = await Promise.all(
-    (tenetsData as Tenet[]).map(async (tenet) => ({
-      tenet,
-      body: await readStaticMarkdown('tenets', tenet.id),
-    }))
+    (tenetsData as Tenet[])
+      .filter((tenet) => !isPrivateContent(tenet.tags))
+      .map(async (tenet) => ({
+        tenet,
+        body: await readStaticMarkdown('tenets', tenet.id),
+      }))
   );
 
   return (
