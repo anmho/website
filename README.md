@@ -128,6 +128,10 @@ content.
 
 The public Perspective API answers questions in a first-person approximation of Andrew's considered perspective. It retrieves relevant public Tenets, articles, notes, readings, learnings, projects, and saved resources before calling the configured model:
 
+For the persistent private canvas and CLI, see [Decisions setup and API](docs/decisions.md).
+The CLI skill lives in `skills/decisions` and includes guidance for eliciting
+firsthand context that public research cannot supply.
+
 ```bash
 curl -s http://localhost:3000/api/perspective \
   -H 'Content-Type: application/json' \

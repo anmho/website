@@ -1,7 +1,7 @@
 import 'server-only';
 
 // These paths are deliberately fixed: request data must never select a secret.
-export async function readDecisionsSecret(path: 'openai-decisions' | 'decisions-example'): Promise<Record<string, unknown> | null> {
+export async function readDecisionsSecret(path: 'openai-decisions' | 'decisions-example' | 'decisions-database'): Promise<Record<string, unknown> | null> {
   const address = process.env.VAULT_ADDR;
   const token = process.env.VAULT_TOKEN;
   if (!address || !token) return null;

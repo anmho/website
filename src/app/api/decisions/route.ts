@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAllTenets } from '@/lib/tenets';
 import { isAdminRequestAuthenticated } from '@/lib/adminAuth';
 import { getDecisionsApiKey } from '@/lib/decisionsVault.server';
+import { handleDecisionRequest } from '@/lib/decisions/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -70,17 +71,7 @@ function tenetContext(tenets: Awaited<ReturnType<typeof getAllTenets>>): string 
 }
 
 export async function GET(request: Request) {
-  if (!(await isAdminRequestAuthenticated(request))) {
-    return NextResponse.json({ error: 'Admin authentication required.' }, { status: 401 });
-  }
-
-  return NextResponse.json({
-    name: 'Private Decisions API',
-    description: 'Choose among options using the complete, private Tenet set as a values lens.',
-    endpoint: { method: 'POST', path: '/api/decisions' },
-    model,
-    privacy: 'The route is admin-only. Tenet bodies are sent to the configured OpenAI API provider only when a decision is submitted.',
-  });
+  return handleDecisionRequest(request, []);
 }
 
 export async function POST(request: Request) {
