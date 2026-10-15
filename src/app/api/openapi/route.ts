@@ -1,0 +1,143 @@
+import { NextResponse } from 'next/server';
+
+export const runtime = 'nodejs';
+
+const openapi = {
+  openapi: '3.1.0',
+  info: {
+    title: 'Andrew Ho Goals API',
+    version: '1.0.0',
+    description: 'An agent-friendly decision reflection API grounded in the public Tenets on Andrew Ho’s website.',
+  },
+  paths: {
+    '/api/tenets': {
+      get: {
+        operationId: 'listPublicTenets',
+        summary: 'List public Tenets',
+        responses: {
+          '200': {
+            description: 'Public Tenets available to the decision model.',
+          },
+        },
+      },
+    },
+    '/api/goals': {
+      get: {
+        operationId: 'describeGoalsApi',
+        summary: 'Describe the Goals API',
+        responses: {
+          '200': {
+            description: 'Endpoint, changelog, age, and privacy metadata.',
+            content: {
+              'application/json': {
+                schema: { '$ref': '#/components/schemas/GoalsApiDescription' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        operationId: 'reflectOnGoal',
+        summary: 'Reflect on a goal through the public Tenets',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { '$ref': '#/components/schemas/GoalRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Structured decision reflection.',
+            content: {
+              'application/json': {
+                schema: { '$ref': '#/components/schemas/GoalReflectionResponse' },
+              },
+            },
+          },
+          '400': { description: 'Invalid goal or context.' },
+          '503': { description: 'Model provider is not configured.' },
+        },
+      },
+    },
+  },
+  components: {
+    schemas: {
+      GoalRequest: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['goal'],
+        properties: {
+          goal: { type: 'string', minLength: 10, maxLength: 4000 },
+          context: { type: 'string', maxLength: 4000 },
+        },
+      },
+      GoalReflectionResponse: {
+        type: 'object',
+        required: ['goal', 'model', 'tenets', 'reflection'],
+        properties: {
+          goal: { type: 'string' },
+          model: { type: 'string' },
+          tenets: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['id', 'title'],
+              properties: { id: { type: 'string' }, title: { type: 'string' } },
+            },
+          },
+          reflection: {
+            type: 'object',
+            required: ['recommendation', 'reasoning', 'alignedTenets', 'tensions', 'nextSteps', 'questions'],
+            properties: {
+              recommendation: { type: 'string' },
+              reasoning: { type: 'string' },
+              alignedTenets: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  required: ['title', 'reasoning'],
+                  properties: { title: { type: 'string' }, reasoning: { type: 'string' } },
+                },
+              },
+              tensions: { type: 'array', items: { type: 'string' } },
+              nextSteps: { type: 'array', items: { type: 'string' } },
+              questions: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+      },
+      GoalJournalEntry: {
+        type: 'object',
+        required: ['id', 'date', 'kind', 'title', 'summary', 'age'],
+        properties: {
+          id: { type: 'string' },
+          date: { type: 'string', format: 'date' },
+          kind: { type: 'string', enum: ['goal', 'shift', 'reflection'] },
+          title: { type: 'string' },
+          summary: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } },
+          age: { type: ['integer', 'null'], minimum: 0 },
+        },
+      },
+      GoalsApiDescription: {
+        type: 'object',
+        required: ['name', 'description', 'endpoints', 'changelog', 'age', 'openapi', 'privacy'],
+        properties: {
+          name: { type: 'string' },
+          description: { type: 'string' },
+          endpoints: { type: 'object' },
+          changelog: { type: 'array', items: { '$ref': '#/components/schemas/GoalJournalEntry' } },
+          age: { type: 'object' },
+          openapi: { type: 'string' },
+          privacy: { type: 'string' },
+        },
+      },
+    },
+  },
+};
+
+export function GET() {
+  return NextResponse.json(openapi);
+}
