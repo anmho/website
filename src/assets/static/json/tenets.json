@@ -1,5 +1,50 @@
 [
   {
+    "id": "live-your-life-like-a-movie",
+    "title": "Live your life like a movie",
+    "date": "2026-10-15",
+    "excerpt": "When in doubt, ask yourself: if your life were a movie, what would the main character do?"
+  },
+  {
+    "id": "build-a-multidimensional-life",
+    "title": "Build a multidimensional life",
+    "date": "2026-10-14",
+    "excerpt": "Make room for positive emotion, deep engagement, strong relationships, meaning, and accomplishment. A good life should not be reduced to a single metric.",
+    "source": "Martin Seligman’s PERMA model"
+  },
+  {
+    "id": "seek-new-information-keep-values-clear",
+    "title": "Seek new information, keep your values clear",
+    "date": "2026-10-14",
+    "excerpt": "Seek new people, ideas, stories, and experiences that can challenge, reinforce, or update your worldview. Let your beliefs remain flexible, but let your core values provide a stable basis for action.",
+    "source": "Julia Galef; Acceptance and Commitment Therapy"
+  },
+  {
+    "id": "ask-your-future-self-before-sacrificing-the-present",
+    "title": "Ask your future self before sacrificing the present",
+    "date": "2026-10-14",
+    "excerpt": "When sacrificing the present for the future, ask yourself if your future self would agree with the decision or tell you not to make that sacrifice."
+  },
+  {
+    "id": "learn-to-build-and-learn-to-sell",
+    "title": "Learn to build and learn to sell",
+    "date": "2026-10-14",
+    "excerpt": "Value must be created, understood, and chosen.",
+    "source": "Naval Ravikant"
+  },
+  {
+    "id": "choose-long-term-games-with-people-you-respect",
+    "title": "Choose long-term games with people you respect",
+    "date": "2026-10-14",
+    "excerpt": "Choose long-term games with people you respect."
+  },
+  {
+    "id": "protect-your-attention",
+    "title": "Protect your attention",
+    "date": "2026-10-14",
+    "excerpt": "What repeatedly captures your attention eventually shapes your life."
+  },
+  {
     "id": "own-equity-not-time",
     "title": "Own equity, not just your time",
     "date": "2026-10-14",

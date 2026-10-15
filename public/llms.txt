@@ -1,0 +1,19 @@
+# Andrew Ho
+
+Personal site covering systems, software, readings, and principles for making decisions.
+
+## Start here
+
+- [Goals](/goals): reflect on a goal through the public Tenets and read the changelog of changing priorities.
+- [Tenets](/tenets): public principles and their sources.
+- [Articles](/articles): long-form technical writing.
+- [Notes](/notes): shorter technical notes.
+
+## Machine-readable interfaces
+
+- `GET /api/tenets`: list the public Tenets available to decision tools.
+- `GET /api/goals`: inspect the Goals API contract, public changelog, and age privacy behavior.
+- `POST /api/goals`: submit `{ "goal": "...", "context": "..." }` for a structured reflection.
+- `GET /api/openapi`: retrieve the OpenAPI 3.1 description.
+
+Private Tenets are never included in the public API or model prompt. The Goals API is a reflection tool, not professional advice or an autonomous decision-maker.

@@ -5,21 +5,10 @@ import Navbar from '@/components/Navbar';
 import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import { formatDate } from '@/lib/utils';
-import tenetsData from '@/assets/static/json/tenets.json';
-import { readStaticMarkdown } from '@/lib/staticContent';
 import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
-import { isPrivateContent } from '@/lib/contentVisibility';
+import { getPublicTenets } from '@/lib/tenets';
 
 export const revalidate = 3600;
-
-type Tenet = {
-  id: string;
-  title: string;
-  date: string;
-  excerpt: string;
-  source?: string;
-  tags?: string[];
-};
 
 function markdownText(node: ReactNode): string {
   if (typeof node === 'string' || typeof node === 'number') {
@@ -57,14 +46,7 @@ const tenetMarkdownComponents: Components = {
 };
 
 export default async function TenetsPage() {
-  const content = await Promise.all(
-    (tenetsData as Tenet[])
-      .filter((tenet) => !isPrivateContent(tenet.tags))
-      .map(async (tenet) => ({
-        tenet,
-        body: await readStaticMarkdown('tenets', tenet.id),
-      }))
-  );
+  const content = await getPublicTenets();
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-white">
@@ -80,7 +62,7 @@ export default async function TenetsPage() {
             </p>
             {content.length > 0 ? (
               <div className="space-y-1">
-                {content.map(({ tenet, body }) => (
+                {content.map((tenet) => (
                   <article key={tenet.id} className="group border-b border-gray-200 py-6 dark:border-gray-900">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-8">
                       <div className="min-w-[140px] pt-1 text-sm font-mono text-gray-500 dark:text-gray-500">
@@ -93,16 +75,16 @@ export default async function TenetsPage() {
                           </p>
                         ) : null}
                         <h2 className="mb-2 text-xl font-medium tracking-tight text-gray-900 transition-colors group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-300 sm:text-2xl">
-                          {tenet.title}
-                        </h2>
-                        {body ? (
+                            {tenet.title}
+                          </h2>
+                        {tenet.body ? (
                           <div className="prose prose-sm max-w-2xl dark:prose-invert">
                             <ReactMarkdown
                               components={tenetMarkdownComponents}
                               remarkPlugins={markdownRemarkPlugins}
                               rehypePlugins={markdownRehypePlugins}
                             >
-                              {body}
+                              {tenet.body}
                             </ReactMarkdown>
                           </div>
                         ) : (

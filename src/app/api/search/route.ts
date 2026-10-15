@@ -46,6 +46,7 @@ const pages: SearchItem[] = [
   { slug: 'readings', title: 'Readings', excerpt: 'Books, papers, and essays worth returning to', type: 'page', path: '/readings', searchText: 'readings books papers and essays worth returning to' },
   { slug: 'watch', title: 'Watch', excerpt: 'Movies and videos worth spending time with', type: 'page', path: '/watch', searchText: 'watch movies and videos worth spending time with' },
   { slug: 'resources', title: 'Bookmarks', excerpt: 'Saved articles, guides, talks, and references', type: 'page', path: '/resources', searchText: 'bookmarks saved articles guides talks and references resources' },
+  { slug: 'goals', title: 'Goals', excerpt: 'Reflect on decisions through personal Tenets', type: 'page', path: '/goals', searchText: 'goals decision tenets reflection' },
   { slug: 'projects', title: 'Projects', excerpt: 'A collection of projects showcasing my work', type: 'page', path: '/projects', searchText: 'projects a collection of projects showcasing my work' },
   { slug: 'about', title: 'About', excerpt: 'Learn more about me and get in touch', type: 'page', path: '/about', searchText: 'about learn more about me and get in touch' },
 ];
