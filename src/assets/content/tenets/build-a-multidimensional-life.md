@@ -4,7 +4,7 @@ The goal is not a balanced scorecard. It is a decision whose reasoning you under
 
 Ask: “Why is this the right choice for me, rather than merely an impressive choice?”
 
-[Seligman’s PERMA model](https://positivepsychology.com/perma-model/) is a framework for well-being, not a general decision-making framework. It describes positive emotion, engagement, relationships, meaning, and accomplishment.
+[Seligman’s PERMA model](https://positivepsychology.com/perma-model/) is a well-being framework rooted in positive psychology, not a general decision-making framework. It describes positive emotion, engagement, relationships, meaning, and accomplishment.
 
 Use it here to ask: “Beyond pay or upside, how might this choice affect my enjoyment, engagement, relationships, sense of meaning, and accomplishment?”
 
