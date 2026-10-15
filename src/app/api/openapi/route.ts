@@ -180,7 +180,20 @@ const openapi = {
         required: ['decision', 'options'],
         properties: {
           decision: { type: 'string', minLength: 10, maxLength: 4000 },
-          options: { type: 'array', minItems: 2, maxItems: 8, items: { type: 'string', maxLength: 200 } },
+          options: {
+            type: 'array',
+            minItems: 2,
+            maxItems: 8,
+            items: {
+              type: 'object',
+              additionalProperties: false,
+              required: ['value'],
+              properties: {
+                value: { type: 'string', maxLength: 200 },
+                context: { type: 'array', maxItems: 12, items: { type: 'string', maxLength: 4000 } },
+              },
+            },
+          },
           state: { type: 'string', maxLength: 4000 },
           constraints: { type: 'string', maxLength: 4000 },
         },

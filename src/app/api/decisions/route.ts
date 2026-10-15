@@ -14,6 +14,11 @@ type DecisionBody = {
   constraints?: unknown;
 };
 
+type DecisionOption = {
+  value: string;
+  context: string[];
+};
+
 type ChoiceAnswer = {
   name?: unknown;
   type?: unknown;
@@ -24,6 +29,23 @@ type ChoiceAnswer = {
 
 function asText(value: unknown): string {
   return typeof value === 'string' ? value.trim() : '';
+}
+
+function parseOptions(value: unknown): DecisionOption[] {
+  if (!Array.isArray(value)) return [];
+
+  return value
+    .map((option) => {
+      if (typeof option === 'string') return { value: option.trim(), context: [] };
+      if (!option || typeof option !== 'object') return null;
+
+      const candidate = option as { value?: unknown; context?: unknown };
+      const context = Array.isArray(candidate.context)
+        ? candidate.context.filter((item): item is string => typeof item === 'string').map((item) => item.trim()).filter(Boolean)
+        : [];
+      return { value: asText(candidate.value), context };
+    })
+    .filter((option): option is DecisionOption => Boolean(option?.value));
 }
 
 function isChoiceAnswer(value: unknown): value is ChoiceAnswer {
@@ -69,16 +91,22 @@ export async function POST(request: Request) {
   const decision = asText(body?.decision);
   const state = asText(body?.state);
   const constraints = asText(body?.constraints);
-  const options = Array.isArray(body?.options)
-    ? body.options.filter((option): option is string => typeof option === 'string').map((option) => option.trim()).filter(Boolean)
-    : [];
-  const uniqueOptions = Array.from(new Set(options));
+  const options = parseOptions(body?.options);
+  const uniqueValues = new Set<string>();
+  const uniqueOptions = options.filter((option) => {
+    if (uniqueValues.has(option.value)) return false;
+    uniqueValues.add(option.value);
+    return true;
+  });
 
   if (decision.length < 10 || decision.length > 4000) {
     return NextResponse.json({ error: 'Decision must be between 10 and 4000 characters.' }, { status: 400 });
   }
-  if (uniqueOptions.length < 2 || uniqueOptions.length > 8 || uniqueOptions.some((option) => option.length > 200)) {
+  if (uniqueOptions.length < 2 || uniqueOptions.length > 8 || uniqueOptions.some((option) => option.value.length > 200)) {
     return NextResponse.json({ error: 'Provide 2 to 8 unique options, each 200 characters or fewer.' }, { status: 400 });
+  }
+  if (uniqueOptions.some((option) => option.context.some((message) => message.length > 4000) || option.context.length > 12 || option.context.join('\n').length > 8000)) {
+    return NextResponse.json({ error: 'Each option can include up to 12 context messages and 8000 context characters.' }, { status: 400 });
   }
   if (state.length > 4000 || constraints.length > 4000) {
     return NextResponse.json({ error: 'State and constraints must each be 4000 characters or fewer.' }, { status: 400 });
@@ -95,7 +123,12 @@ export async function POST(request: Request) {
     decision,
     '',
     'Options:',
-    ...uniqueOptions.map((option, index) => `${index + 1}. ${option}`),
+    ...uniqueOptions.flatMap((option, index) => [
+      `${index + 1}. ${option.value}`,
+      ...(option.context.length > 0
+        ? ['Context for this option:', ...option.context.map((message) => `- ${message}`)]
+        : []),
+    ]),
     state ? `\nCurrent state:\n${state}` : '',
     constraints ? `\nConstraints:\n${constraints}` : '',
     '',
@@ -118,7 +151,7 @@ export async function POST(request: Request) {
           type: 'choice',
           name: 'choice',
           instructions: 'Which option best matches the person\'s complete Tenet set and current state? Return the option itself, not a number. Treat Tenets as a values lens, identify the most coherent choice, and account for tensions rather than inventing certainty.',
-          choices: uniqueOptions.map((option) => ({ value: option, description: option })),
+          choices: uniqueOptions.map((option) => ({ value: option.value, description: option.value })),
         }],
       }),
       cache: 'no-store',
@@ -136,7 +169,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       decision,
-      options: uniqueOptions,
+      options: uniqueOptions.map((option) => option.value),
       model,
       answer: {
         choice: answer.choice,
