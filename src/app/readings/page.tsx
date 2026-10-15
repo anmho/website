@@ -56,9 +56,11 @@ export default async function ReadingsPage() {
                 {content.map(({ reading, body }) => {
                   const readingBody = (
                     <div className="min-w-0 flex-1">
-                      <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-gray-400 dark:text-gray-600">
-                        {reading.author}
-                      </p>
+                      <div className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-[10px] font-mono uppercase tracking-[0.18em] text-gray-400 dark:text-gray-600">
+                        <time dateTime={reading.date}>{formatDate(reading.date)}</time>
+                        <span aria-hidden="true" className="text-gray-300 dark:text-gray-700">/</span>
+                        <span>{reading.author}</span>
+                      </div>
                       <h2 className="mb-2 text-xl font-medium tracking-tight text-gray-900 transition-colors group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-300 sm:text-2xl">
                         {reading.title}
                       </h2>
@@ -79,20 +81,16 @@ export default async function ReadingsPage() {
                   );
 
                   return (
-                    <article key={reading.id} className={`group border-b border-gray-200 py-6 dark:border-gray-900 ${reading.coverUrl ? 'rounded-[2rem] border border-gray-200 bg-white/60 p-5 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-7 dark:border-gray-800 dark:bg-gray-950/50 dark:shadow-black/20' : ''}`}>
-                      <div className={`flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8 ${reading.coverUrl ? '' : ''}`}>
+                    <article key={reading.id} className="group border-y border-gray-200 py-10 dark:border-gray-800">
+                      <div className={`flex flex-col gap-8 sm:gap-12 ${reading.coverUrl ? 'sm:grid sm:grid-cols-[148px_minmax(0,1fr)]' : ''}`}>
                         {reading.coverUrl ? (
-                          <div className="w-full shrink-0 sm:w-40">
-                            <div className="relative aspect-[2/3] overflow-hidden rounded-xl border border-gray-200 bg-gray-100 shadow-[0_18px_45px_rgba(15,23,42,0.16)] dark:border-gray-700 dark:bg-gray-900 dark:shadow-black/40">
-                              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-black/20" />
-                              <img src={reading.coverUrl} alt={`Cover of ${reading.title}`} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" loading="eager" />
+                          <div className="w-32 shrink-0 sm:w-full">
+                            <div className="relative aspect-[2/3] overflow-hidden rounded-sm border border-gray-300 bg-gray-100 shadow-[0_16px_32px_rgba(0,0,0,0.14)] transition-transform duration-700 group-hover:-translate-y-1 dark:border-gray-700 dark:bg-gray-900 dark:shadow-black/30">
+                              <img src={reading.coverUrl} alt={`Cover of ${reading.title}`} className="h-full w-full object-cover" loading="eager" />
                             </div>
-                            <p className="mt-3 text-center text-[9px] font-mono uppercase tracking-[0.16em] text-gray-400 dark:text-gray-600">Cover / first edition</p>
+                            <p className="mt-3 text-[9px] font-mono uppercase tracking-[0.16em] text-gray-400 dark:text-gray-600">First edition</p>
                           </div>
                         ) : null}
-                        <div className="min-w-[140px] pt-1 text-sm font-mono text-gray-500 dark:text-gray-500">
-                          <time dateTime={reading.date}>{formatDate(reading.date)}</time>
-                        </div>
                         {readingBody}
                       </div>
                     </article>

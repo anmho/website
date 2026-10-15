@@ -147,10 +147,9 @@ OPENAI_DECISIONS_MODEL=gpt-6-luna
 
 The app validates the `Cf-Access-Jwt-Assertion` header against Cloudflare's
 JWKS endpoint, including the issuer and application audience. Cloudflare Access
-must proxy the production host for this assertion to be present. The old
-password form is available only during local development, when
-`ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` are set; production fails closed
-without Cloudflare Access configuration.
+must proxy the production host for this assertion to be present. There is no
+password fallback: the private route fails closed unless Cloudflare Access is
+configured and the request carries a valid Access assertion.
 
 The private route calls the [OpenAI Decisions API](https://developers.openai.com/api/docs/guides/decisions)
 and includes Tenets tagged `private` in its values lens. [ChatGPT subscriptions

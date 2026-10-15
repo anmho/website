@@ -1,34 +1,9 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
 import SectionContainer from '@/components/SectionContainer';
 import type { AdminAuthMode } from '@/lib/adminAuth';
 
 export default function AdminLoginView({ mode }: { mode: AdminAuthMode }) {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const login = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
-      });
-      const payload = await response.json().catch(() => null) as { error?: string } | null;
-      if (!response.ok) throw new Error(payload?.error || 'Could not sign in.');
-      window.location.assign('/decisions');
-    } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : 'Could not sign in.');
-      setIsLoading(false);
-    }
-  };
-
   return (
     <main className="min-h-screen w-full text-gray-900 dark:text-white">
       <div className="flex min-h-screen items-center justify-center px-6 py-20">
@@ -38,20 +13,13 @@ export default function AdminLoginView({ mode }: { mode: AdminAuthMode }) {
             <h1 className="max-w-lg text-5xl leading-[0.98] tracking-[-0.06em] sm:text-7xl">Enter the values lab.</h1>
             <p className="mt-8 max-w-lg text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:text-xl">The Decisions page uses the complete Tenet set, including entries marked private. It is only available to the site administrator.</p>
             {mode === 'cloudflare' ? (
-              <div className="mt-12 rounded-[2rem] border border-gray-200 bg-white/70 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8 dark:border-gray-800 dark:bg-gray-950/70 dark:shadow-black/20">
+              <div className="mt-12 border-y border-gray-200 py-8 sm:py-10 dark:border-[#252525]">
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Cloudflare Access is required</p>
                 <p className="mt-3 text-sm leading-relaxed text-gray-600 dark:text-gray-400">Sign in with the identity provider configured for this site, then return here.</p>
-                <a href="/cdn-cgi/access/login" className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-gray-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">Continue with Cloudflare Access</a>
+                <a href="/cdn-cgi/access/login" className="mt-6 inline-flex items-center justify-center rounded-sm bg-gray-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">Continue with Cloudflare Access</a>
               </div>
-            ) : mode === 'password' ? (
-              <form onSubmit={login} className="mt-12 rounded-[2rem] border border-gray-200 bg-white/70 p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8 dark:border-gray-800 dark:bg-gray-950/70 dark:shadow-black/20">
-                <label htmlFor="admin-password" className="text-sm font-medium text-gray-900 dark:text-gray-100">Local development password</label>
-                <input id="admin-password" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} className="mt-4 w-full rounded-2xl border border-gray-200 bg-gray-50/80 px-4 py-4 outline-none transition-colors placeholder:text-gray-400 focus:border-amber-500 dark:border-gray-800 dark:bg-gray-900/80 dark:text-white" required />
-                <button type="submit" disabled={isLoading} className="mt-6 w-full rounded-full bg-gray-900 px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-700 disabled:cursor-wait disabled:opacity-60 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200">{isLoading ? 'Signing in…' : 'Continue'}</button>
-                {error ? <p role="alert" className="mt-5 rounded-xl border border-red-300/50 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-300">{error}</p> : null}
-              </form>
             ) : (
-              <div className="mt-12 rounded-[2rem] border border-amber-300/60 bg-amber-50/70 p-6 text-sm leading-relaxed text-amber-900 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">Admin authentication is not configured. Set the Cloudflare Access team domain and application audience on the server before deploying this private area.</div>
+              <div className="mt-12 border-y border-amber-300/60 py-8 text-sm leading-relaxed text-amber-900 dark:border-amber-900/60 dark:text-amber-200">Admin authentication is not configured. Set the Cloudflare Access team domain and application audience on the server before deploying this private area.</div>
             )}
           </div>
         </SectionContainer>
