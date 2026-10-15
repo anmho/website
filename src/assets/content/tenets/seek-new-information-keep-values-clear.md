@@ -1,0 +1,3 @@
+Seek new people, ideas, stories, and experiences that can challenge, reinforce, or update your worldview. Let your beliefs remain flexible, but let your core values provide a stable basis for action.
+
+This synthesis draws on [Julia Galef's *The Scout Mindset*](https://www.penguinrandomhouse.com/books/555240/the-scout-mindset-by-julia-galef/), which frames learning as moving closer to the truth, and the [American Psychological Association's overview of Acceptance and Commitment Therapy](https://www.apa.org/pubs/books/acceptance-commitment-therapy), which connects psychological flexibility with action guided by deeply held values.

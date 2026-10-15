@@ -121,9 +121,16 @@ Use `npm run validate` for the full local validation sequence before opening a P
 Published content is checked into the repository. Articles and notes use JSON
 metadata in `src/assets/static/json/` and Markdown bodies in
 `src/assets/content/articles/` and `src/assets/content/notes/`. Tenets,
-readings, and watch entries follow the same pattern in their respective
-directories. Edit those files directly and deploy the resulting commit; Next.js
-pre-renders the public pages from the checked-in content.
+readings, watch entries, and the Goals changelog follow the same pattern in
+their respective directories. Edit those files directly and deploy the
+resulting commit; Next.js pre-renders the public pages from the checked-in
+content.
+
+The Goals timeline calculates age at each entry date from the server-only
+`BIRTH_DATE=YYYY-MM-DD` environment variable. The exact birthday is never
+returned by the page or API. The decision reflection API also requires
+`OPENAI_API_KEY`; set `OPENAI_GOALS_MODEL` or `OPENAI_API_BASE_URL` only when
+you need to override the defaults.
 
 ## Daily Article Email
 
