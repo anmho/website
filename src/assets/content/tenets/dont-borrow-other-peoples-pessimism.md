@@ -1,3 +1,5 @@
+Pessimism is ignorance disguised as wisdom.
+
 Use pessimism as a tool, not a worldview. Test the thesis: ask what would make it fail, look for disconfirming evidence, and update. Then build a positive case for action. A business, a bet, or a life direction needs a reason it can work; do not let someone else's resignation become your ceiling.
 
 Irrational pessimism is just as dangerous, or more dangerous, than irrational exuberance to truth-seeking. The negative case is not automatically the rational case. Choose people who tell you the truth without making failure your identity.
