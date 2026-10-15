@@ -63,7 +63,7 @@ export default async function TenetsPage() {
             {content.length > 0 ? (
               <div className="space-y-1">
                 {content.map((tenet) => (
-                  <article key={tenet.id} className="group border-b border-gray-200 py-6 dark:border-gray-900">
+                  <article key={tenet.id} id={tenet.id} className="group scroll-mt-32 border-b border-gray-200 py-6 dark:border-gray-900">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-8">
                       <div className="min-w-[140px] pt-1 text-sm font-mono text-gray-500 dark:text-gray-500">
                         <time dateTime={tenet.date}>{formatDate(tenet.date)}</time>
@@ -75,7 +75,9 @@ export default async function TenetsPage() {
                           </p>
                         ) : null}
                         <h2 className="mb-2 text-xl font-medium tracking-tight text-gray-900 transition-colors group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-300 sm:text-2xl">
-                            {tenet.title}
+                            <a href={`#${tenet.id}`} className="rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4" aria-label={`Link to tenet: ${tenet.title}`}>
+                              {tenet.title}
+                            </a>
                           </h2>
                         {tenet.body ? (
                           <div className="prose prose-sm max-w-2xl dark:prose-invert">

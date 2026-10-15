@@ -1,9 +1,58 @@
 [
   {
+    "id": "la-la-land",
+    "title": "La La Land",
+    "date": "2026-10-15",
+    "excerpt": "Sometimes the lives you each choose do not keep you together. That does not erase what you meant to each other.",
+    "format": "Movie to rewatch"
+  },
+  {
+    "id": "whiplash",
+    "title": "Whiplash",
+    "date": "2026-10-15",
+    "excerpt": "How badly do you want it? Choose the sacrifices your ambition requires with your eyes open.",
+    "format": "Movie to rewatch"
+  },
+  {
     "id": "how-to-make-hard-choices",
     "title": "How to make hard choices",
     "date": "2026-10-13",
     "excerpt": "Ruth Chang on making hard choices.",
     "format": "Talk"
+  },
+  {
+    "id": "the-truman-show",
+    "title": "The Truman Show",
+    "date": "2026-10-15",
+    "excerpt": "Comfort is not proof that a life is yours.",
+    "format": "Movie to rewatch"
+  },
+  {
+    "id": "fight-club",
+    "title": "Fight Club",
+    "date": "2026-10-15",
+    "excerpt": "Reject borrowed definitions of success without surrendering your judgment to a new ideology.",
+    "format": "Movie to rewatch"
+  },
+  {
+    "id": "american-psycho",
+    "title": "American Psycho",
+    "date": "2026-10-15",
+    "excerpt": "Status and appearances are poor substitutes for an identity you have examined.",
+    "format": "Movie to rewatch"
+  },
+  {
+    "id": "tokyo-drift",
+    "title": "The Fast and the Furious: Tokyo Drift",
+    "date": "2026-10-15",
+    "excerpt": "Choose your company intentionally, then give your decisions a real chance without constantly reliving the alternatives.",
+    "format": "Movie to rewatch"
+  },
+  {
+    "id": "good-will-hunting",
+    "title": "Good Will Hunting",
+    "date": "2026-10-15",
+    "excerpt": "Self-protection can keep you from relationships and possibilities you genuinely value. Being capable does not mean you must choose the most prestigious path.",
+    "format": "Movie to rewatch"
   }
 ]
