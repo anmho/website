@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
+import { createOpenAI } from '@ai-sdk/openai';
+import { generateText, jsonSchema, Output } from 'ai';
 import { getGoalChangelog } from '@/lib/goals';
 import { getPublicTenets, type PublicTenet } from '@/lib/tenets';
 
 export const runtime = 'nodejs';
 
 const model = process.env.OPENAI_GOALS_MODEL || 'gpt-6-luna';
-const openAiBaseUrl = (process.env.OPENAI_API_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
 
-const goalReflectionSchema = {
+const goalReflectionSchema: Parameters<typeof jsonSchema>[0] = {
   type: 'object',
   additionalProperties: false,
   properties: {
@@ -39,7 +40,7 @@ const goalReflectionSchema = {
     },
   },
   required: ['recommendation', 'reasoning', 'alignedTenets', 'tensions', 'nextSteps', 'questions'],
-} as const;
+};
 
 type GoalReflection = {
   recommendation: string;
@@ -54,26 +55,6 @@ function publicTenetContext(tenets: PublicTenet[]) {
   return tenets
     .map((tenet) => `### ${tenet.title}\n${tenet.body || tenet.excerpt}`)
     .join('\n\n');
-}
-
-function getOutputText(payload: unknown): string {
-  if (!payload || typeof payload !== 'object') return '';
-
-  const response = payload as {
-    output_text?: unknown;
-    output?: Array<{
-      type?: string;
-      content?: Array<{ type?: string; text?: unknown }>;
-    }>;
-  };
-
-  if (typeof response.output_text === 'string') return response.output_text;
-
-  return (response.output || [])
-    .flatMap((item) => item.content || [])
-    .filter((content) => content.type === 'output_text' && typeof content.text === 'string')
-    .map((content) => content.text as string)
-    .join('');
 }
 
 function isGoalReflection(value: unknown): value is GoalReflection {
@@ -159,59 +140,45 @@ export async function POST(request: Request) {
     context ? `\nAdditional context:\n${context}` : '',
   ].join('\n');
 
-  const modelResponse = await fetch(`${openAiBaseUrl}/responses`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      store: false,
-      instructions:
-        'You are a careful decision coach. Use the public Tenets as a values lens, not as absolute rules. Do not make the decision for the user. Identify alignment, tensions, tradeoffs, and practical next steps. Be direct, specific, and humane. If the goal involves medical, legal, financial, or immediate safety risk, say that professional help may be appropriate. Return only the requested JSON object.',
-      input: prompt,
-      text: {
-        format: {
-          type: 'json_schema',
-          name: 'goal_reflection',
-          strict: true,
-          schema: goalReflectionSchema,
+  try {
+    const openai = createOpenAI({
+      apiKey,
+      baseURL: process.env.OPENAI_API_BASE_URL,
+    });
+    const { output } = await generateText({
+      model: openai.responses(model),
+      system:
+        'You are a careful decision coach. Use the public Tenets as a values lens, not as absolute rules. Do not make the decision for the user. Identify alignment, tensions, tradeoffs, and practical next steps. Be direct, specific, and humane. If the goal involves medical, legal, financial, or immediate safety risk, say that professional help may be appropriate.',
+      prompt,
+      output: Output.object({
+        name: 'goal_reflection',
+        schema: jsonSchema<GoalReflection>(goalReflectionSchema),
+      }),
+      providerOptions: {
+        openai: {
+          store: false,
         },
       },
-    }),
-  });
+      maxRetries: 0,
+    });
 
-  if (!modelResponse.ok) {
+    if (!isGoalReflection(output)) {
+      return NextResponse.json(
+        { error: 'The decision model returned an invalid reflection.' },
+        { status: 502 }
+      );
+    }
+
+    return NextResponse.json({
+      goal,
+      model,
+      tenets: tenets.map(({ id, title }) => ({ id, title })),
+      reflection: output,
+    });
+  } catch {
     return NextResponse.json(
       { error: 'The decision model could not complete the reflection.' },
       { status: 502 }
     );
   }
-
-  const payload = await modelResponse.json() as unknown;
-  const outputText = getOutputText(payload);
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(outputText) as unknown;
-  } catch {
-    return NextResponse.json(
-      { error: 'The decision model returned invalid JSON.' },
-      { status: 502 }
-    );
-  }
-
-  if (!isGoalReflection(parsed)) {
-    return NextResponse.json(
-      { error: 'The decision model returned an invalid reflection.' },
-      { status: 502 }
-    );
-  }
-
-  return NextResponse.json({
-    goal,
-    model,
-    tenets: tenets.map(({ id, title }) => ({ id, title })),
-    reflection: parsed,
-  });
 }
