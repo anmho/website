@@ -6,6 +6,7 @@ import tenetsData from '@/assets/static/json/tenets.json';
 import readingsData from '@/assets/static/json/readings.json';
 import watchData from '@/assets/static/json/watch.json';
 import resourcesData from '@/assets/static/json/resources.json';
+import { isPrivateContent } from '@/lib/contentVisibility';
 
 type SearchItem = {
   slug: string;
@@ -84,7 +85,9 @@ export function GET() {
     ...(articlesData as PostMetadata[]).map((post) => postItem('article', post)),
     ...(notesData as PostMetadata[]).map((post) => postItem('note', post)),
     ...(learningsData as PostMetadata[]).map((post) => postItem('learning', post)),
-    ...(tenetsData as PostMetadata[]).map((post) => postItem('tenet', post)),
+    ...(tenetsData as PostMetadata[])
+      .filter((post) => !isPrivateContent(post.tags))
+      .map((post) => postItem('tenet', post)),
     ...(readingsData as PostMetadata[]).map((post) => postItem('reading', post)),
     ...(watchData as PostMetadata[]).map((post) => postItem('watch', post)),
   ];
