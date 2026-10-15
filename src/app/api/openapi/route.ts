@@ -61,8 +61,48 @@ const openapi = {
         },
       },
     },
+    '/api/decisions': {
+      get: {
+        operationId: 'describePrivateDecisionsApi',
+        summary: 'Describe the admin-only Decisions API',
+        security: [{ adminSession: [] }],
+        responses: {
+          '200': { description: 'Private Decisions API metadata.' },
+          '401': { description: 'Admin authentication required.' },
+        },
+      },
+      post: {
+        operationId: 'chooseWithPrivateTenets',
+        summary: 'Choose among options using the complete Tenet set',
+        security: [{ adminSession: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { '$ref': '#/components/schemas/DecisionRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'Choice and provider probabilities.',
+            content: {
+              'application/json': {
+                schema: { '$ref': '#/components/schemas/DecisionResponse' },
+              },
+            },
+          },
+          '401': { description: 'Admin authentication required.' },
+          '400': { description: 'Invalid decision or options.' },
+          '503': { description: 'Model provider is not configured.' },
+        },
+      },
+    },
   },
   components: {
+    securitySchemes: {
+      adminSession: { type: 'apiKey', in: 'cookie', name: 'andrew_admin_session' },
+    },
     schemas: {
       GoalRequest: {
         type: 'object',
@@ -132,6 +172,47 @@ const openapi = {
           age: { type: 'object' },
           openapi: { type: 'string' },
           privacy: { type: 'string' },
+        },
+      },
+      DecisionRequest: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['decision', 'options'],
+        properties: {
+          decision: { type: 'string', minLength: 10, maxLength: 4000 },
+          options: { type: 'array', minItems: 2, maxItems: 8, items: { type: 'string', maxLength: 200 } },
+          state: { type: 'string', maxLength: 4000 },
+          constraints: { type: 'string', maxLength: 4000 },
+        },
+      },
+      DecisionResponse: {
+        type: 'object',
+        required: ['decision', 'options', 'model', 'answer', 'tenets'],
+        properties: {
+          decision: { type: 'string' },
+          options: { type: 'array', items: { type: 'string' } },
+          model: { type: 'string' },
+          answer: {
+            type: 'object',
+            required: ['choice', 'probabilities', 'confidence'],
+            properties: {
+              choice: { type: 'string' },
+              probabilities: {},
+              confidence: {},
+            },
+          },
+          tenets: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['id', 'title', 'private'],
+              properties: {
+                id: { type: 'string' },
+                title: { type: 'string' },
+                private: { type: 'boolean' },
+              },
+            },
+          },
         },
       },
     },

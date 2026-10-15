@@ -132,6 +132,21 @@ returned by the page or API. The decision reflection API also requires
 `OPENAI_API_KEY`; set `OPENAI_GOALS_MODEL` or `OPENAI_API_BASE_URL` only when
 you need to override the defaults.
 
+The private Decisions page is available at `/decisions` after signing in at
+`/admin/login`. Configure it with server-only values:
+
+```bash
+ADMIN_PASSWORD=your-admin-password
+ADMIN_SESSION_SECRET=your-long-random-session-secret
+OPENAI_API_KEY=your-api-key
+OPENAI_DECISIONS_MODEL=gpt-6-luna
+```
+
+The private route calls the [OpenAI Decisions API](https://developers.openai.com/api/docs/guides/decisions)
+and includes Tenets tagged `private` in its values lens. [ChatGPT subscriptions
+and API Platform billing are separate](https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform),
+so the Decisions API requires API Platform access and credits.
+
 ## Daily Article Email
 
 Sends a random curated article from bookmarks daily via email using Resend and Vercel Cron.

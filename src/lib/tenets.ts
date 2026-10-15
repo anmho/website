@@ -17,13 +17,21 @@ export type PublicTenet = Tenet & {
   body: string;
 };
 
-export async function getPublicTenets(): Promise<PublicTenet[]> {
+async function getTenets(filterPrivate: boolean): Promise<PublicTenet[]> {
   return Promise.all(
     (tenetsData as Tenet[])
-      .filter((tenet) => !isPrivateContent(tenet.tags))
+      .filter((tenet) => !filterPrivate || !isPrivateContent(tenet.tags))
       .map(async (tenet) => ({
         ...tenet,
         body: await readStaticMarkdown('tenets', tenet.id),
       }))
   );
+}
+
+export async function getPublicTenets(): Promise<PublicTenet[]> {
+  return getTenets(true);
+}
+
+export async function getAllTenets(): Promise<PublicTenet[]> {
+  return getTenets(false);
 }

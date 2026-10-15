@@ -14,6 +14,8 @@ Personal site covering systems, software, readings, and principles for making de
 - `GET /api/tenets`: list the public Tenets available to decision tools.
 - `GET /api/goals`: inspect the Goals API contract, public changelog, and age privacy behavior.
 - `POST /api/goals`: submit `{ "goal": "...", "context": "..." }` for a structured reflection.
+- `/decisions`: admin-only decision studio using the complete Tenet set, including private entries.
+- `POST /api/decisions`: admin-only choice endpoint using the OpenAI Decisions API; it requires the admin session cookie.
 - `GET /api/openapi`: retrieve the OpenAPI 3.1 description.
 
-Private Tenets are never included in the public API or model prompt. The Goals API is a reflection tool, not professional advice or an autonomous decision-maker.
+Private Tenets are never included in the public APIs or public Goals model prompt. The admin-only Decisions API includes them by design. Both tools are reflection aids, not professional advice or autonomous decision-makers.
