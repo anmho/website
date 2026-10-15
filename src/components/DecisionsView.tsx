@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import SectionContainer from '@/components/SectionContainer';
 import Navbar from '@/components/Navbar';
+import type { DecisionExample } from '@/lib/decisionExample';
 
 type DecisionTenet = { id: string; title: string; private: boolean };
 type DecisionProbability = { value: string; probability: number };
@@ -27,9 +28,11 @@ const starters = [
   'What should I say no to so I can focus on the life I want?',
 ];
 
-export default function DecisionsView({ tenets }: { tenets: DecisionTenet[] }) {
-  const [decision, setDecision] = useState('');
-  const [options, setOptions] = useState<OptionThread[]>([newOption(1), newOption(2)]);
+export default function DecisionsView({ tenets, initialExample }: { tenets: DecisionTenet[]; initialExample: DecisionExample | null }) {
+  const [decision, setDecision] = useState(initialExample?.decision ?? '');
+  const [options, setOptions] = useState<OptionThread[]>(() => initialExample
+    ? initialExample.options.map((option, index) => ({ ...option, id: `option-${index + 1}`, draft: '' }))
+    : [newOption(1), newOption(2)]);
   const [state, setState] = useState('');
   const [constraints, setConstraints] = useState('');
   const [result, setResult] = useState<DecisionResult | null>(null);

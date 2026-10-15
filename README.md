@@ -132,6 +132,16 @@ returned by the page or API. The decision reflection API also requires
 `OPENAI_API_KEY`; set `OPENAI_GOALS_MODEL` or `OPENAI_API_BASE_URL` only when
 you need to override the defaults.
 
+The optional server-only `DECISIONS_EXAMPLE_JSON` environment variable prefills
+the decision form after admin authentication. Its JSON shape is
+`{"decision":"Which option should I pursue?","options":[{"label":"Option A","messages":["Source-labeled fact"]},{"label":"Option B","messages":[]}]}`.
+Keep personal context in deployment secrets, never in Git or a `NEXT_PUBLIC_`
+variable. The input supports 2 to 8 options, up to 12 notes per option,
+4,000 characters per note and 8,000 combined note characters per option.
+Invalid or missing configuration leaves a blank form. Editing the form does
+not save history and loading it does not invoke the model. Only submission
+sends the edited context and tenets to the configured model provider.
+
 The private Decisions page is available at `/decisions` behind Cloudflare
 Access. Configure the Cloudflare Access application to protect the site host,
 then set these server-only values on the origin:
