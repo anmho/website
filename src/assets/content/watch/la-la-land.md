@@ -2,7 +2,7 @@
 
 **Reminder:** A meaningful choice can still leave you mourning another meaningful life. Sadness alone does not prove you chose wrong.
 
-**Related tenet:** [Choose deliberately. Commit without dwelling.](/tenets).
+**Related tenet:** [Choose deliberately. Commit without dwelling.](/tenets#choose-deliberately-commit-without-dwelling).
 
 **On a rewatch, ask:** Can I honor the life we might have had without treating the life I chose as a mistake?
 
