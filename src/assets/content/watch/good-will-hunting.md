@@ -1,1 +1,1 @@
-[Making hard decisions is impossible without knowing your values](/tenets#choose-the-life-not-just-the-metric).
+Potential is not an obligation to live the life other people have planned for you.

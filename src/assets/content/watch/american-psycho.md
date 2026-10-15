@@ -1,1 +1,1 @@
-[Know yourself, then choose who you become](/tenets#let-the-becoming-self-guide-the-present).
+[Remember what you are pursuing](/tenets#spend-time-alone-to-remember-what-youre-pursuing).
