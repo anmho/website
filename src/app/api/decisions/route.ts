@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAllTenets } from '@/lib/tenets';
 import { isAdminRequestAuthenticated } from '@/lib/adminAuth';
+import { getDecisionsApiKey } from '@/lib/decisionsVault.server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -112,9 +113,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'State and constraints must each be 4000 characters or fewer.' }, { status: 400 });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = await getDecisionsApiKey().catch(() => null);
   if (!apiKey) {
-    return NextResponse.json({ error: 'The decision model is not configured. Set OPENAI_API_KEY on the server.' }, { status: 503 });
+    return NextResponse.json({ error: 'The decision model configuration is unavailable.' }, { status: 503 });
   }
 
   const tenets = await getAllTenets();
