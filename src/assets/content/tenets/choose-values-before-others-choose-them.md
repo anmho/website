@@ -1,5 +1,5 @@
-Societal values, primal impulses, and other people's expectations can quietly set your priorities around desirability, status, money, and comfort. If you do not examine and choose values of your own, you will live by theirs. This is a modern application of Nietzsche's ideal of overcoming inherited standards and creating values one can affirm.
+Your impulses, family, friends, city, culture, and online world all offer scripts for what to want. Take what you genuinely value without following the whole script.
 
-> “Whatever cannot obey itself, is commanded.”
+Question the expectation to climb the corporate ladder, start a company, look a certain way, or win your friends' favorite status game. Even rebellion can become conformity. Make sure the life you are building is one you chose.
 
-Source: [Friedrich Nietzsche, *Thus Spake Zarathustra*, “On the Three Metamorphoses” and Part II, “Self-Surpassing” (trans. Thomas Common)](https://www.gutenberg.org/files/1998/1998-h/1998-h.htm)
+Source: A personal application of [Friedrich Nietzsche, *Thus Spake Zarathustra*, “On the Three Metamorphoses” and “Self-Surpassing”](https://www.gutenberg.org/files/1998/1998-h/1998-h.htm), not a quotation.
