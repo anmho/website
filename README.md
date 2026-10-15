@@ -132,6 +132,40 @@ returned by the page or API. The decision reflection API also requires
 `OPENAI_API_KEY`; set `OPENAI_GOALS_MODEL` or `OPENAI_API_BASE_URL` only when
 you need to override the defaults.
 
+The optional server-only `DECISIONS_EXAMPLE_JSON` environment variable prefills
+the decision form after admin authentication. Its JSON shape is
+`{"decision":"Which option should I pursue?","options":[{"label":"Option A","messages":["Source-labeled fact"]},{"label":"Option B","messages":[]}]}`.
+Keep personal context in deployment secrets, never in Git or a `NEXT_PUBLIC_`
+variable. The input supports 2 to 8 options, up to 12 notes per option,
+4,000 characters per note and 8,000 combined note characters per option.
+Invalid or missing configuration leaves a blank form. Editing the form does
+not save history and loading it does not invoke the model. Only submission
+sends the edited context and tenets to the configured model provider.
+
+The private Decisions page is available at `/decisions` behind Cloudflare
+Access. Configure the Cloudflare Access application to protect the site host,
+then set these server-only values on the origin:
+
+```bash
+CLOUDFLARE_ACCESS_TEAM_DOMAIN=your-team.cloudflareaccess.com
+CLOUDFLARE_ACCESS_AUD=your-cloudflare-application-audience
+# Optional defense-in-depth allowlist, comma separated.
+CLOUDFLARE_ACCESS_ALLOWED_EMAILS=you@example.com
+OPENAI_API_KEY=your-api-key
+OPENAI_DECISIONS_MODEL=gpt-6-luna
+```
+
+The app validates the `Cf-Access-Jwt-Assertion` header against Cloudflare's
+JWKS endpoint, including the issuer and application audience. Cloudflare Access
+must proxy the production host for this assertion to be present. There is no
+password fallback: the private route fails closed unless Cloudflare Access is
+configured and the request carries a valid Access assertion.
+
+The private route calls the [OpenAI Decisions API](https://developers.openai.com/api/docs/guides/decisions)
+and includes Tenets tagged `private` in its values lens. [ChatGPT subscriptions
+and API Platform billing are separate](https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform),
+so the Decisions API requires API Platform access and credits.
+
 ## Daily Article Email
 
 Sends a random curated article from bookmarks daily via email using Resend and Vercel Cron.
