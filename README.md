@@ -132,15 +132,25 @@ returned by the page or API. The decision reflection API also requires
 `OPENAI_API_KEY`; set `OPENAI_GOALS_MODEL` or `OPENAI_API_BASE_URL` only when
 you need to override the defaults.
 
-The private Decisions page is available at `/decisions` after signing in at
-`/admin/login`. Configure it with server-only values:
+The private Decisions page is available at `/decisions` behind Cloudflare
+Access. Configure the Cloudflare Access application to protect the site host,
+then set these server-only values on the origin:
 
 ```bash
-ADMIN_PASSWORD=your-admin-password
-ADMIN_SESSION_SECRET=your-long-random-session-secret
+CLOUDFLARE_ACCESS_TEAM_DOMAIN=your-team.cloudflareaccess.com
+CLOUDFLARE_ACCESS_AUD=your-cloudflare-application-audience
+# Optional defense-in-depth allowlist, comma separated.
+CLOUDFLARE_ACCESS_ALLOWED_EMAILS=you@example.com
 OPENAI_API_KEY=your-api-key
 OPENAI_DECISIONS_MODEL=gpt-6-luna
 ```
+
+The app validates the `Cf-Access-Jwt-Assertion` header against Cloudflare's
+JWKS endpoint, including the issuer and application audience. Cloudflare Access
+must proxy the production host for this assertion to be present. The old
+password form is available only during local development, when
+`ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` are set; production fails closed
+without Cloudflare Access configuration.
 
 The private route calls the [OpenAI Decisions API](https://developers.openai.com/api/docs/guides/decisions)
 and includes Tenets tagged `private` in its values lens. [ChatGPT subscriptions

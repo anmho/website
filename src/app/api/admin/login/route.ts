@@ -3,16 +3,16 @@ import {
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE,
   createAdminSession,
-  isAdminAuthConfigured,
+  getAdminAuthMode,
   verifyAdminPassword,
 } from '@/lib/adminAuth';
 
 export const runtime = 'nodejs';
 
 export async function POST(request: Request) {
-  if (!isAdminAuthConfigured()) {
+  if (getAdminAuthMode() !== 'password') {
     return NextResponse.json(
-      { error: 'Admin auth is not configured. Set ADMIN_PASSWORD and ADMIN_SESSION_SECRET on the server.' },
+      { error: 'Password sign-in is disabled. This admin area uses Cloudflare Access.' },
       { status: 503 }
     );
   }

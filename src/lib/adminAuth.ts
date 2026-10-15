@@ -1,10 +1,13 @@
 import 'server-only';
 
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
+import { isCloudflareAccessConfigured, verifyCloudflareAccessHeaders } from '@/lib/cloudflareAccess';
 
 export const ADMIN_SESSION_COOKIE = 'andrew_admin_session';
 export const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 7;
+
+export type AdminAuthMode = 'cloudflare' | 'password' | 'unconfigured';
 
 function sessionSecret(): string {
   return process.env.ADMIN_SESSION_SECRET || '';
@@ -21,7 +24,13 @@ function sign(payload: string): string {
 }
 
 export function isAdminAuthConfigured(): boolean {
-  return Boolean(process.env.ADMIN_PASSWORD && sessionSecret());
+  return getAdminAuthMode() !== 'unconfigured';
+}
+
+export function getAdminAuthMode(): AdminAuthMode {
+  if (isCloudflareAccessConfigured()) return 'cloudflare';
+  if (process.env.NODE_ENV !== 'production' && process.env.ADMIN_PASSWORD && sessionSecret()) return 'password';
+  return 'unconfigured';
 }
 
 export function verifyAdminPassword(password: string): boolean {
@@ -48,11 +57,23 @@ export function isValidAdminSession(token: string | undefined): boolean {
 }
 
 export async function isAdminPageAuthenticated(): Promise<boolean> {
+  if (isCloudflareAccessConfigured()) {
+    return (await verifyCloudflareAccessHeaders(await headers())).authenticated;
+  }
+
+  if (process.env.NODE_ENV === 'production') return false;
+
   const cookieStore = await cookies();
   return isValidAdminSession(cookieStore.get(ADMIN_SESSION_COOKIE)?.value);
 }
 
-export function isAdminRequestAuthenticated(request: Request): boolean {
+export async function isAdminRequestAuthenticated(request: Request): Promise<boolean> {
+  if (isCloudflareAccessConfigured()) {
+    return (await verifyCloudflareAccessHeaders(request.headers)).authenticated;
+  }
+
+  if (process.env.NODE_ENV === 'production') return false;
+
   const cookieHeader = request.headers.get('cookie') || '';
   const token = cookieHeader
     .split(';')

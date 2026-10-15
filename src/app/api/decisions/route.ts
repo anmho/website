@@ -69,7 +69,7 @@ function tenetContext(tenets: Awaited<ReturnType<typeof getAllTenets>>): string 
 }
 
 export async function GET(request: Request) {
-  if (!isAdminRequestAuthenticated(request)) {
+  if (!(await isAdminRequestAuthenticated(request))) {
     return NextResponse.json({ error: 'Admin authentication required.' }, { status: 401 });
   }
 
@@ -83,7 +83,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  if (!isAdminRequestAuthenticated(request)) {
+  if (!(await isAdminRequestAuthenticated(request))) {
     return NextResponse.json({ error: 'Admin authentication required.' }, { status: 401 });
   }
 
