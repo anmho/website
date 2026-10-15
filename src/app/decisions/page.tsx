@@ -12,5 +12,5 @@ export default async function DecisionsPage() {
   }
 
   const tenets = await getAllTenets();
-  return <DecisionsView initialExample={getDecisionExample()} tenets={tenets.map(({ id, title, tags }) => ({ id, title, private: tags?.includes('private') ?? false }))} />;
+  return <DecisionsView initialExample={await getDecisionExample()} tenets={tenets.map(({ id, title, tags }) => ({ id, title, private: tags?.includes('private') ?? false }))} />;
 }

@@ -21,6 +21,6 @@ for (const bad of [null, {}, { ...example, decision: 'short' },
 assert.equal(parseDecisionExample('{'), null);
 assert.equal(parseDecisionExample('x'.repeat(80001)), null);
 const page = readFileSync(new URL('../src/app/decisions/page.tsx', import.meta.url), 'utf8');
-assert.ok(page.indexOf('await isAdminPageAuthenticated()') < page.indexOf('initialExample={getDecisionExample()}'));
+assert.ok(page.indexOf('await isAdminPageAuthenticated()') < page.indexOf('initialExample={await getDecisionExample()}'));
 assert.ok(page.includes("dynamic = 'force-dynamic'"));
 console.log('Decision example validation and auth-order checks passed.');

@@ -132,6 +132,21 @@ returned by the page or API. The decision reflection API also requires
 `OPENAI_API_KEY`; set `OPENAI_GOALS_MODEL` or `OPENAI_API_BASE_URL` only when
 you need to override the defaults.
 
+Decision Studio can read its configuration from Vault using the existing
+server-only `VAULT_ADDR`, `VAULT_TOKEN`, and optional `VAULT_NAMESPACE`.
+The runtime token needs read access to only these KV v2 paths for this feature:
+
+- `secret/data/prod/apps/website/openai-decisions`, field `api_key`
+- `secret/data/prod/apps/website/decisions-example`, field `example_json`
+
+Use a restricted runtime token, not an operator or root token. The mount can
+be overridden with `DECISIONS_VAULT_MOUNT`. Reads occur after admin authentication,
+are not cached, and time out after five seconds. An unavailable key returns a
+generic 503; an unavailable Vault example read fails the page rather than
+silently substituting invented context. Rotate expiring provider keys in Vault.
+Explicit `OPENAI_API_KEY` and `DECISIONS_EXAMPLE_JSON` environment values take
+precedence when present. Never expose any of these credentials to client code.
+
 The optional server-only `DECISIONS_EXAMPLE_JSON` environment variable prefills
 the decision form after admin authentication. Its JSON shape is
 `{"decision":"Which option should I pursue?","options":[{"label":"Option A","messages":["Source-labeled fact"]},{"label":"Option B","messages":[]}]}`.
