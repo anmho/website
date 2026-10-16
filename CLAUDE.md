@@ -23,6 +23,8 @@ Use [Conventional Commits](https://www.conventionalcommits.org/) format:
 
 Use commas, colons, semicolons, parentheses, or separate sentences instead of em dashes in site copy, documentation, and UI text.
 
+Keep tenets direct. Avoid self-referential commentary such as “I take this as a reminder,” repeated disclaimers, and explanations of what a tenet is not. Preserve distinct ideas, meaningful tradeoffs, and concise source attribution; do not force entries into a shared template or length.
+
 ## Email Templates
 
 Email templates are located in `src/lib/email/templates/` and use React Email with Tailwind CSS for styling consistency.
@@ -64,6 +66,8 @@ export function MyEmailTemplate({ props }) {
 3. Apply the guardrail immediately in the same change set when possible.
 
 ### Mistake Log
+- 2026-10-15: Tenet copy accumulated defensive explanations and meta-commentary that diluted the user's voice. This happened while adding caveats around personal heuristics and citations. Guardrail: state the idea directly, keep qualifications that change its meaning, and use concise attribution instead of narrating the editorial intent.
+- 2026-10-15: Initially used `gt log --short`, which the installed CLI rejected because short is a subcommand. Guardrail: use the documented `gt log short` syntax and check subcommand help before adding flags.
 - 2026-06-05 ANM-394: Printed token-bearing environment variables while checking GitHub auth availability. This happened because the auth check used a broad `env | rg` command instead of a presence-only test. Guardrail: check secret availability with presence-only shell expansion such as `${GH_TOKEN:+set}` and never print token-bearing environment lines.
 - 2026-06-04 ANM-394: Initially tried to prevent theme flicker with a separate bootstrap script outside React, which added a second theme system and drew review feedback. This happened while optimizing for pre-hydration behavior instead of keeping theme ownership in the existing provider. Guardrail: keep theme class changes in `ThemeContext` unless the project already has an approved bootstrap path, and make hero text readable with explicit light/dark classes.
 - 2026-05-26 ANM-393: Initially passed marquee text as multiline JSX children, which could have introduced whitespace into the measured and rendered song detail text. This happened while refactoring plain text lines into a reusable marquee wrapper. Guardrail: pass marquee content as an explicit `text` string prop so measurement and rendering use the exact Spotify detail string.
