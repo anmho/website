@@ -178,6 +178,8 @@ CLOUDFLARE_ACCESS_AUD=your-cloudflare-application-audience
 CLOUDFLARE_ACCESS_ALLOWED_EMAILS=you@example.com
 OPENAI_API_KEY=your-api-key
 OPENAI_DECISIONS_MODEL=gpt-6-luna
+# Optional rendered fallback for JavaScript-heavy product pages.
+FIRECRAWL_API_KEY=fc-your-api-key
 ```
 
 The app validates the `Cf-Access-Jwt-Assertion` header against Cloudflare's
@@ -190,11 +192,14 @@ configured and the request carries a valid Access assertion.
 
 The private product wishlist is available at `/wishlist` after Cloudflare Access
 authentication. Paste a public product URL to import its page metadata, with no
-LLM call involved. The list supports status tracking, add/remove, drag-and-drop
-priority ordering, and keyboard reordering with Alt plus the arrow keys. Edits
-are saved in the current browser's local storage. The checked-in seed file is
-`src/assets/static/json/wishlist.json`; connect a durable data store before
-relying on the list across browsers or devices.
+LLM call involved. The import first uses local metadata, JSON-LD, microdata, and
+regex extraction, then uses Firecrawl only when price is missing so
+JavaScript-heavy pages can be rendered without slowing common imports. Set
+`FIRECRAWL_API_KEY` to enable that fallback. The list supports status tracking,
+add/remove, drag-and-drop priority ordering, and keyboard reordering with Alt
+plus the arrow keys. Edits are saved in the current browser's local storage.
+The checked-in seed file is `src/assets/static/json/wishlist.json`; connect a
+durable data store before relying on the list across browsers or devices.
 
 The private route calls the [OpenAI Decisions API](https://developers.openai.com/api/docs/guides/decisions)
 and includes Tenets tagged `private` in its values lens. [ChatGPT subscriptions
