@@ -1,1 +1,1 @@
-[Know which kind of company you need](/tenets#know-which-kind-of-company-you-need); [Choose deliberately. Commit without dwelling.](/tenets#choose-deliberately-commit-without-dwelling).
+[Choose trust and character](/tenets#choose-trust-and-character); [Know which kind of company you need](/tenets#know-which-kind-of-company-you-need); [Choose deliberately. Commit without dwelling.](/tenets#choose-deliberately-commit-without-dwelling).
