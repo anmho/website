@@ -3,6 +3,13 @@ import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import NoteList, { type NoteListItem } from '@/components/NoteList';
 import notesData from '@/assets/static/json/notes.json';
+import { pageMetadata } from '@/lib/site';
+
+export const metadata = pageMetadata(
+  'Notes',
+  'Short technical notes and observations by Andrew Ho.',
+  '/notes'
+);
 
 export const revalidate = 3600;
 

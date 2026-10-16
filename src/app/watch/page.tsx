@@ -6,6 +6,13 @@ import { formatDate } from '@/lib/utils';
 import watchData from '@/assets/static/json/watch.json';
 import { readStaticMarkdown } from '@/lib/staticContent';
 import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
+import { pageMetadata } from '@/lib/site';
+
+export const metadata = pageMetadata(
+  'Watch',
+  'Talks and videos worth spending time with, collected by Andrew Ho.',
+  '/watch'
+);
 
 export const revalidate = 3600;
 

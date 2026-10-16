@@ -13,6 +13,9 @@ import CopyCodeBlock from '@/components/CopyCodeBlock';
 import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 import { isValidElement, type HTMLAttributes, type ReactNode } from 'react';
 import { formatDate } from '@/lib/utils';
+import type { Metadata } from 'next';
+import JsonLd from '@/components/JsonLd';
+import { absoluteUrl, pageMetadata } from '@/lib/site';
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -51,6 +54,28 @@ async function getNote(slug: string): Promise<Note | null> {
 
 export async function generateStaticParams() {
   return (notesData as Array<{ slug: string }>).map((note) => ({ slug: note.slug }));
+}
+
+export async function generateMetadata({ params }: NotePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const note = (notesData as Array<Omit<Note, 'body'>>).find((item) => item.slug === slug);
+
+  if (!note) {
+    return pageMetadata('Note not found', 'The requested note could not be found.', `/notes/${slug}`);
+  }
+
+  return {
+    ...pageMetadata(note.title, note.excerpt, `/notes/${slug}`),
+    openGraph: {
+      type: 'article',
+      url: absoluteUrl(`/notes/${slug}`),
+      title: note.title,
+      description: note.excerpt,
+      siteName: 'Andrew Ho',
+      publishedTime: note.date,
+      authors: ['Andrew Ho'],
+    },
+  };
 }
 
 export default async function NotePage({ params }: NotePageProps) {
@@ -260,6 +285,17 @@ export default async function NotePage({ params }: NotePageProps) {
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-gray-100">
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: note.title,
+          description: note.excerpt,
+          datePublished: note.date,
+          author: { '@type': 'Person', name: 'Andrew Ho', url: absoluteUrl('/about') },
+          mainEntityOfPage: absoluteUrl(`/notes/${slug}`),
+        }}
+      />
       <Navbar />
 
       <div className="flex justify-center align-center flex-col pt-32">

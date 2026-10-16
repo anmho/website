@@ -3,6 +3,13 @@ import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import ArticleList, { type ArticleListItem } from '@/components/ArticleList';
 import articlesData from '@/assets/static/json/articles.json';
+import { pageMetadata } from '@/lib/site';
+
+export const metadata = pageMetadata(
+  'Articles',
+  'Long-form writing by Andrew Ho about applied AI, systems, and backend engineering.',
+  '/articles'
+);
 
 export const revalidate = 3600;
 

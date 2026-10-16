@@ -5,6 +5,13 @@ import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
 import notesData from '@/assets/static/json/notes.json';
 import articlesData from '@/assets/static/json/articles.json';
+import { pageMetadata } from '@/lib/site';
+
+export const metadata = pageMetadata(
+  'Blog',
+  'Articles and notes by Andrew Ho about building scalable systems.',
+  '/blog'
+);
 
 interface Post {
   slug: string;

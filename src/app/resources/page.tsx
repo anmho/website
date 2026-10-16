@@ -3,6 +3,13 @@ import SectionContainer from '@/components/SectionContainer';
 import AnimatedTitle from '@/components/AnimatedTitle';
 import { FiExternalLink } from 'react-icons/fi';
 import resourcesData from '@/assets/static/json/resources.json';
+import { pageMetadata } from '@/lib/site';
+
+export const metadata = pageMetadata(
+  'Bookmarks',
+  'A curated library of articles, guides, and talks collected by Andrew Ho.',
+  '/resources'
+);
 
 export const revalidate = 3600;
 

@@ -173,7 +173,7 @@ function tenetDocuments(tenets: PublicTenet[]): KnowledgeDocument[] {
     id: tenet.id,
     title: tenet.title,
     type: 'tenet',
-    path: `/tenets/${tenet.id}`,
+    path: `/tenets#${tenet.id}`,
     text: [tenet.title, tenet.excerpt, tenet.source, tenet.body].filter(Boolean).join('\n'),
   }));
 }

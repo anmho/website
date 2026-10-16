@@ -7,6 +7,13 @@ import { formatDate } from '@/lib/utils';
 import readingsData from '@/assets/static/json/readings.json';
 import { readStaticMarkdown } from '@/lib/staticContent';
 import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
+import { pageMetadata } from '@/lib/site';
+
+export const metadata = pageMetadata(
+  'Readings',
+  'Books and other readings Andrew Ho is spending time with.',
+  '/readings'
+);
 
 export const revalidate = 3600;
 
