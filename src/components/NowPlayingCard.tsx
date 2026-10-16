@@ -5,7 +5,6 @@ import type { SpotifyNowPlaying } from '@/lib/spotify-types';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -28,6 +27,67 @@ const DEFAULT_STATE: SpotifyNowPlaying = {
 
 const NORMAL_REFRESH_INTERVAL_MS = 10000;
 const DEFAULT_RATE_LIMIT_RETRY_AFTER_SECONDS = 60;
+const LAST_NOW_PLAYING_STORAGE_KEY = 'spotify:last-now-playing';
+const NOW_PLAYING_STATES = new Set<SpotifyNowPlaying['state']>([
+  'playing',
+  'paused',
+  'idle',
+  'unauthorized',
+  'rate_limited',
+  'error',
+]);
+
+function readStoredNowPlaying(): SpotifyNowPlaying | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  try {
+    const value = JSON.parse(window.localStorage.getItem(LAST_NOW_PLAYING_STORAGE_KEY) ?? 'null') as
+      | Partial<SpotifyNowPlaying>
+      | null;
+
+    if (
+      !value ||
+      typeof value.title !== 'string' ||
+      !Array.isArray(value.artists) ||
+      typeof value.state !== 'string' ||
+      !NOW_PLAYING_STATES.has(value.state as SpotifyNowPlaying['state'])
+    ) {
+      return null;
+    }
+
+    return {
+      isPlaying: value.isPlaying === true,
+      type: typeof value.type === 'string' ? value.type : null,
+      title: value.title,
+      artists: value.artists.filter((artist): artist is string => typeof artist === 'string'),
+      album: typeof value.album === 'string' ? value.album : null,
+      albumArtUrl: typeof value.albumArtUrl === 'string' ? value.albumArtUrl : null,
+      songUrl: typeof value.songUrl === 'string' ? value.songUrl : null,
+      progressMs: typeof value.progressMs === 'number' ? value.progressMs : null,
+      durationMs: typeof value.durationMs === 'number' ? value.durationMs : null,
+      timestamp: typeof value.timestamp === 'number' ? value.timestamp : null,
+      state: value.state as SpotifyNowPlaying['state'],
+      retryAfterSeconds:
+        typeof value.retryAfterSeconds === 'number' ? value.retryAfterSeconds : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function storeNowPlaying(nowPlaying: SpotifyNowPlaying) {
+  if (typeof window === 'undefined' || !nowPlaying.title) {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(LAST_NOW_PLAYING_STORAGE_KEY, JSON.stringify(nowPlaying));
+  } catch {
+    // Browser storage can be unavailable or full. The server cache remains authoritative.
+  }
+}
 
 function getPlaybackLabel(nowPlaying: SpotifyNowPlaying | null) {
   switch (nowPlaying?.state) {
@@ -219,7 +279,7 @@ export default function NowPlayingCard({ className }: { className?: string }) {
   const nowPlayingRef = useRef<SpotifyNowPlaying | null>(null);
   const prefersReducedMotion = useReducedMotion();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     let isMounted = true;
     let liveRequestSucceeded = false;
     let cachedPlaybackApplied = false;
@@ -233,7 +293,14 @@ export default function NowPlayingCard({ className }: { className?: string }) {
 
       nowPlayingRef.current = nextState;
       setNowPlaying(nextState);
+      storeNowPlaying(nextState);
     };
+
+    const storedNowPlaying = readStoredNowPlaying();
+    if (storedNowPlaying) {
+      cachedPlaybackApplied = true;
+      applyNowPlaying(storedNowPlaying);
+    }
 
     const fetchCachedNowPlaying = async () => {
       try {
