@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState, type ClipboardEvent, type DragEvent, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useState, type DragEvent, type KeyboardEvent } from 'react';
 import SectionContainer from '@/components/SectionContainer';
 import Navbar from '@/components/Navbar';
 import {
@@ -22,6 +22,30 @@ const STATUS_LABELS: Record<WishlistStatus, string> = {
 
 function formatStatus(status: WishlistStatus) {
   return STATUS_LABELS[status];
+}
+
+function productUrlFromClipboard(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed || /\s/.test(trimmed)) return '';
+  const candidate = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    const url = new URL(candidate);
+    return ['http:', 'https:'].includes(url.protocol) && url.hostname ? url.toString() : '';
+  } catch {
+    return '';
+  }
+}
+
+function hasHighlightedText() {
+  const selection = window.getSelection();
+  if (selection?.toString()) return true;
+
+  const activeElement = document.activeElement;
+  if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
+    return activeElement.selectionStart !== activeElement.selectionEnd;
+  }
+
+  return false;
 }
 
 function readStoredItems() {
@@ -64,7 +88,7 @@ export default function WishlistView({ initialItems }: { initialItems: WishlistI
     setScrapeError('');
   };
 
-  const importProduct = async (requestedUrl = url) => {
+  const importProduct = useCallback(async (requestedUrl = url) => {
     const productUrl = requestedUrl.trim();
     if (!productUrl || isScraping) return;
 
@@ -92,15 +116,23 @@ export default function WishlistView({ initialItems }: { initialItems: WishlistI
     } finally {
       setIsScraping(false);
     }
-  };
+  }, [isScraping, editingId, url]);
 
-  const handleUrlPaste = (event: ClipboardEvent<HTMLInputElement>) => {
-    const pastedUrl = event.clipboardData.getData('text').trim();
-    if (!pastedUrl) return;
-    event.preventDefault();
-    setUrl(pastedUrl);
-    void importProduct(pastedUrl);
-  };
+  useEffect(() => {
+    const handleWindowPaste = (event: globalThis.ClipboardEvent) => {
+      if (hasHighlightedText()) return;
+      const clipboard = event.clipboardData;
+      if (!clipboard) return;
+      const pastedUrl = productUrlFromClipboard(clipboard.getData('text'));
+      if (!pastedUrl || isScraping) return;
+      event.preventDefault();
+      setUrl(pastedUrl);
+      void importProduct(pastedUrl);
+    };
+
+    window.addEventListener('paste', handleWindowPaste);
+    return () => window.removeEventListener('paste', handleWindowPaste);
+  }, [importProduct, isScraping]);
 
   const removeItem = (id: string) => {
     setItems((current) => current.filter((item) => item.id !== id));
@@ -182,7 +214,7 @@ export default function WishlistView({ initialItems }: { initialItems: WishlistI
           <form onSubmit={(event) => { event.preventDefault(); void importProduct(); }} className="mt-6 border-b border-gray-200 pb-5 dark:border-[#252525]" aria-label={editingId ? 'Refresh product' : 'Add product'} aria-busy={isScraping}>
             <div className="flex gap-3">
               <label htmlFor="wishlist-url" className="sr-only">Product URL</label>
-              <input id="wishlist-url" type="url" inputMode="url" autoFocus value={url} onChange={(event) => setUrl(event.target.value)} onPaste={handleUrlPaste} placeholder="Paste a product link" disabled={isScraping} required className="min-w-0 flex-1 border-b border-gray-300 bg-transparent px-0 py-3 text-sm outline-none transition-colors placeholder:text-gray-400 focus:border-amber-500 disabled:opacity-50 dark:border-[#353535] dark:text-white" />
+              <input id="wishlist-url" type="url" inputMode="url" autoFocus value={url} onChange={(event) => setUrl(event.target.value)} placeholder="Paste a product link" disabled={isScraping} required className="min-w-0 flex-1 border-b border-gray-300 bg-transparent px-0 py-3 text-sm outline-none transition-colors placeholder:text-gray-400 focus:border-amber-500 disabled:opacity-50 dark:border-[#353535] dark:text-white" />
               <button type="submit" disabled={isScraping} className="shrink-0 border-b border-gray-900 px-1 py-2 text-xs font-medium text-gray-900 transition-colors hover:border-amber-500 hover:text-amber-600 disabled:cursor-wait disabled:opacity-50 dark:border-white dark:text-white dark:hover:border-amber-400 dark:hover:text-amber-400">{isScraping ? 'Reading...' : editingId ? 'Refresh' : 'Add'}</button>
               {editingId ? <button type="button" onClick={cancelEdit} disabled={isScraping} className="shrink-0 border-b border-gray-300 px-1 py-2 text-xs text-gray-500 transition-colors hover:border-gray-500 hover:text-gray-900 disabled:opacity-50 dark:border-gray-700 dark:hover:border-gray-400 dark:hover:text-white">Cancel</button> : null}
             </div>
