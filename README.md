@@ -186,6 +186,16 @@ must proxy the production host for this assertion to be present. There is no
 password fallback: the private route fails closed unless Cloudflare Access is
 configured and the request carries a valid Access assertion.
 
+### Product Wishlist
+
+The private product wishlist is available at `/wishlist` after Cloudflare Access
+authentication. Paste a public product URL to import its page metadata, with no
+LLM call involved. The list supports status tracking, add/remove, drag-and-drop
+priority ordering, and keyboard reordering with Alt plus the arrow keys. Edits
+are saved in the current browser's local storage. The checked-in seed file is
+`src/assets/static/json/wishlist.json`; connect a durable data store before
+relying on the list across browsers or devices.
+
 The private route calls the [OpenAI Decisions API](https://developers.openai.com/api/docs/guides/decisions)
 and includes Tenets tagged `private` in its values lens. [ChatGPT subscriptions
 and API Platform billing are separate](https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform),
