@@ -61,6 +61,40 @@ const openapi = {
         },
       },
     },
+    '/api/perspective': {
+      get: {
+        operationId: 'describePersonalPerspectiveApi',
+        summary: 'Describe the personal perspective API',
+        responses: {
+          '200': { description: 'Perspective API metadata.' },
+        },
+      },
+      post: {
+        operationId: 'answerFromPersonalPerspective',
+        summary: 'Answer a question through Andrew Ho’s public values and writings',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { '$ref': '#/components/schemas/PerspectiveRequest' },
+            },
+          },
+        },
+        responses: {
+          '200': {
+            description: 'A first-person reflection grounded in public sources.',
+            content: {
+              'application/json': {
+                schema: { '$ref': '#/components/schemas/PerspectiveResponse' },
+              },
+            },
+          },
+          '400': { description: 'Invalid question or context.' },
+          '502': { description: 'Model provider failure.' },
+          '503': { description: 'Model provider is not configured.' },
+        },
+      },
+    },
     '/api/decisions': {
       get: {
         operationId: 'describePrivateDecisionsApi',
@@ -144,6 +178,48 @@ const openapi = {
               tensions: { type: 'array', items: { type: 'string' } },
               nextSteps: { type: 'array', items: { type: 'string' } },
               questions: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+      },
+      PerspectiveRequest: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['question'],
+        properties: {
+          question: { type: 'string', minLength: 3, maxLength: 4000 },
+          context: { type: 'string', maxLength: 4000 },
+        },
+      },
+      PerspectiveResponse: {
+        type: 'object',
+        required: ['question', 'model', 'answer', 'sources'],
+        properties: {
+          question: { type: 'string' },
+          model: { type: 'string' },
+          answer: {
+            type: 'object',
+            required: ['answer', 'stance', 'reasoning', 'tensions', 'nextSteps'],
+            properties: {
+              answer: { type: 'string' },
+              stance: { type: 'string', enum: ['direct', 'mixed', 'unclear'] },
+              reasoning: { type: 'string' },
+              tensions: { type: 'array', items: { type: 'string' } },
+              nextSteps: { type: 'array', items: { type: 'string' } },
+            },
+          },
+          sources: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['id', 'title', 'type', 'path', 'excerpt'],
+              properties: {
+                id: { type: 'string' },
+                title: { type: 'string' },
+                type: { type: 'string' },
+                path: { type: 'string' },
+                excerpt: { type: 'string' },
+              },
             },
           },
         },
