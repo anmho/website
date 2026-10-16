@@ -147,6 +147,16 @@ silently substituting invented context. Rotate expiring provider keys in Vault.
 Explicit `OPENAI_API_KEY` and `DECISIONS_EXAMPLE_JSON` environment values take
 precedence when present. Never expose any of these credentials to client code.
 
+The public Perspective API answers questions in a first-person approximation of Andrew's considered perspective. It retrieves relevant public Tenets, articles, notes, readings, learnings, projects, goals, and saved resources before calling the configured model:
+
+```bash
+curl -s http://localhost:3000/api/perspective \
+  -H 'Content-Type: application/json' \
+  -d '{"question":"Should I optimize for more money or a more interesting life?"}' | jq
+```
+
+Set `OPENAI_ASK_MODEL` to override the default model. Private Tenets and private personal context are excluded from this route.
+
 The optional server-only `DECISIONS_EXAMPLE_JSON` environment variable prefills
 the decision form after admin authentication. Its JSON shape is
 `{"decision":"Which option should I pursue?","options":[{"label":"Option A","messages":["Source-labeled fact"]},{"label":"Option B","messages":[]}]}`.
