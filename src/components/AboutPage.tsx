@@ -6,6 +6,7 @@ import { useRef } from 'react';
 import { useInView } from 'framer-motion';
 import { RxArrowTopRight } from 'react-icons/rx';
 import Link from 'next/link';
+import { experience } from '@/lib/experience';
 
 export default function AboutPage() {
   const githubUrl = 'https://github.com/anmho';
@@ -64,21 +65,12 @@ export default function AboutPage() {
                   Experience
                 </h2>
                 <div className="space-y-6 text-base sm:text-lg">
-                  {[
-                    ['Snap Inc.', 'Full Time', 'Software Engineer', 'Los Angeles, CA'],
-                    ['Amazon Web Services', 'Summer 2025', 'Software Engineer Intern', 'New York, NY'],
-                    ['Tesla', 'Fall 2024', 'Software Engineer Intern', 'Palo Alto, CA'],
-                    ['NASA', 'Spring 2024', 'MCA Researcher', 'Pasadena, CA'],
-                  ].map(([company, period, role, location]) => (
-                    <div key={company}>
-                      <div className="flex flex-row justify-between mb-1">
-                        <span className="text-gray-900 dark:text-white font-medium">{company}</span>
-                        <span className="text-gray-500 dark:text-gray-400">{period}</span>
-                      </div>
-                      <div className="flex flex-row justify-between text-gray-600 dark:text-gray-400">
-                        <span>{role}</span>
-                        <span>{location}</span>
-                      </div>
+                  {experience.map((item) => (
+                    <div key={item.company} className="grid gap-x-4 gap-y-1 sm:grid-cols-[minmax(0,1fr)_auto]">
+                      <span className="font-medium text-gray-900 dark:text-white">{item.company}</span>
+                      <span className="text-left text-gray-500 dark:text-gray-400 sm:text-right">{item.period}</span>
+                      <span className="text-gray-600 dark:text-gray-400">{item.role}</span>
+                       <span className="text-left text-gray-600 dark:text-gray-400 sm:text-right">{item.location}</span>
                     </div>
                   ))}
                 </div>
