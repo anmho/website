@@ -8,7 +8,7 @@ const canvasResources = [
   ['/api/decisions/{decisionId}/context/{contextId}', 'DecisionContext'],
   ['/api/decisions/{decisionId}/options/{optionId}/context/{contextId}', 'DecisionContext'],
 ] as const;
-const pathParameters = (path: string) => [...path.matchAll(/\{(\w+)\}/g)].map(match => ({ name: match[1], in: 'path', required: true, schema: { type: 'string' } }));
+const pathParameters = (path: string) => Array.from(path.matchAll(/\{(\w+)\}/g)).map(match => ({ name: match[1], in: 'path', required: true, schema: { type: 'string' } }));
 const canvasPaths = Object.fromEntries(canvasResources.map(([path, schema]) => [path, {
   parameters: pathParameters(path),
   ...Object.fromEntries(['get', 'put', 'delete'].map(method => [method, {
