@@ -16,6 +16,8 @@ export type WishlistItem = {
   createdAt: string;
 };
 
+export type WishlistItemDraft = Omit<WishlistItem, 'id' | 'createdAt'>;
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -42,7 +44,7 @@ export function parseWishlistItems(value: unknown): WishlistItem[] {
   });
 }
 
-export function createWishlistItem(input: Omit<WishlistItem, 'id' | 'createdAt'>): WishlistItem {
+export function createWishlistItem(input: WishlistItemDraft): WishlistItem {
   return {
     ...input,
     id: `product-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
