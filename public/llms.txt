@@ -1,23 +1,36 @@
 # Andrew Ho
 
-Personal site covering systems, software, readings, and principles for making decisions.
+Andrew Ho's personal site covering applied AI, systems, software, readings, and principles for making decisions.
+
+Canonical site: https://www.anmho.com
+
+## Machine-readable discovery
+
+- [Full public content](https://www.anmho.com/llms-full.txt): plain text export of the public site content.
+- [Sitemap](https://www.anmho.com/sitemap.xml): every public section, article, and note URL.
+- [Robots policy](https://www.anmho.com/robots.txt): public crawl policy.
 
 ## Start here
 
-- [Goals](/goals): reflect on a goal through the public Tenets and read the changelog of changing priorities.
-- [Tenets](/tenets): public principles and their sources.
-- [Articles](/articles): long-form technical writing.
-- [Notes](/notes): shorter technical notes.
+- [Home](https://www.anmho.com/): current introduction and links to the rest of the site.
+- [About](https://www.anmho.com/about): contact and profile links.
+- [Goals](https://www.anmho.com/goals): reflect on a goal through the public Tenets and read the changelog of changing priorities.
+- [Tenets](https://www.anmho.com/tenets): public principles and their sources.
+- [Articles](https://www.anmho.com/articles): long-form technical writing.
+- [Notes](https://www.anmho.com/notes): shorter technical notes.
+- [Learnings](https://www.anmho.com/learnings): searchable engineering questions, answers, and examples.
+- [Readings](https://www.anmho.com/readings): books and other readings.
+- [Watch](https://www.anmho.com/watch): talks and videos.
+- [Bookmarks](https://www.anmho.com/resources): curated external resources.
+- [Projects](https://www.anmho.com/projects): selected projects and technical work.
 
 ## Machine-readable interfaces
 
-- `GET /api/tenets`: list the public Tenets available to decision tools.
-- `GET /api/goals`: inspect the Goals API contract, public changelog, and age privacy behavior.
-- `POST /api/goals`: submit `{ "goal": "...", "context": "..." }` for a structured reflection.
-- `GET /api/perspective`: inspect the personal perspective endpoint.
-- `POST /api/perspective`: submit `{ "question": "...", "context": "..." }` for a first-person answer grounded in public Tenets, writings, readings, projects, and saved resources.
-- `/decisions`: admin-only decision studio using the complete Tenet set, including private entries.
-- `POST /api/decisions`: admin-only choice endpoint using the OpenAI Decisions API. Send `{ "decision": "...", "options": [{ "value": "...", "context": ["..."] }] }`; it requires the admin session cookie.
-- `GET /api/openapi`: retrieve the OpenAPI 3.1 description.
+- `GET https://www.anmho.com/api/tenets`: list the public Tenets available to decision tools.
+- `GET https://www.anmho.com/api/goals`: inspect the Goals API contract, public changelog, and age privacy behavior.
+- `POST https://www.anmho.com/api/goals`: submit `{ "goal": "...", "context": "..." }` for a structured reflection.
+- `GET https://www.anmho.com/api/perspective`: inspect the personal perspective endpoint.
+- `POST https://www.anmho.com/api/perspective`: submit `{ "question": "...", "context": "..." }` for a first-person answer grounded in public Tenets, writings, readings, projects, and saved resources.
+- `GET https://www.anmho.com/api/openapi`: retrieve the OpenAPI 3.1 description.
 
 Private Tenets are never included in the public APIs or public Goals and Perspective model prompts. The admin-only Decisions API includes them by design. These tools are reflection aids, not professional advice or autonomous decision-makers.

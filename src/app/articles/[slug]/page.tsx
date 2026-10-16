@@ -18,6 +18,9 @@ import {
   type ReactNode,
 } from 'react';
 import { formatDate } from '@/lib/utils';
+import type { Metadata } from 'next';
+import JsonLd from '@/components/JsonLd';
+import { absoluteUrl, pageMetadata } from '@/lib/site';
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -56,6 +59,28 @@ async function getArticle(slug: string): Promise<Article | null> {
 
 export async function generateStaticParams() {
   return (articlesData as Array<{ slug: string }>).map((article) => ({ slug: article.slug }));
+}
+
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const article = (articlesData as Array<Omit<Article, 'body'>>).find((item) => item.slug === slug);
+
+  if (!article) {
+    return pageMetadata('Article not found', 'The requested article could not be found.', `/articles/${slug}`);
+  }
+
+  return {
+    ...pageMetadata(article.title, article.excerpt, `/articles/${slug}`),
+    openGraph: {
+      type: 'article',
+      url: absoluteUrl(`/articles/${slug}`),
+      title: article.title,
+      description: article.excerpt,
+      siteName: 'Andrew Ho',
+      publishedTime: article.date,
+      authors: ['Andrew Ho'],
+    },
+  };
 }
 
 type MarkdownCodeProps = HTMLAttributes<HTMLElement> & {
@@ -400,6 +425,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   return (
     <main className="w-full overflow-hidden text-gray-900 dark:text-gray-100">
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: article.title,
+          description: article.excerpt,
+          datePublished: article.date,
+          author: { '@type': 'Person', name: 'Andrew Ho', url: absoluteUrl('/about') },
+          mainEntityOfPage: absoluteUrl(`/articles/${slug}`),
+        }}
+      />
       <Navbar />
 
       <div className="flex justify-center align-center flex-col pt-32">

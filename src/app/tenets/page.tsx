@@ -7,6 +7,13 @@ import AnimatedTitle from '@/components/AnimatedTitle';
 import { formatDate } from '@/lib/utils';
 import { markdownRemarkPlugins, markdownRehypePlugins } from '@/lib/markdown';
 import { getPublicTenets } from '@/lib/tenets';
+import { pageMetadata } from '@/lib/site';
+
+export const metadata = pageMetadata(
+  'Tenets',
+  'Public principles and sources that Andrew Ho returns to when making decisions.',
+  '/tenets'
+);
 
 export const revalidate = 3600;
 
