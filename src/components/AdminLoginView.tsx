@@ -11,7 +11,7 @@ export default function AdminLoginView({ mode }: { mode: AdminAuthMode }) {
           <div className="mx-auto max-w-xl">
             <p className="mb-5 text-[10px] font-mono uppercase tracking-[0.22em] text-amber-600 dark:text-amber-400">Private studio / admin</p>
             <h1 className="max-w-lg text-5xl leading-[0.98] tracking-[-0.06em] sm:text-7xl">Enter the values lab.</h1>
-            <p className="mt-8 max-w-lg text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:text-xl">The Decisions page uses the complete Tenet set, including entries marked private. It is only available to the site administrator.</p>
+            <p className="mt-8 max-w-lg text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:text-xl">The private studio includes Decisions and a product wishlist. It is only available to the site administrator.</p>
             {mode === 'cloudflare' ? (
               <div className="mt-12 border-y border-gray-200 py-8 sm:py-10 dark:border-[#252525]">
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Cloudflare Access is required</p>

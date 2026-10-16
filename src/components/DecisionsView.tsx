@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import Link from 'next/link';
 import SectionContainer from '@/components/SectionContainer';
 import Navbar from '@/components/Navbar';
 import type { DecisionExample } from '@/lib/decisionExample';
@@ -131,7 +132,7 @@ export default function DecisionsView({ tenets, initialExample }: { tenets: Deci
                 <h1 className="max-w-3xl text-5xl leading-[0.98] tracking-[-0.06em] sm:text-7xl">Think out loud, then choose.</h1>
                 <p className="mt-8 max-w-2xl text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:text-xl">Give the decision a question. Give each path its own conversation. The model compares the context you collected through the complete Tenet set.</p>
               </div>
-              <button type="button" onClick={logout} className="self-start rounded-sm border border-gray-200 px-4 py-2 text-xs text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-900 dark:border-[#252525] dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-white">Sign out</button>
+              <div className="flex flex-wrap items-center gap-3 self-start"><Link href="/wishlist" className="rounded-sm border border-gray-200 px-4 py-2 text-xs text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-900 dark:border-[#252525] dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-white">Product wishlist</Link><button type="button" onClick={logout} className="rounded-sm border border-gray-200 px-4 py-2 text-xs text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-900 dark:border-[#252525] dark:text-gray-400 dark:hover:border-gray-600 dark:hover:text-white">Sign out</button></div>
             </div>
 
             <form onSubmit={choose} className="mt-16 border-y border-gray-200 py-8 sm:py-10 dark:border-[#252525]">
