@@ -14,7 +14,6 @@ Canonical site: https://www.anmho.com
 
 - [Home](https://www.anmho.com/): current introduction and links to the rest of the site.
 - [About](https://www.anmho.com/about): contact and profile links.
-- [Goals](https://www.anmho.com/goals): reflect on a goal through the public Tenets and read the changelog of changing priorities.
 - [Tenets](https://www.anmho.com/tenets): public principles and their sources.
 - [Articles](https://www.anmho.com/articles): long-form technical writing.
 - [Notes](https://www.anmho.com/notes): shorter technical notes.
@@ -27,10 +26,8 @@ Canonical site: https://www.anmho.com
 ## Machine-readable interfaces
 
 - `GET https://www.anmho.com/api/tenets`: list the public Tenets available to decision tools.
-- `GET https://www.anmho.com/api/goals`: inspect the Goals API contract, public changelog, and age privacy behavior.
-- `POST https://www.anmho.com/api/goals`: submit `{ "goal": "...", "context": "..." }` for a structured reflection.
 - `GET https://www.anmho.com/api/perspective`: inspect the personal perspective endpoint.
 - `POST https://www.anmho.com/api/perspective`: submit `{ "question": "...", "context": "..." }` for a first-person answer grounded in public Tenets, writings, readings, projects, and saved resources.
 - `GET https://www.anmho.com/api/openapi`: retrieve the OpenAPI 3.1 description.
 
-Private Tenets are never included in the public APIs or public Goals and Perspective model prompts. The admin-only Decisions API includes them by design. These tools are reflection aids, not professional advice or autonomous decision-makers.
+Private decision tools are not included in this public interface. These tools are reflection aids, not professional advice or autonomous decision-makers.
