@@ -16,6 +16,8 @@ Use commas, colons, semicolons, parentheses, or separate sentences instead of em
 
 Keep tenets direct. Avoid self-referential commentary such as “I take this as a reminder,” repeated disclaimers, and explanations of what a tenet is not. Preserve distinct ideas, meaningful tradeoffs, and concise source attribution; do not force entries into a shared template or length.
 
+Use direct YouTube links for movie scenes, not ClipCafe. Prefer the user's supplied video when available.
+
 ## Email Templates
 
 Email templates use **React Email with Tailwind CSS** for consistency with the main site styling.
