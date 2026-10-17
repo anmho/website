@@ -94,7 +94,7 @@ function tenetContext(tenets: Awaited<ReturnType<typeof getPublicTenets>>): stri
 export async function GET() {
   return NextResponse.json({
     name: 'Personal perspective API',
-    description: 'Answer a question from Andrew Ho’s public values, goals, writings, readings, and saved resources.',
+    description: 'Answer a question from Andrew Ho’s public values, writings, readings, and saved resources.',
     endpoint: {
       method: 'POST',
       path: '/api/perspective',

@@ -1,7 +1,6 @@
 import 'server-only';
 
 import articlesData from '@/assets/static/json/articles.json';
-import goalsData from '@/assets/static/json/goals.json';
 import learningsData from '@/assets/static/json/learnings.json';
 import notesData from '@/assets/static/json/notes.json';
 import projectsData from '@/assets/static/json/projects.json';
@@ -21,8 +20,7 @@ export type KnowledgeType =
   | 'watch'
   | 'learning'
   | 'resource'
-  | 'project'
-  | 'goal';
+  | 'project';
 
 export type KnowledgeDocument = {
   id: string;
@@ -214,13 +212,6 @@ export async function getPersonalKnowledge(): Promise<KnowledgeDocument[]> {
     })
     .filter((document): document is KnowledgeDocument => Boolean(document));
 
-  const goals = (goalsData as unknown[])
-    .map((value) => {
-      const post = value as JsonRecord;
-      return jsonDocument(post, 'goal', '/goals', [asText(post.summary), asText(post.date)]);
-    })
-    .filter((document): document is KnowledgeDocument => Boolean(document));
-
   return [
     ...tenetDocuments(publicTenets),
     ...articles,
@@ -230,7 +221,6 @@ export async function getPersonalKnowledge(): Promise<KnowledgeDocument[]> {
     ...learnings,
     ...resources,
     ...projects,
-    ...goals,
   ];
 }
 

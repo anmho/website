@@ -1,18 +1,22 @@
+import { redirect } from 'next/navigation';
 import GoalsView, { type GoalTenet } from '@/components/GoalsView';
+import { getAdminAuthMode, isAdminPageAuthenticated } from '@/lib/adminAuth';
 import { getGoalChangelog } from '@/lib/goals';
-import { getPublicTenets } from '@/lib/tenets';
+import { getAllTenets } from '@/lib/tenets';
 import { pageMetadata } from '@/lib/site';
 
-export const metadata = pageMetadata(
-  'Goals',
-  'A public journal of changing goals and a reflection tool grounded in Andrew Ho’s Tenets.',
-  '/goals'
-);
+export const metadata = {
+  ...pageMetadata('Goals', 'Private goals journal and reflection studio.', '/goals'),
+  robots: { index: false, follow: false },
+};
 
-export const revalidate = 3600;
-
+export const dynamic = 'force-dynamic';
 export default async function GoalsPage() {
-  const [tenets, entries] = await Promise.all([getPublicTenets(), getGoalChangelog()]);
+  if (getAdminAuthMode() === 'unconfigured' || !(await isAdminPageAuthenticated())) {
+    redirect('/admin/login');
+  }
+
+  const [tenets, entries] = await Promise.all([getAllTenets(), getGoalChangelog()]);
   const summaries: GoalTenet[] = tenets.map(({ id, title, excerpt, source }) => ({
     id,
     title,

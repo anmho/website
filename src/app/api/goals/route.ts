@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { isAdminRequestAuthenticated } from '@/lib/adminAuth';
 import { getGoalChangelog } from '@/lib/goals';
-import { getPublicTenets, type PublicTenet } from '@/lib/tenets';
+import { getAllTenets, type PublicTenet } from '@/lib/tenets';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const model = process.env.OPENAI_GOALS_MODEL || 'gpt-6-luna';
 const openAiBaseUrl = (process.env.OPENAI_API_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '');
@@ -50,7 +52,7 @@ type GoalReflection = {
   questions: string[];
 };
 
-function publicTenetContext(tenets: PublicTenet[]) {
+function tenetContext(tenets: PublicTenet[]) {
   return tenets
     .map((tenet) => `### ${tenet.title}\n${tenet.body || tenet.excerpt}`)
     .join('\n\n');
@@ -90,17 +92,21 @@ function isGoalReflection(value: unknown): value is GoalReflection {
   );
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  if (!(await isAdminRequestAuthenticated(request))) {
+    return NextResponse.json({ error: 'Admin authentication required.' }, { status: 401 });
+  }
+
   const changelog = await getGoalChangelog();
 
   return NextResponse.json({
-    name: 'Goals decision API',
-    description: 'Evaluate a goal against Andrew Ho’s public Tenets.',
+    name: 'Private goals decision API',
+    description: 'Evaluate a goal against Andrew Ho’s complete Tenet set.',
     endpoints: {
       tenets: {
         method: 'GET',
         path: '/api/tenets',
-        description: 'Returns the public Tenets available to the decision model.',
+        description: 'Returns the Tenets available to the private decision model.',
       },
       reflect: {
         method: 'POST',
@@ -118,11 +124,15 @@ export async function GET() {
       field: 'changelog[].age',
       privacy: 'Age is derived server-side. The birthday is never returned.',
     },
-    privacy: 'Tenets tagged private are excluded before the model prompt is built. Goals are sent to the configured model provider with storage disabled when supported.',
+    privacy: 'This route requires Cloudflare Access. The complete Tenet set is sent to the configured model provider only when a reflection is requested, with storage disabled when supported.',
   });
 }
 
 export async function POST(request: Request) {
+  if (!(await isAdminRequestAuthenticated(request))) {
+    return NextResponse.json({ error: 'Admin authentication required.' }, { status: 401 });
+  }
+
   const body = await request.json().catch(() => null) as { goal?: unknown; context?: unknown } | null;
   const goal = typeof body?.goal === 'string' ? body.goal.trim() : '';
   const context = typeof body?.context === 'string' ? body.context.trim() : '';
@@ -149,10 +159,10 @@ export async function POST(request: Request) {
     );
   }
 
-  const tenets = await getPublicTenets();
+  const tenets = await getAllTenets();
   const prompt = [
-    'Public core Tenets:',
-    publicTenetContext(tenets),
+    'Complete core Tenets, including private Tenets:',
+    tenetContext(tenets),
     '',
     'User goal:',
     goal,
@@ -169,7 +179,7 @@ export async function POST(request: Request) {
       model,
       store: false,
       instructions:
-        'You are a careful decision coach. Use the public Tenets as a values lens, not as absolute rules. Do not make the decision for the user. Identify alignment, tensions, tradeoffs, and practical next steps. Be direct, specific, and humane. If the goal involves medical, legal, financial, or immediate safety risk, say that professional help may be appropriate. Return only the requested JSON object.',
+        'You are a careful private decision coach. Use the complete Tenet set as a values lens, not as absolute rules. Do not make the decision for the user. Identify alignment, tensions, tradeoffs, and practical next steps. Be direct, specific, and humane. If the goal involves medical, legal, financial, or immediate safety risk, say that professional help may be appropriate. Return only the requested JSON object.',
       input: prompt,
       text: {
         format: {

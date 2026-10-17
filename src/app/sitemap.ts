@@ -12,7 +12,6 @@ const sectionPages = [
   { path: '/notes', priority: 0.8 },
   { path: '/learnings', priority: 0.7 },
   { path: '/tenets', priority: 0.8 },
-  { path: '/goals', priority: 0.8 },
   { path: '/readings', priority: 0.6 },
   { path: '/watch', priority: 0.6 },
   { path: '/resources', priority: 0.6 },

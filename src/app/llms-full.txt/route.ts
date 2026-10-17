@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import articlesData from '@/assets/static/json/articles.json';
-import goalsData from '@/assets/static/json/goals.json';
 import learningsData from '@/assets/static/json/learnings.json';
 import notesData from '@/assets/static/json/notes.json';
 import projectsData from '@/assets/static/json/projects.json';
@@ -116,16 +115,6 @@ export async function GET() {
     });
   });
 
-  const goalBlocks = (goalsData as unknown[]).map((value) => {
-    const record = value as RecordValue;
-    return pageBlock({
-      title: text(record.title),
-      url: absoluteUrl('/goals'),
-      date: text(record.date),
-      summary: [text(record.summary), ...list(record.tags)].filter(Boolean).join(' | '),
-    });
-  });
-
   const content = [
     `# ${site.name}`,
     '',
@@ -142,7 +131,6 @@ export async function GET() {
     `- ${absoluteUrl('/notes')}`,
     `- ${absoluteUrl('/learnings')}`,
     `- ${absoluteUrl('/tenets')}`,
-    `- ${absoluteUrl('/goals')}`,
     `- ${absoluteUrl('/readings')}`,
     `- ${absoluteUrl('/watch')}`,
     `- ${absoluteUrl('/resources')}`,
@@ -172,13 +160,9 @@ export async function GET() {
     '## Projects',
     projectBlocks.join('\n\n'),
     '',
-    '## Goals journal',
-    goalBlocks.join('\n\n'),
-    '',
     '## Agent APIs',
     `- OpenAPI: ${absoluteUrl('/api/openapi')}`,
     `- Public Tenets: ${absoluteUrl('/api/tenets')}`,
-    `- Goals API description: ${absoluteUrl('/api/goals')}`,
     `- Perspective API description: ${absoluteUrl('/api/perspective')}`,
     '',
   ].join('\n');

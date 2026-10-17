@@ -51,7 +51,6 @@ const MOBILE_NAV_ITEMS: NavItem[] = [
   { href: '/notes', label: 'Notes' },
   { href: '/learnings', label: 'Learnings' },
   { href: '/tenets', label: 'Tenets' },
-  { href: '/goals', label: 'Goals' },
   { href: '/readings', label: 'Readings' },
   { href: '/watch', label: 'Watch' },
   { href: '/resources', label: 'Bookmarks' },
@@ -397,14 +396,6 @@ function Navbar() {
             aria-current={isPathActive(pathname, '/about') ? 'page' : undefined}
           >
             About
-          </Link>
-
-          <Link
-            href="/goals"
-            className={linkClassName(isPathActive(pathname, '/goals'))}
-            aria-current={isPathActive(pathname, '/goals') ? 'page' : undefined}
-          >
-            Goals
           </Link>
 
           <Search

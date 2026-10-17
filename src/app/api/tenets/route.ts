@@ -8,7 +8,7 @@ export async function GET() {
 
   return NextResponse.json({
     name: 'Andrew Ho public tenets',
-    description: 'Public principles used as a values lens by the Goals API.',
+    description: 'Public principles used as a values lens by public reflection tools.',
     tenets: tenets.map(({ tags: _tags, ...tenet }) => tenet),
   });
 }

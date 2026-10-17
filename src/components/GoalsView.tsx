@@ -106,13 +106,13 @@ export default function GoalsView({ tenets, entries }: { tenets: GoalTenet[]; en
             <div className="grid gap-16 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)] lg:items-end">
               <div>
                 <p className="mb-5 text-[10px] font-mono uppercase tracking-[0.22em] text-amber-600 dark:text-amber-400">
-                  Decision studio / public API
+                  Private goals studio
                 </p>
                 <h1 className="max-w-3xl text-5xl leading-[0.98] tracking-[-0.06em] sm:text-7xl">
                   Make the goal answer to the life.
                 </h1>
                 <p className="mt-8 max-w-xl text-base font-light leading-relaxed tracking-wide text-gray-600 dark:text-gray-400 sm:text-xl">
-                  Bring a decision here. The reflection uses the public Tenets as a values lens, then returns alignment, tension, and a next move.
+                  Bring a decision here. The reflection uses the complete Tenet set as a values lens, then returns alignment, tension, and a next move.
                 </p>
               </div>
               <div className="border-l border-gray-300 pl-6 text-sm leading-relaxed text-gray-600 dark:border-gray-800 dark:text-gray-400">
@@ -120,7 +120,7 @@ export default function GoalsView({ tenets, entries }: { tenets: GoalTenet[]; en
                   The boundary
                 </p>
                 <p className="mt-4">
-                  This is a thinking partner, not an oracle. It will not see private Tenets, and it should not replace professional advice for high-stakes decisions.
+                  This is a private thinking partner, not an oracle. It should not replace professional advice for high-stakes decisions.
                 </p>
               </div>
             </div>
