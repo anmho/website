@@ -6,7 +6,6 @@ import type { SpotifyNowPlaying } from '@/lib/spotify-types';
 
 const LAST_NOW_PLAYING_KEY = 'last-now-playing';
 export const SPOTIFY_NOW_PLAYING_CACHE_TAG = 'spotify-now-playing';
-const LAST_NOW_PLAYING_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 function getSpotifyPlaybackCache() {
   return getCache({
@@ -81,8 +80,8 @@ export async function writeLastNowPlaying(nowPlaying: SpotifyNowPlaying) {
       LAST_NOW_PLAYING_KEY,
       asRecentlyPlayed(nowPlaying),
       {
-        ttl: LAST_NOW_PLAYING_TTL_SECONDS,
-        tags: [SPOTIFY_NOW_PLAYING_CACHE_TAG],
+        // This is a last-known display snapshot. Keep it until a newer
+        // playback result overwrites it, independent of live-cache refreshes.
         name: 'Spotify last now-playing',
       }
     );
