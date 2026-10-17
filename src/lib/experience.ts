@@ -32,8 +32,8 @@ export const experience: Experience[] = [
   },
   {
     company: 'Snap Inc.',
-    period: 'Summer 2022',
-    role: 'Engineering Scholar',
+    period: 'Summer 2023',
+    role: 'Software Engineer Intern',
     location: 'Los Angeles, CA',
   },
 ];
