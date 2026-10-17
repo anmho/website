@@ -5,7 +5,6 @@ import { getCache } from '@vercel/functions';
 import type { SpotifyNowPlaying } from '@/lib/spotify-types';
 
 const LAST_NOW_PLAYING_KEY = 'last-now-playing';
-export const SPOTIFY_NOW_PLAYING_CACHE_TAG = 'spotify-now-playing';
 
 function getSpotifyPlaybackCache() {
   return getCache({

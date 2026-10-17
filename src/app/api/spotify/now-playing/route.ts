@@ -1,30 +1,13 @@
-import {
-  getCachedNowPlaying,
-  SPOTIFY_NOW_PLAYING_CACHE_SECONDS,
-  SPOTIFY_NOW_PLAYING_STALE_IF_ERROR_SECONDS,
-  SPOTIFY_NOW_PLAYING_STALE_SECONDS,
-} from '@/lib/spotify';
-import {
-  readLastNowPlaying,
-  SPOTIFY_NOW_PLAYING_CACHE_TAG,
-} from '@/lib/spotify-playback-cache';
+import { getNowPlaying } from '@/lib/spotify';
+import { readLastNowPlaying } from '@/lib/spotify-playback-cache';
 import { EMPTY_SPOTIFY_NOW_PLAYING } from '@/lib/spotify-types';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 10;
 export const runtime = 'nodejs';
-
-const VERCEL_CDN_CACHE_CONTROL = [
-  `s-maxage=${SPOTIFY_NOW_PLAYING_CACHE_SECONDS}`,
-  `stale-while-revalidate=${SPOTIFY_NOW_PLAYING_STALE_SECONDS}`,
-  `stale-if-error=${SPOTIFY_NOW_PLAYING_STALE_IF_ERROR_SECONDS}`,
-].join(', ');
 
 const SPOTIFY_NOW_PLAYING_HEADERS = {
   'Cache-Control': 'no-store',
-  'Vercel-CDN-Cache-Control': VERCEL_CDN_CACHE_CONTROL,
-  'Vercel-Cache-Tag': SPOTIFY_NOW_PLAYING_CACHE_TAG,
 };
 
 export async function GET(request: NextRequest) {
@@ -46,7 +29,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const nowPlaying = await getCachedNowPlaying();
+    const nowPlaying = await getNowPlaying();
     console.info('[spotify-now-playing]', {
       event: 'request_succeeded',
       durationMs: Date.now() - startedAt,
@@ -75,8 +58,6 @@ export async function GET(request: NextRequest) {
         status: 500,
         headers: {
           'Cache-Control': 'no-store',
-          'Vercel-CDN-Cache-Control': `stale-if-error=${SPOTIFY_NOW_PLAYING_STALE_IF_ERROR_SECONDS}`,
-          'Vercel-Cache-Tag': SPOTIFY_NOW_PLAYING_CACHE_TAG,
         },
       }
     );
