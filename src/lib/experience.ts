@@ -25,9 +25,15 @@ export const experience: Experience[] = [
     location: 'Palo Alto, CA',
   },
   {
-    company: 'NASA',
-    period: 'Spring 2024',
-    role: 'MCA Researcher',
-    location: 'Pasadena, CA',
+    company: 'Snap Inc.',
+    period: 'Summer 2024',
+    role: 'Software Engineer Intern',
+    location: 'Los Angeles, CA',
+  },
+  {
+    company: 'Snap Inc.',
+    period: 'Summer 2022',
+    role: 'Engineering Scholar',
+    location: 'Los Angeles, CA',
   },
 ];
