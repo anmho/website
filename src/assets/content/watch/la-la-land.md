@@ -1,1 +1,1 @@
-[Choose deliberately. Commit without dwelling.](/tenets#choose-deliberately-commit-without-dwelling).
+Missing another possible life does not automatically make this one a mistake.
