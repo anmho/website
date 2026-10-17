@@ -1,5 +1,13 @@
 [
   {
+    "id": "the-republic",
+    "title": "The Republic",
+    "date": "2026-10-17",
+    "excerpt": "Plato's account of justice, education, and the turn from appearances toward understanding.",
+    "author": "Plato",
+    "coverUrl": "https://covers.openlibrary.org/b/olid/OL10097386M-L.jpg"
+  },
+  {
     "id": "die-with-zero",
     "title": "Die With Zero",
     "date": "2026-10-15",
