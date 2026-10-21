@@ -41,6 +41,8 @@ const starterGoals = [
   'Is this a hard problem worth committing to for the long term?',
 ];
 
+const notionGoalsUrl = 'https://app.notion.com/p/Goals-40074d166b9f80c1861fc5d04c821b1b';
+
 export default function GoalsView({ tenets, entries }: { tenets: GoalTenet[]; entries: GoalJournalEntry[] }) {
   const [goal, setGoal] = useState('');
   const [context, setContext] = useState('');
@@ -126,6 +128,21 @@ export default function GoalsView({ tenets, entries }: { tenets: GoalTenet[]; en
             </div>
 
             <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
+              <a
+                href={notionGoalsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="group col-span-full flex flex-col justify-between gap-6 rounded-[2rem] border border-amber-200/80 bg-amber-50/70 p-6 transition-colors hover:border-amber-400 sm:flex-row sm:items-center sm:p-8 dark:border-amber-900/50 dark:bg-amber-950/20"
+              >
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">Current checklist</p>
+                  <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-700 dark:text-gray-300">
+                    The live goals hierarchy, leaf checklists, and personal context live in the private Notion page.
+                  </p>
+                </div>
+                <span className="shrink-0 text-sm font-medium text-gray-900 transition-transform group-hover:translate-x-1 dark:text-white">Open goals in Notion ↗</span>
+              </a>
+
               <form onSubmit={reflect} className="rounded-[2rem] border border-gray-200 bg-white/70 p-5 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8 dark:border-gray-800 dark:bg-gray-950/70 dark:shadow-black/20">
                 <div className="flex items-center justify-between gap-4">
                   <label htmlFor="goal" className="text-sm font-medium text-gray-900 dark:text-gray-100">
