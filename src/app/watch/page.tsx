@@ -23,7 +23,6 @@ export default async function WatchPage() {
     date: string;
     excerpt: string;
     format?: string;
-    posterUrl?: string;
   }>).map(async (record) => ({
     ...record,
     body: await readStaticMarkdown('watch', record.id),
@@ -49,27 +48,18 @@ export default async function WatchPage() {
                       <div className="min-w-[140px] pt-1 text-sm font-mono text-gray-500 dark:text-gray-500">
                         <time dateTime={record.date}>{formatDate(record.date)}</time>
                       </div>
-                      <div className={`min-w-0 flex-1 ${record.posterUrl ? 'sm:grid sm:grid-cols-[120px_minmax(0,1fr)] sm:gap-8' : ''}`}>
-                        {record.posterUrl ? (
-                          <div className="w-24 shrink-0 sm:w-full">
-                            <div className="relative aspect-[2/3] overflow-hidden rounded-sm border border-gray-300 bg-gray-100 dark:border-gray-700 dark:bg-gray-900">
-                              <img src={record.posterUrl} alt={`Poster for ${record.title}`} className="h-full w-full object-cover" loading="eager" />
-                            </div>
-                          </div>
-                        ) : null}
-                        <div className="min-w-0">
-                          <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-gray-400 dark:text-gray-600">
-                            {record.format || 'Video'}
-                          </p>
-                          <h2 className="mb-2 text-xl font-medium tracking-tight text-gray-900 transition-colors group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-300 sm:text-2xl">
-                            {record.title}
-                          </h2>
-                          <p className="mb-4 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
-                            {record.excerpt}
-                          </p>
-                          <div className="prose prose-sm max-w-2xl dark:prose-invert">
-                            <ReactMarkdown remarkPlugins={markdownRemarkPlugins} rehypePlugins={markdownRehypePlugins}>{record.body}</ReactMarkdown>
-                          </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-gray-400 dark:text-gray-600">
+                          {record.format || 'Video'}
+                        </p>
+                        <h2 className="mb-2 text-xl font-medium tracking-tight text-gray-900 transition-colors group-hover:text-gray-600 dark:text-gray-100 dark:group-hover:text-gray-300 sm:text-2xl">
+                          {record.title}
+                        </h2>
+                        <p className="mb-4 max-w-2xl text-sm leading-relaxed text-gray-600 dark:text-gray-400 sm:text-base">
+                          {record.excerpt}
+                        </p>
+                        <div className="prose prose-sm max-w-2xl dark:prose-invert">
+                          <ReactMarkdown remarkPlugins={markdownRemarkPlugins} rehypePlugins={markdownRehypePlugins}>{record.body}</ReactMarkdown>
                         </div>
                       </div>
                     </div>
