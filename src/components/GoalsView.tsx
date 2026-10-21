@@ -42,6 +42,23 @@ const starterGoals = [
 ];
 
 const notionGoalsUrl = 'https://app.notion.com/p/Goals-40074d166b9f80c1861fc5d04c821b1b';
+const notionGoalPages = [
+  {
+    title: 'Apartment tracker',
+    description: 'Oakland with Ibrahim + the SF four-bedroom search',
+    href: 'https://app.notion.com/p/Apartment-tracker-40074d166b9f8022953de3c6d8af2eeb',
+  },
+  {
+    title: 'Tikka T3x',
+    description: 'Rifle, Vortex scope, California checklist, shops, and budget',
+    href: 'https://app.notion.com/p/Tikka-T3x-40074d166b9f80678e9fc19f915cd3ea',
+  },
+  {
+    title: 'Goal costs',
+    description: 'Central table for one-time costs, recurring costs, and savings targets',
+    href: 'https://app.notion.com/p/Goal-costs-40074d166b9f80e48a3ffc19e0582793',
+  },
+];
 
 export default function GoalsView({ tenets, entries }: { tenets: GoalTenet[]; entries: GoalJournalEntry[] }) {
   const [goal, setGoal] = useState('');
@@ -128,20 +145,36 @@ export default function GoalsView({ tenets, entries }: { tenets: GoalTenet[]; en
             </div>
 
             <div className="mt-16 grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
-              <a
-                href={notionGoalsUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="group col-span-full flex flex-col justify-between gap-6 rounded-[2rem] border border-amber-200/80 bg-amber-50/70 p-6 transition-colors hover:border-amber-400 sm:flex-row sm:items-center sm:p-8 dark:border-amber-900/50 dark:bg-amber-950/20"
-              >
-                <div>
-                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">Current checklist</p>
-                  <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-700 dark:text-gray-300">
-                    The live goals hierarchy, leaf checklists, and personal context live in the private Notion page.
-                  </p>
+              <div className="col-span-full grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)]">
+                <a
+                  href={notionGoalsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex flex-col justify-between gap-6 rounded-[2rem] border border-amber-200/80 bg-amber-50/70 p-6 transition-colors hover:border-amber-400 sm:p-8 dark:border-amber-900/50 dark:bg-amber-950/20"
+                >
+                  <div>
+                    <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-700 dark:text-amber-400">Current checklist</p>
+                    <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-700 dark:text-gray-300">
+                      The live goals hierarchy and leaf checklists live in the private Notion hub.
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-sm font-medium text-gray-900 transition-transform group-hover:translate-x-1 dark:text-white">Open goals in Notion ↗</span>
+                </a>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {notionGoalPages.map((page) => (
+                    <a
+                      key={page.href}
+                      href={page.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group rounded-[1.5rem] border border-gray-200 bg-white/60 p-5 transition-colors hover:border-amber-300 dark:border-gray-800 dark:bg-gray-950/60 dark:hover:border-amber-900"
+                    >
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{page.title} ↗</p>
+                      <p className="mt-3 text-xs leading-relaxed text-gray-500 dark:text-gray-500">{page.description}</p>
+                    </a>
+                  ))}
                 </div>
-                <span className="shrink-0 text-sm font-medium text-gray-900 transition-transform group-hover:translate-x-1 dark:text-white">Open goals in Notion ↗</span>
-              </a>
+              </div>
 
               <form onSubmit={reflect} className="rounded-[2rem] border border-gray-200 bg-white/70 p-5 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur sm:p-8 dark:border-gray-800 dark:bg-gray-950/70 dark:shadow-black/20">
                 <div className="flex items-center justify-between gap-4">
